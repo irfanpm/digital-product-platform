@@ -11,13 +11,14 @@ export default function AdminPage() {
   const [dateRange, setDateRange] = useState<string>('all');
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [stats, setStats] = useState({
-    totalRevenue: 148650,
-    totalOrders: 438,
-    bumpOrdersCount: 316,
-    bumpRevenue: 31284,
-    bumpTakeRate: 72,
-    averageOrderValue: 339,
+    totalRevenue: 0,
+    totalOrders: 0,
+    bumpOrdersCount: 0,
+    bumpRevenue: 0,
+    bumpTakeRate: 0,
+    averageOrderValue: 0,
   });
+  const [dailyChartData, setDailyChartData] = useState<any[]>([]);
   const [buyers, setBuyers] = useState<Buyer[]>([]);
 
   const fetchAdminData = async () => {
@@ -27,10 +28,11 @@ export default function AdminPage() {
       const data = await res.json();
       if (data.success) {
         setStats(data.stats);
-        setBuyers(data.buyers);
+        setDailyChartData(data.dailyChartData || []);
+        setBuyers(data.buyers || []);
       }
     } catch (err) {
-      console.error('Error fetching admin data:', err);
+      console.error('Error fetching real admin data:', err);
     } finally {
       setIsLoading(false);
     }
@@ -41,7 +43,10 @@ export default function AdminPage() {
   }, []);
 
   const handleExportCSV = () => {
-    if (buyers.length === 0) return;
+    if (buyers.length === 0) {
+      alert('No buyer records in MongoDB to export.');
+      return;
+    }
 
     const headers = ['Order ID', 'Payment ID', 'Name', 'Email', 'Phone', 'Date', 'Amount (INR)', 'Order Bump', 'Status', 'Package'];
     const csvRows = [
@@ -66,7 +71,7 @@ export default function AdminPage() {
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
-    link.setAttribute('download', `ai_job_kit_buyers_${Date.now()}.csv`);
+    link.setAttribute('download', `real_buyers_mongodb_${Date.now()}.csv`);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -89,8 +94,8 @@ export default function AdminPage() {
         {/* KPI Revenue Stats Cards */}
         <RevenueStats stats={stats} />
 
-        {/* Sales Trend Chart */}
-        <SalesChart />
+        {/* Real Sales Trend Chart */}
+        <SalesChart dailyData={dailyChartData} totalOrders={stats.totalOrders} />
 
         {/* Customer Buyers Table */}
         <BuyersTable buyers={buyers} />
