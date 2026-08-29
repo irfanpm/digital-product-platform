@@ -56,7 +56,7 @@ export const CheckoutSection: React.FC = () => {
         const res = await fetch('/api/admin/settings');
         const data = await res.json();
         if (data.success && data.setting) {
-          const isEnabled = data.setting.enableOrderBump === true;
+          const isEnabled = data.setting.enableOrderBump !== false;
           setEnableOrderBump(isEnabled);
           if (!isEnabled) {
             setHasOrderBump(false);
