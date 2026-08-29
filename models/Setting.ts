@@ -44,10 +44,15 @@ const SettingSchema: Schema = new Schema<ISetting>(
   },
   {
     timestamps: true,
+    strict: false, // Ensure new schema fields are never stripped by Mongoose
   }
 );
 
-const Setting: Model<ISetting> =
-  mongoose.models.Setting || mongoose.model<ISetting>('Setting', SettingSchema);
+// Clear model cache in Next.js to force schema reload
+if (mongoose.models && mongoose.models.Setting) {
+  delete (mongoose.models as any).Setting;
+}
+
+const Setting: Model<ISetting> = mongoose.model<ISetting>('Setting', SettingSchema);
 
 export default Setting;

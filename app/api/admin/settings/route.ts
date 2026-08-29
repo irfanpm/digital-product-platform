@@ -6,7 +6,7 @@ export async function GET() {
   try {
     const conn = await dbConnect();
 
-    let setting = null;
+    let setting: any = null;
     if (conn) {
       setting = await Setting.findOne({}).lean();
     }
@@ -21,10 +21,6 @@ export async function GET() {
         metaPixelId: process.env.NEXT_PUBLIC_META_PIXEL_ID || '123456789012345',
         enableOrderBump: true,
       };
-    } else {
-      if (typeof setting.enableOrderBump !== 'boolean') {
-        setting.enableOrderBump = true;
-      }
     }
 
     return NextResponse.json({
@@ -54,7 +50,9 @@ export async function POST(req: Request) {
       enableOrderBump,
     } = body;
 
-    const updateFields: any = {};
+    const updateFields: any = {
+      updatedAt: new Date(),
+    };
 
     if (productDriveUrl !== undefined) updateFields.productDriveUrl = productDriveUrl;
     if (orderBumpDriveUrl !== undefined) updateFields.orderBumpDriveUrl = orderBumpDriveUrl;
@@ -64,21 +62,22 @@ export async function POST(req: Request) {
     if (metaPixelId !== undefined) updateFields.metaPixelId = metaPixelId;
     if (enableOrderBump !== undefined) updateFields.enableOrderBump = Boolean(enableOrderBump);
 
-    let updatedSetting = null;
+    let updatedSetting: any = null;
 
     if (conn) {
+      // Direct Mongoose findOneAndUpdate with upsert
       updatedSetting = await Setting.findOneAndUpdate(
         {},
         { $set: updateFields },
-        { upsert: true, new: true }
-      );
+        { upsert: true, new: true, setDefaultsOnInsert: true }
+      ).lean();
     } else {
       updatedSetting = updateFields;
     }
 
     return NextResponse.json({
       success: true,
-      message: `Product Settings updated successfully! Order Bump status: ${updateFields.enableOrderBump ? 'ON' : 'OFF'}`,
+      message: `Product Settings updated successfully! Order Bump: ${updateFields.enableOrderBump ? 'ON' : 'OFF'}`,
       setting: updatedSetting,
     });
   } catch (error: any) {
