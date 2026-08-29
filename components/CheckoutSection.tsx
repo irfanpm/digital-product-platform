@@ -6,7 +6,6 @@ import {
   Zap, 
   Lock, 
   CheckCircle2, 
-  Sparkles, 
   FileText, 
   Mail, 
   User, 
@@ -14,8 +13,7 @@ import {
   AlertCircle,
   Clock,
   Download,
-  Check,
-  ExternalLink
+  Check
 } from 'lucide-react';
 import { trackMetaEvent, trackMetaPurchase } from '@/lib/metaPixel';
 
@@ -26,10 +24,7 @@ declare global {
 }
 
 export const CheckoutSection: React.FC = () => {
-  const [hasOrderBump, setHasOrderBump] = useState<boolean>(false);
-  const [enableOrderBump, setEnableOrderBump] = useState<boolean>(true);
   const [productDriveUrl, setProductDriveUrl] = useState<string>('https://drive.google.com/file/d/1_Sample_AI_Job_Application_Kit_38Page/view');
-  const [orderBumpDriveUrl, setOrderBumpDriveUrl] = useState<string>('https://notion.so/Sample_10_Word_Templates_And_Job_Tracker_Dashboard');
   const [fullName, setFullName] = useState<string>('');
   const [email, setEmail] = useState<string>('');
   const [phone, setPhone] = useState<string>('');
@@ -43,33 +38,21 @@ export const CheckoutSection: React.FC = () => {
     amount: number;
     name: string;
     email: string;
-    hasOrderBump: boolean;
     productDriveUrl?: string;
-    orderBumpDriveUrl?: string;
   } | null>(null);
 
   const basePrice = 1; // Test price ₹1 (set to 299 for production)
-  const bumpPrice = 1;
-  const isBumpActive = enableOrderBump && hasOrderBump;
-  const totalPrice = isBumpActive ? basePrice + bumpPrice : basePrice;
+  const totalPrice = basePrice;
 
-  // Fetch Admin Setting for Order Bump Enablement and Google Drive URLs
+  // Fetch Admin Setting for Google Drive URL
   useEffect(() => {
     const fetchSettings = async () => {
       try {
         const res = await fetch('/api/admin/settings');
         const data = await res.json();
         if (data.success && data.setting) {
-          const isEnabled = data.setting.enableOrderBump !== false;
-          setEnableOrderBump(isEnabled);
-          if (!isEnabled) {
-            setHasOrderBump(false);
-          }
           if (data.setting.productDriveUrl) {
             setProductDriveUrl(data.setting.productDriveUrl);
-          }
-          if (data.setting.orderBumpDriveUrl) {
-            setOrderBumpDriveUrl(data.setting.orderBumpDriveUrl);
           }
         }
       } catch (err) {
@@ -99,8 +82,8 @@ export const CheckoutSection: React.FC = () => {
     trackMetaEvent('InitiateCheckout', {
       value: totalPrice,
       currency: 'INR',
-      content_name: isBumpActive ? '38-Page Kit + Word/Notion Bump' : 'The AI Job Application Kit',
-      num_items: isBumpActive ? 2 : 1,
+      content_name: 'The AI Job Application Kit',
+      num_items: 1,
     });
 
     try {
@@ -115,7 +98,7 @@ export const CheckoutSection: React.FC = () => {
             fullName,
             email,
             phone,
-            hasOrderBump: isBumpActive ? 'Yes' : 'No'
+            hasOrderBump: 'No'
           }
         }),
       });
@@ -134,9 +117,7 @@ export const CheckoutSection: React.FC = () => {
         amount: data.order.amount,
         currency: data.order.currency,
         name: 'Career Operating System',
-        description: isBumpActive
-          ? '38-Page AI Kit + 10 Editable Word & Notion Templates' 
-          : 'The AI Job Application Kit (38-Page COS)',
+        description: 'The AI Job Application Kit (38-Page COS)',
         prefill: {
           name: fullName,
           email: email,
@@ -149,11 +130,10 @@ export const CheckoutSection: React.FC = () => {
           const paymentId = response.razorpay_payment_id || `pay_${Date.now()}`;
 
           // Track Meta Pixel Purchase Event
-          trackMetaPurchase(totalPrice, paymentId, isBumpActive);
+          trackMetaPurchase(totalPrice, paymentId, false);
 
           // Send immediate backend confirmation to guarantee database update (status: Captured)
           let liveProductUrl = productDriveUrl;
-          let liveBumpUrl = orderBumpDriveUrl;
 
           try {
             const confirmRes = await fetch('/api/confirm-payment', {
@@ -167,12 +147,11 @@ export const CheckoutSection: React.FC = () => {
                 email: email,
                 phone: phone,
                 amount: totalPrice,
-                hasOrderBump: isBumpActive,
+                hasOrderBump: false,
               }),
             });
             const confirmData = await confirmRes.json();
             if (confirmData.downloadUrl) liveProductUrl = confirmData.downloadUrl;
-            if (confirmData.orderBumpUrl) liveBumpUrl = confirmData.orderBumpUrl;
           } catch (confirmErr) {
             console.warn('Confirm payment background fetch error:', confirmErr);
           }
@@ -184,9 +163,7 @@ export const CheckoutSection: React.FC = () => {
             amount: totalPrice,
             name: fullName,
             email: email,
-            hasOrderBump: isBumpActive,
             productDriveUrl: liveProductUrl,
-            orderBumpDriveUrl: liveBumpUrl,
           });
         },
       };
@@ -214,7 +191,7 @@ export const CheckoutSection: React.FC = () => {
               email: email,
               phone: phone,
               amount: totalPrice,
-              hasOrderBump: isBumpActive,
+              hasOrderBump: false,
             }),
           });
 
@@ -224,16 +201,14 @@ export const CheckoutSection: React.FC = () => {
         rzp.open();
       } else {
         // Fallback simulation for local preview without SDK
-        trackMetaPurchase(totalPrice, `pay_sim_${Date.now()}`, isBumpActive);
+        trackMetaPurchase(totalPrice, `pay_sim_${Date.now()}`, false);
         setConfirmedOrder({
           paymentId: `pay_sim_${Date.now()}`,
           orderId: createdOrderId,
           amount: totalPrice,
           name: fullName,
           email: email,
-          hasOrderBump: isBumpActive,
           productDriveUrl: productDriveUrl,
-          orderBumpDriveUrl: orderBumpDriveUrl,
         });
       }
     } catch (err: any) {
@@ -248,7 +223,7 @@ export const CheckoutSection: React.FC = () => {
     <section id="checkout-section" className="py-16 md:py-24 bg-slate-50 border-t border-slate-200 relative">
       <div className="max-w-4xl mx-auto px-4 sm:px-6">
         
-        {/* IF PAYMENT IS CONFIRMED -> SHOW CONFIRMATION & DIRECT GOOGLE DRIVE DOWNLOAD BUTTONS */}
+        {/* IF PAYMENT IS CONFIRMED -> SHOW CONFIRMATION & DIRECT GOOGLE DRIVE DOWNLOAD BUTTON */}
         {confirmedOrder ? (
           <div className="clean-card rounded-3xl p-8 sm:p-12 border-2 border-emerald-500 bg-white shadow-2xl text-center space-y-8 animate-in fade-in duration-500">
             
@@ -292,7 +267,7 @@ export const CheckoutSection: React.FC = () => {
               </div>
             </div>
 
-            {/* REAL DIRECT GOOGLE DRIVE DOWNLOAD BUTTONS */}
+            {/* REAL DIRECT GOOGLE DRIVE DOWNLOAD BUTTON */}
             <div className="space-y-3 max-w-md mx-auto">
               <a
                 href={confirmedOrder.productDriveUrl || productDriveUrl}
@@ -303,23 +278,11 @@ export const CheckoutSection: React.FC = () => {
                 <Download className="w-5 h-5" />
                 <span>Open & Download 38-Page PDF (Google Drive)</span>
               </a>
-
-              {confirmedOrder.hasOrderBump && (
-                <a
-                  href={confirmedOrder.orderBumpDriveUrl || orderBumpDriveUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="w-full bg-slate-900 hover:bg-slate-800 text-white font-bold text-sm py-3.5 px-6 rounded-xl transition-all flex items-center justify-center gap-2 cursor-pointer border border-slate-700"
-                >
-                  <ExternalLink className="w-4 h-4 text-emerald-400" />
-                  <span>Access Word & Notion Dashboard Templates</span>
-                </a>
-              )}
             </div>
 
           </div>
         ) : (
-          /* STANDARD CHECKOUT FORM */
+          /* STANDARD CLEAN CHECKOUT FORM */
           <>
             <div className="text-center max-w-2xl mx-auto mb-10">
               <div className="inline-flex items-center gap-1.5 bg-emerald-100 border border-emerald-300 text-emerald-900 px-3.5 py-1 rounded-full text-xs font-bold uppercase tracking-wider mb-3">
@@ -372,36 +335,7 @@ export const CheckoutSection: React.FC = () => {
                   </div>
                 </div>
 
-                {/* 2. HIGH-CONVERTING 1-CLICK ORDER BUMP */}
-                {enableOrderBump && (
-                  <div className="bg-emerald-50/60 border-2 border-emerald-500 rounded-2xl p-5 shadow-sm relative pulse-border-emerald animate-in fade-in duration-200">
-                    <div className="flex items-start gap-3">
-                      <input
-                        type="checkbox"
-                        id="orderBump"
-                        checked={hasOrderBump}
-                        onChange={(e) => setHasOrderBump(e.target.checked)}
-                        className="mt-1 w-5 h-5 accent-emerald-600 rounded cursor-pointer shrink-0"
-                      />
-                      <label htmlFor="orderBump" className="cursor-pointer space-y-1.5 flex-1">
-                        <div className="flex items-center justify-between flex-wrap gap-2">
-                          <span className="text-emerald-950 font-extrabold text-sm sm:text-base flex items-center gap-1.5">
-                            <Sparkles className="w-4 h-4 text-amber-600 fill-amber-500" />
-                            [+ ₹{bumpPrice}] Add 10 Editable Microsoft Word (.docx) & Notion Dashboard Templates
-                          </span>
-                          <span className="text-xs font-bold text-amber-900 bg-amber-200 px-2 py-0.5 rounded-full border border-amber-300">
-                            78% OF BUYERS ADD THIS
-                          </span>
-                        </div>
-                        <p className="text-slate-700 text-xs leading-relaxed">
-                          Instantly edit and customize your resume in Microsoft Word (.docx) or manage your job applications in a premium pre-built Notion application tracker.
-                        </p>
-                      </label>
-                    </div>
-                  </div>
-                )}
-
-                {/* 3. Minimal Customer Form */}
+                {/* 2. Minimal Customer Form */}
                 <div className="space-y-4">
                   <h4 className="text-xs font-extrabold text-slate-500 uppercase tracking-wider flex items-center gap-2">
                     <User className="w-4 h-4 text-emerald-600" /> Customer Delivery Details
@@ -469,7 +403,7 @@ export const CheckoutSection: React.FC = () => {
                   </div>
                 )}
 
-                {/* 4. Total Calculation & High-Visibility Payment Button */}
+                {/* 3. Total Calculation & High-Visibility Payment Button */}
                 <div className="pt-4 border-t border-slate-200 space-y-4">
                   
                   <div className="flex items-center justify-between text-sm sm:text-base font-bold text-slate-800">
