@@ -113,9 +113,9 @@ export default function AdminPage() {
   }
 
   return (
-    <main className="min-h-screen bg-slate-50 text-slate-900 flex flex-col selection:bg-emerald-500 selection:text-white">
+    <main className="min-h-screen bg-slate-50 text-slate-900 flex flex-col selection:bg-emerald-500 selection:text-white w-full">
       
-      {/* 1. Admin Sticky Header */}
+      {/* 1. Admin Sticky Full-Width Header */}
       <AdminHeader
         dateRange={dateRange}
         setDateRange={setDateRange}
@@ -123,9 +123,9 @@ export default function AdminPage() {
         onExportCSV={handleExportCSV}
       />
 
-      {/* 2. Admin Sidebar & Main Workspace Layout */}
-      <div className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 py-8">
-        <div className="flex flex-col lg:flex-row gap-8">
+      {/* 2. Admin Sidebar & Main Workspace Layout (Full-Width Edge-to-Edge) */}
+      <div className="flex-1 w-full max-w-[1920px] mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        <div className="flex flex-col lg:flex-row gap-6">
           
           {/* Admin Sidebar */}
           <AdminSidebar
@@ -135,11 +135,11 @@ export default function AdminPage() {
           />
 
           {/* Dedicated Tab Section Workspace */}
-          <div className="flex-1 space-y-8 min-w-0">
+          <div className="flex-1 space-y-6 min-w-0">
             
             {/* TAB 1: Sales Overview */}
             {activeTab === 'overview' && (
-              <div className="space-y-8 animate-in fade-in duration-300">
+              <div className="space-y-6 animate-in fade-in duration-300">
                 <RevenueStats stats={stats} />
                 <SalesChart dailyData={dailyChartData} totalOrders={stats.totalOrders} />
                 <BuyersTable buyers={buyers} />
@@ -153,14 +153,14 @@ export default function AdminPage() {
 
             {/* TAB 3: Customer Transactions Ledger */}
             {activeTab === 'buyers' && (
-              <div className="space-y-8 animate-in fade-in duration-300">
+              <div className="space-y-6 animate-in fade-in duration-300">
                 <BuyersTable buyers={buyers} />
               </div>
             )}
 
             {/* TAB 4 & 5: Product Settings, Meta Pixel & Security */}
             {(activeTab === 'pixel' || activeTab === 'security') && (
-              <div className="space-y-8 animate-in fade-in duration-300">
+              <div className="space-y-6 animate-in fade-in duration-300">
                 <ProductSettings />
               </div>
             )}
