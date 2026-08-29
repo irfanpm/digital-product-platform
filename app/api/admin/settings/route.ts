@@ -21,6 +21,11 @@ export async function GET() {
         metaPixelId: process.env.NEXT_PUBLIC_META_PIXEL_ID || '123456789012345',
         enableOrderBump: true,
       };
+    } else {
+      // Ensure enableOrderBump boolean is explicitly defined
+      if (typeof setting.enableOrderBump !== 'boolean') {
+        setting.enableOrderBump = true;
+      }
     }
 
     return NextResponse.json({
@@ -50,6 +55,8 @@ export async function POST(req: Request) {
       enableOrderBump,
     } = body;
 
+    const isEnableOrderBump = Boolean(enableOrderBump);
+
     let updatedSetting = null;
 
     if (conn) {
@@ -62,7 +69,7 @@ export async function POST(req: Request) {
           bumpPrice: typeof bumpPrice === 'number' ? bumpPrice : 99,
           adminPin: adminPin || 'admin123',
           metaPixelId: metaPixelId || '123456789012345',
-          enableOrderBump: typeof enableOrderBump === 'boolean' ? enableOrderBump : true,
+          enableOrderBump: isEnableOrderBump,
         },
         { upsert: true, new: true }
       );
@@ -74,13 +81,13 @@ export async function POST(req: Request) {
         bumpPrice,
         adminPin,
         metaPixelId,
-        enableOrderBump,
+        enableOrderBump: isEnableOrderBump,
       };
     }
 
     return NextResponse.json({
       success: true,
-      message: 'Product Settings & Order Bump Toggle updated successfully!',
+      message: `Product Settings updated successfully! Order Bump set to: ${isEnableOrderBump ? 'ON' : 'OFF'}`,
       setting: updatedSetting,
     });
   } catch (error: any) {

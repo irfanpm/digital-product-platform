@@ -46,7 +46,8 @@ export const CheckoutSection: React.FC = () => {
 
   const basePrice = 1; // Test price ₹1 (set to 299 for production)
   const bumpPrice = 1;
-  const totalPrice = (hasOrderBump && enableOrderBump) ? basePrice + bumpPrice : basePrice;
+  const isBumpActive = enableOrderBump && hasOrderBump;
+  const totalPrice = isBumpActive ? basePrice + bumpPrice : basePrice;
 
   // Fetch Admin Setting for Order Bump Enablement
   useEffect(() => {
@@ -55,8 +56,9 @@ export const CheckoutSection: React.FC = () => {
         const res = await fetch('/api/admin/settings');
         const data = await res.json();
         if (data.success && data.setting) {
-          if (data.setting.enableOrderBump === false) {
-            setEnableOrderBump(false);
+          const isEnabled = data.setting.enableOrderBump === true;
+          setEnableOrderBump(isEnabled);
+          if (!isEnabled) {
             setHasOrderBump(false);
           }
         }
@@ -87,8 +89,8 @@ export const CheckoutSection: React.FC = () => {
     trackMetaEvent('InitiateCheckout', {
       value: totalPrice,
       currency: 'INR',
-      content_name: (hasOrderBump && enableOrderBump) ? '38-Page Kit + Word/Notion Bump' : 'The AI Job Application Kit',
-      num_items: (hasOrderBump && enableOrderBump) ? 2 : 1,
+      content_name: isBumpActive ? '38-Page Kit + Word/Notion Bump' : 'The AI Job Application Kit',
+      num_items: isBumpActive ? 2 : 1,
     });
 
     try {
@@ -103,7 +105,7 @@ export const CheckoutSection: React.FC = () => {
             fullName,
             email,
             phone,
-            hasOrderBump: (hasOrderBump && enableOrderBump) ? 'Yes' : 'No'
+            hasOrderBump: isBumpActive ? 'Yes' : 'No'
           }
         }),
       });
@@ -122,7 +124,7 @@ export const CheckoutSection: React.FC = () => {
         amount: data.order.amount,
         currency: data.order.currency,
         name: 'Career Operating System',
-        description: (hasOrderBump && enableOrderBump)
+        description: isBumpActive
           ? '38-Page AI Kit + 10 Editable Word & Notion Templates' 
           : 'The AI Job Application Kit (38-Page COS)',
         prefill: {
@@ -137,7 +139,7 @@ export const CheckoutSection: React.FC = () => {
           const paymentId = response.razorpay_payment_id || `pay_${Date.now()}`;
 
           // Track Meta Pixel Purchase Event
-          trackMetaPurchase(totalPrice, paymentId, (hasOrderBump && enableOrderBump));
+          trackMetaPurchase(totalPrice, paymentId, isBumpActive);
 
           // Send immediate backend confirmation to guarantee database update (status: Captured)
           await fetch('/api/confirm-payment', {
@@ -151,7 +153,7 @@ export const CheckoutSection: React.FC = () => {
               email: email,
               phone: phone,
               amount: totalPrice,
-              hasOrderBump: (hasOrderBump && enableOrderBump),
+              hasOrderBump: isBumpActive,
             }),
           });
 
@@ -162,7 +164,7 @@ export const CheckoutSection: React.FC = () => {
             amount: totalPrice,
             name: fullName,
             email: email,
-            hasOrderBump: (hasOrderBump && enableOrderBump),
+            hasOrderBump: isBumpActive,
           });
         },
       };
@@ -190,7 +192,7 @@ export const CheckoutSection: React.FC = () => {
               email: email,
               phone: phone,
               amount: totalPrice,
-              hasOrderBump: (hasOrderBump && enableOrderBump),
+              hasOrderBump: isBumpActive,
             }),
           });
 
@@ -200,14 +202,14 @@ export const CheckoutSection: React.FC = () => {
         rzp.open();
       } else {
         // Fallback simulation for local preview without SDK
-        trackMetaPurchase(totalPrice, `pay_sim_${Date.now()}`, (hasOrderBump && enableOrderBump));
+        trackMetaPurchase(totalPrice, `pay_sim_${Date.now()}`, isBumpActive);
         setConfirmedOrder({
           paymentId: `pay_sim_${Date.now()}`,
           orderId: createdOrderId,
           amount: totalPrice,
           name: fullName,
           email: email,
-          hasOrderBump: (hasOrderBump && enableOrderBump),
+          hasOrderBump: isBumpActive,
         });
       }
     } catch (err: any) {
@@ -350,7 +352,7 @@ export const CheckoutSection: React.FC = () => {
                   </div>
                 </div>
 
-                {/* 2. HIGH-CONVERTING 1-CLICK ORDER BUMP (DISPLAYED ONLY WHEN enableOrderBump === true) */}
+                {/* 2. HIGH-CONVERTING 1-CLICK ORDER BUMP (STRICTLY HIDDEN WHEN enableOrderBump === false) */}
                 {enableOrderBump && (
                   <div className="bg-emerald-50/60 border-2 border-emerald-500 rounded-2xl p-5 shadow-sm relative pulse-border-emerald animate-in fade-in duration-200">
                     <div className="flex items-start gap-3">
