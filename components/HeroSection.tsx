@@ -15,7 +15,8 @@ import {
   Award,
   Layers,
   Check,
-  ChevronRight
+  Eye,
+  FileCheck
 } from 'lucide-react';
 
 export const HeroSection: React.FC = () => {
@@ -78,7 +79,7 @@ export const HeroSection: React.FC = () => {
             onClick={scrollToCheckout}
             className="w-full sm:w-auto min-w-[320px] bg-emerald-600 hover:bg-emerald-500 text-white font-black text-lg sm:text-xl px-8 py-4 rounded-2xl shadow-xl shadow-emerald-600/20 transform hover:-translate-y-0.5 transition-all flex items-center justify-center gap-3 group border border-emerald-400/30 cursor-pointer"
           >
-            <span>TEST LIVE PAYMENT — ₹1</span>
+            <span>GET INSTANT ACCESS — ₹299</span>
             <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
           </button>
 
@@ -98,8 +99,28 @@ export const HeroSection: React.FC = () => {
           </div>
         </div>
 
+        {/* 🌟 ULTRA HIGH-RESOLUTION 3D PRODUCT MOCKUP IMAGE SHOWCASE 🌟 */}
+        <div className="mb-14 max-w-5xl mx-auto">
+          <div className="clean-card rounded-3xl p-3 sm:p-5 bg-white border border-slate-200 shadow-2xl relative overflow-hidden group">
+            <img
+              src="/images/career_kit_mockup.jpg"
+              alt="The AI Job Application Kit 38-Page Career Operating System 3D Product Bundle"
+              className="w-full h-auto rounded-2xl object-cover shadow-sm group-hover:scale-[1.01] transition-transform duration-500"
+            />
+            {/* Floating Badges on Image */}
+            <div className="absolute top-6 left-6 hidden sm:flex items-center gap-2 bg-white/90 backdrop-blur-md px-3.5 py-1.5 rounded-full border border-slate-200 text-xs font-extrabold text-slate-800 shadow-lg">
+              <FileCheck className="w-4 h-4 text-emerald-600" />
+              <span>38-Page Complete System PDF</span>
+            </div>
+            <div className="absolute bottom-6 right-6 hidden sm:flex items-center gap-2 bg-slate-900/90 backdrop-blur-md text-white px-3.5 py-1.5 rounded-full border border-slate-700 text-xs font-bold shadow-lg">
+              <Sparkles className="w-4 h-4 text-emerald-400" />
+              <span>Includes 10 Word & Notion Dashboards</span>
+            </div>
+          </div>
+        </div>
+
         {/* Clean SaaS Minimalist Interactive Preview Card */}
-        <div className="mt-8 max-w-5xl mx-auto">
+        <div className="max-w-5xl mx-auto">
           <div className="clean-card rounded-3xl p-5 sm:p-8 border border-slate-200 shadow-xl bg-white relative overflow-hidden">
             
             {/* Header of Interactive Card */}
@@ -137,7 +158,7 @@ export const HeroSection: React.FC = () => {
                       : 'text-slate-600 hover:text-slate-900'
                   }`}
                 >
-                  ATS Meter
+                  ATS Meter Graphic
                 </button>
                 <button
                   onClick={() => setActiveTab('atmr')}
@@ -197,40 +218,19 @@ export const HeroSection: React.FC = () => {
               </div>
             )}
 
-            {/* Tab 2: ATS Meter */}
+            {/* Tab 2: ATS Audit Score Graphic Image */}
             {activeTab === 'ats' && (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <span className="text-slate-700 text-sm font-bold">ATS Audit Score Result</span>
-                    <span className="text-emerald-600 font-black text-xl">98 / 100</span>
-                  </div>
-                  <div className="w-full h-3 bg-slate-100 rounded-full overflow-hidden p-0.5 border border-slate-200">
-                    <div className="h-full bg-emerald-500 rounded-full w-[98%] transition-all duration-1000 shadow-sm" />
-                  </div>
-                  <div className="grid grid-cols-2 gap-2 text-xs">
-                    <div className="bg-slate-50 p-2.5 rounded-xl border border-slate-200 flex items-center gap-2">
-                      <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
-                      <span className="text-slate-700">Hard Keywords: <strong className="text-slate-900">Pass</strong></span>
-                    </div>
-                    <div className="bg-slate-50 p-2.5 rounded-xl border border-slate-200 flex items-center gap-2">
-                      <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
-                      <span className="text-slate-700">Workday/Taleo: <strong className="text-slate-900">100%</strong></span>
-                    </div>
-                  </div>
+              <div className="space-y-4">
+                <div className="rounded-2xl overflow-hidden border border-slate-200 shadow-sm">
+                  <img
+                    src="/images/ats_score_mockup.jpg"
+                    alt="ATS Compatibility Audit Score Graphic 98/100"
+                    className="w-full h-auto object-cover"
+                  />
                 </div>
-
-                <div className="bg-slate-900 text-slate-100 p-4 rounded-2xl text-xs space-y-2 font-mono">
-                  <div className="flex items-center gap-1.5 text-emerald-400 font-bold mb-1">
-                    <Bot className="w-4 h-4" /> AI Prompt #1 Diagnostic Output:
-                  </div>
-                  <p className="text-slate-300 italic bg-slate-950 p-3 rounded-xl border border-slate-800">
-                    "Evaluated against 5 pillars: Impact, ATS Clarity, Keyword Richness, Brevity, Red Flags. Resume score upgraded from 42/100 to 98/100."
-                  </p>
-                  <div className="flex justify-end pt-1">
-                    <span className="text-[10px] text-slate-400">PDF Section 4 • Page 10</span>
-                  </div>
-                </div>
+                <p className="text-slate-600 text-xs text-center font-medium">
+                  Verified ATS audit breakdown formula from Section 2 & Section 4 of the 38-Page Operating System.
+                </p>
               </div>
             )}
 
