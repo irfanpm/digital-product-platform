@@ -22,7 +22,6 @@ export async function GET() {
         enableOrderBump: true,
       };
     } else {
-      // Ensure enableOrderBump boolean is explicitly defined
       if (typeof setting.enableOrderBump !== 'boolean') {
         setting.enableOrderBump = true;
       }
@@ -55,42 +54,35 @@ export async function POST(req: Request) {
       enableOrderBump,
     } = body;
 
-    const isEnableOrderBump = Boolean(enableOrderBump);
+    const updateFields: any = {};
+
+    if (productDriveUrl !== undefined) updateFields.productDriveUrl = productDriveUrl;
+    if (orderBumpDriveUrl !== undefined) updateFields.orderBumpDriveUrl = orderBumpDriveUrl;
+    if (basePrice !== undefined && !isNaN(Number(basePrice))) updateFields.basePrice = Number(basePrice);
+    if (bumpPrice !== undefined && !isNaN(Number(bumpPrice))) updateFields.bumpPrice = Number(bumpPrice);
+    if (adminPin !== undefined && adminPin !== '') updateFields.adminPin = adminPin;
+    if (metaPixelId !== undefined) updateFields.metaPixelId = metaPixelId;
+    if (enableOrderBump !== undefined) updateFields.enableOrderBump = Boolean(enableOrderBump);
 
     let updatedSetting = null;
 
     if (conn) {
       updatedSetting = await Setting.findOneAndUpdate(
         {},
-        {
-          productDriveUrl: productDriveUrl || 'https://drive.google.com/file/d/1_Sample_AI_Job_Application_Kit_38Page/view',
-          orderBumpDriveUrl: orderBumpDriveUrl || 'https://notion.so/Sample_10_Word_Templates_And_Job_Tracker_Dashboard',
-          basePrice: typeof basePrice === 'number' ? basePrice : 299,
-          bumpPrice: typeof bumpPrice === 'number' ? bumpPrice : 99,
-          adminPin: adminPin || 'admin123',
-          metaPixelId: metaPixelId || '123456789012345',
-          enableOrderBump: isEnableOrderBump,
-        },
+        { $set: updateFields },
         { upsert: true, new: true }
       );
     } else {
-      updatedSetting = {
-        productDriveUrl,
-        orderBumpDriveUrl,
-        basePrice,
-        bumpPrice,
-        adminPin,
-        metaPixelId,
-        enableOrderBump: isEnableOrderBump,
-      };
+      updatedSetting = updateFields;
     }
 
     return NextResponse.json({
       success: true,
-      message: `Product Settings updated successfully! Order Bump set to: ${isEnableOrderBump ? 'ON' : 'OFF'}`,
+      message: `Product Settings updated successfully! Order Bump status: ${updateFields.enableOrderBump ? 'ON' : 'OFF'}`,
       setting: updatedSetting,
     });
   } catch (error: any) {
+    console.error('Settings Update Error:', error);
     return NextResponse.json(
       { success: false, error: error.message || 'Error updating settings' },
       { status: 500 }

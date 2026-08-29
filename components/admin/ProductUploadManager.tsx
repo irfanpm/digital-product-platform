@@ -71,7 +71,7 @@ export const ProductUploadManager: React.FC = () => {
 
       const data = await res.json();
       if (data.success) {
-        setMessage('✅ Product Download Links, Pricing & Order Bump Toggle Saved!');
+        setMessage(`✅ Saved! Order Bump is now ${enableOrderBump ? 'ON' : 'OFF'}`);
         setTimeout(() => setMessage(''), 4000);
       } else {
         throw new Error(data.error || 'Failed to save settings');
@@ -138,7 +138,7 @@ export const ProductUploadManager: React.FC = () => {
                 className={`px-4 py-2 rounded-xl text-xs font-extrabold transition-all flex items-center gap-2 cursor-pointer ${
                   enableOrderBump
                     ? 'bg-emerald-600 text-white shadow-md'
-                    : 'bg-slate-300 text-slate-700'
+                    : 'bg-slate-800 text-slate-200 border border-slate-700'
                 }`}
               >
                 {enableOrderBump ? (
@@ -148,7 +148,7 @@ export const ProductUploadManager: React.FC = () => {
                   </>
                 ) : (
                   <>
-                    <ToggleLeft className="w-5 h-5 text-slate-600" />
+                    <ToggleLeft className="w-5 h-5 text-slate-400" />
                     <span>OFF (Hidden)</span>
                   </>
                 )}
@@ -180,32 +180,30 @@ export const ProductUploadManager: React.FC = () => {
               </p>
             </div>
 
-            {/* 2. Order Bump Link */}
-            {enableOrderBump && (
-              <div className="space-y-2 animate-in fade-in duration-200">
-                <label className="text-xs font-extrabold text-slate-700 uppercase tracking-wider flex items-center justify-between">
-                  <span className="flex items-center gap-1.5">
-                    <Sparkles className="w-4 h-4 text-amber-600" /> Order Bump Notion / Word Templates Link *
-                  </span>
-                  {orderBumpDriveUrl && (
-                    <a href={orderBumpDriveUrl} target="_blank" rel="noreferrer" className="text-emerald-600 font-bold hover:underline flex items-center gap-1 text-[11px] lowercase">
-                      Test Download Link <ExternalLink className="w-3 h-3" />
-                    </a>
-                  )}
-                </label>
-                <input
-                  type="url"
-                  required
-                  placeholder="https://notion.so/YOUR_WORD_TEMPLATES_AND_TRACKER"
-                  value={orderBumpDriveUrl}
-                  onChange={(e) => setOrderBumpDriveUrl(e.target.value)}
-                  className="w-full bg-slate-50 border border-slate-300 rounded-xl px-4 py-3 text-xs text-slate-900 font-mono placeholder-slate-400 focus:outline-none focus:border-emerald-600 transition-colors"
-                />
-                <p className="text-[11px] text-slate-500">
-                  Delivered to buyers who select the 1-click Order Bump checkbox at checkout.
-                </p>
-              </div>
-            )}
+            {/* 2. Order Bump Link (Rendered always, required ONLY when enableOrderBump is true) */}
+            <div className={`space-y-2 transition-opacity ${enableOrderBump ? 'opacity-100' : 'opacity-50'}`}>
+              <label className="text-xs font-extrabold text-slate-700 uppercase tracking-wider flex items-center justify-between">
+                <span className="flex items-center gap-1.5">
+                  <Sparkles className="w-4 h-4 text-amber-600" /> Order Bump Notion / Word Templates Link {enableOrderBump ? '*' : '(Optional when OFF)'}
+                </span>
+                {orderBumpDriveUrl && (
+                  <a href={orderBumpDriveUrl} target="_blank" rel="noreferrer" className="text-emerald-600 font-bold hover:underline flex items-center gap-1 text-[11px] lowercase">
+                    Test Download Link <ExternalLink className="w-3 h-3" />
+                  </a>
+                )}
+              </label>
+              <input
+                type="url"
+                required={enableOrderBump}
+                placeholder="https://notion.so/YOUR_WORD_TEMPLATES_AND_TRACKER"
+                value={orderBumpDriveUrl}
+                onChange={(e) => setOrderBumpDriveUrl(e.target.value)}
+                className="w-full bg-slate-50 border border-slate-300 rounded-xl px-4 py-3 text-xs text-slate-900 font-mono placeholder-slate-400 focus:outline-none focus:border-emerald-600 transition-colors"
+              />
+              <p className="text-[11px] text-slate-500">
+                Delivered to buyers who select the 1-click Order Bump checkbox at checkout.
+              </p>
+            </div>
 
             {/* Price Config */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-4 border-t border-slate-100">
@@ -224,22 +222,20 @@ export const ProductUploadManager: React.FC = () => {
                 </div>
               </div>
 
-              {enableOrderBump && (
-                <div className="space-y-1 animate-in fade-in duration-200">
-                  <label className="text-xs font-bold text-slate-700">Order Bump Add-on Price (₹ INR)</label>
-                  <div className="relative">
-                    <DollarSign className="w-4 h-4 text-slate-400 absolute left-3 top-3" />
-                    <input
-                      type="number"
-                      min="1"
-                      required
-                      value={bumpPrice}
-                      onChange={(e) => setBumpPrice(Number(e.target.value))}
-                      className="w-full bg-slate-50 border border-slate-300 rounded-xl pl-9 pr-4 py-2.5 text-xs font-bold text-slate-900 font-mono focus:outline-none focus:border-emerald-600"
-                    />
-                  </div>
+              <div className={`space-y-1 transition-opacity ${enableOrderBump ? 'opacity-100' : 'opacity-50'}`}>
+                <label className="text-xs font-bold text-slate-700">Order Bump Add-on Price (₹ INR)</label>
+                <div className="relative">
+                  <DollarSign className="w-4 h-4 text-slate-400 absolute left-3 top-3" />
+                  <input
+                    type="number"
+                    min="1"
+                    required={enableOrderBump}
+                    value={bumpPrice}
+                    onChange={(e) => setBumpPrice(Number(e.target.value))}
+                    className="w-full bg-slate-50 border border-slate-300 rounded-xl pl-9 pr-4 py-2.5 text-xs font-bold text-slate-900 font-mono focus:outline-none focus:border-emerald-600"
+                  />
                 </div>
-              )}
+              </div>
             </div>
 
             {/* Actions & Feedback */}
