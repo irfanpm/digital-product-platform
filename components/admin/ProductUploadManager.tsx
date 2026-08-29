@@ -14,7 +14,8 @@ import {
   Zap,
   FolderArchive,
   ToggleLeft,
-  ToggleRight
+  ToggleRight,
+  AlertCircle
 } from 'lucide-react';
 
 export const ProductUploadManager: React.FC = () => {
@@ -51,33 +52,34 @@ export const ProductUploadManager: React.FC = () => {
     fetchSettings();
   }, []);
 
-  const handleSave = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSave = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
     setIsSaving(true);
-    setMessage('');
+    setMessage('Saving product settings to database...');
 
     try {
       const res = await fetch('/api/admin/settings', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          productDriveUrl,
-          orderBumpDriveUrl,
-          basePrice: Number(basePrice),
-          bumpPrice: Number(bumpPrice),
-          enableOrderBump,
+          productDriveUrl: productDriveUrl.trim(),
+          orderBumpDriveUrl: orderBumpDriveUrl.trim(),
+          basePrice: Number(basePrice) || 299,
+          bumpPrice: Number(bumpPrice) || 99,
+          enableOrderBump: Boolean(enableOrderBump),
         }),
       });
 
       const data = await res.json();
       if (data.success) {
-        setMessage(`✅ Saved! Order Bump is now ${enableOrderBump ? 'ON' : 'OFF'}`);
+        setMessage(`✅ Settings Saved! Order Bump is now ${enableOrderBump ? 'ON (Enabled)' : 'OFF (Hidden)'}`);
         setTimeout(() => setMessage(''), 4000);
       } else {
         throw new Error(data.error || 'Failed to save settings');
       }
     } catch (err: any) {
-      setMessage(`❌ Error: ${err.message}`);
+      console.error('Save error:', err);
+      setMessage(`❌ Error saving: ${err.message || 'Server connection error'}`);
     } finally {
       setIsSaving(false);
     }
@@ -135,7 +137,7 @@ export const ProductUploadManager: React.FC = () => {
               <button
                 type="button"
                 onClick={() => setEnableOrderBump(!enableOrderBump)}
-                className={`px-4 py-2 rounded-xl text-xs font-extrabold transition-all flex items-center gap-2 cursor-pointer ${
+                className={`px-4 py-2 rounded-xl text-xs font-extrabold transition-all flex items-center gap-2 cursor-pointer shrink-0 ${
                   enableOrderBump
                     ? 'bg-emerald-600 text-white shadow-md'
                     : 'bg-slate-800 text-slate-200 border border-slate-700'
@@ -159,7 +161,7 @@ export const ProductUploadManager: React.FC = () => {
             <div className="space-y-2">
               <label className="text-xs font-extrabold text-slate-700 uppercase tracking-wider flex items-center justify-between">
                 <span className="flex items-center gap-1.5">
-                  <FileText className="w-4 h-4 text-emerald-600" /> Main 38-Page PDF Google Drive Link *
+                  <FileText className="w-4 h-4 text-emerald-600" /> Main 38-Page PDF Google Drive Link
                 </span>
                 {productDriveUrl && (
                   <a href={productDriveUrl} target="_blank" rel="noreferrer" className="text-emerald-600 font-bold hover:underline flex items-center gap-1 text-[11px] lowercase">
@@ -168,8 +170,7 @@ export const ProductUploadManager: React.FC = () => {
                 )}
               </label>
               <input
-                type="url"
-                required
+                type="text"
                 placeholder="https://drive.google.com/file/d/YOUR_FILE_ID/view"
                 value={productDriveUrl}
                 onChange={(e) => setProductDriveUrl(e.target.value)}
@@ -180,11 +181,11 @@ export const ProductUploadManager: React.FC = () => {
               </p>
             </div>
 
-            {/* 2. Order Bump Link (Rendered always, required ONLY when enableOrderBump is true) */}
+            {/* 2. Order Bump Link */}
             <div className={`space-y-2 transition-opacity ${enableOrderBump ? 'opacity-100' : 'opacity-50'}`}>
               <label className="text-xs font-extrabold text-slate-700 uppercase tracking-wider flex items-center justify-between">
                 <span className="flex items-center gap-1.5">
-                  <Sparkles className="w-4 h-4 text-amber-600" /> Order Bump Notion / Word Templates Link {enableOrderBump ? '*' : '(Optional when OFF)'}
+                  <Sparkles className="w-4 h-4 text-amber-600" /> Order Bump Notion / Word Templates Link {enableOrderBump ? '' : '(Optional when OFF)'}
                 </span>
                 {orderBumpDriveUrl && (
                   <a href={orderBumpDriveUrl} target="_blank" rel="noreferrer" className="text-emerald-600 font-bold hover:underline flex items-center gap-1 text-[11px] lowercase">
@@ -193,8 +194,7 @@ export const ProductUploadManager: React.FC = () => {
                 )}
               </label>
               <input
-                type="url"
-                required={enableOrderBump}
+                type="text"
                 placeholder="https://notion.so/YOUR_WORD_TEMPLATES_AND_TRACKER"
                 value={orderBumpDriveUrl}
                 onChange={(e) => setOrderBumpDriveUrl(e.target.value)}
@@ -214,7 +214,6 @@ export const ProductUploadManager: React.FC = () => {
                   <input
                     type="number"
                     min="1"
-                    required
                     value={basePrice}
                     onChange={(e) => setBasePrice(Number(e.target.value))}
                     className="w-full bg-slate-50 border border-slate-300 rounded-xl pl-9 pr-4 py-2.5 text-xs font-bold text-slate-900 font-mono focus:outline-none focus:border-emerald-600"
@@ -229,7 +228,6 @@ export const ProductUploadManager: React.FC = () => {
                   <input
                     type="number"
                     min="1"
-                    required={enableOrderBump}
                     value={bumpPrice}
                     onChange={(e) => setBumpPrice(Number(e.target.value))}
                     className="w-full bg-slate-50 border border-slate-300 rounded-xl pl-9 pr-4 py-2.5 text-xs font-bold text-slate-900 font-mono focus:outline-none focus:border-emerald-600"
@@ -239,24 +237,27 @@ export const ProductUploadManager: React.FC = () => {
             </div>
 
             {/* Actions & Feedback */}
-            <div className="flex items-center justify-between pt-2">
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-2">
               {message && (
-                <div className={`text-xs font-bold px-3.5 py-2 rounded-xl flex items-center gap-2 ${
+                <div className={`text-xs font-bold px-3.5 py-2.5 rounded-xl flex items-center gap-2 ${
                   message.startsWith('✅') 
                     ? 'bg-emerald-100 text-emerald-800 border border-emerald-200' 
-                    : 'bg-rose-100 text-rose-800 border border-rose-200'
+                    : message.startsWith('❌')
+                    ? 'bg-rose-100 text-rose-800 border border-rose-200'
+                    : 'bg-amber-100 text-amber-800 border border-amber-200'
                 }`}>
-                  {message}
+                  <span>{message}</span>
                 </div>
               )}
 
               <button
-                type="submit"
+                type="button"
+                onClick={() => handleSave()}
                 disabled={isSaving}
-                className="ml-auto bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold text-xs px-6 py-3 rounded-xl shadow-md transition-all flex items-center gap-2 cursor-pointer disabled:opacity-50"
+                className="ml-auto bg-emerald-600 hover:bg-emerald-500 text-white font-black text-xs px-7 py-3.5 rounded-xl shadow-lg shadow-emerald-600/20 transition-all flex items-center gap-2 cursor-pointer disabled:opacity-50"
               >
                 <Save className="w-4 h-4" />
-                <span>{isSaving ? 'Updating Database...' : 'Save Product Settings'}</span>
+                <span>{isSaving ? 'Saving to Database...' : 'Save Product Settings'}</span>
               </button>
             </div>
 
