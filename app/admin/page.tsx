@@ -3,14 +3,17 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { AdminHeader } from '@/components/admin/AdminHeader';
+import { AdminSidebar, AdminTab } from '@/components/admin/AdminSidebar';
 import { RevenueStats } from '@/components/admin/RevenueStats';
 import { SalesChart } from '@/components/admin/SalesChart';
 import { ProductSettings } from '@/components/admin/ProductSettings';
+import { ProductUploadManager } from '@/components/admin/ProductUploadManager';
 import { BuyersTable, Buyer } from '@/components/admin/BuyersTable';
 import { LegalFooter } from '@/components/LegalFooter';
 
 export default function AdminPage() {
   const router = useRouter();
+  const [activeTab, setActiveTab] = useState<AdminTab>('overview');
   const [dateRange, setDateRange] = useState<string>('all');
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
@@ -94,6 +97,13 @@ export default function AdminPage() {
     document.body.removeChild(link);
   };
 
+  const handleLogout = () => {
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('admin_authenticated');
+    }
+    router.push('/admin/login');
+  };
+
   if (!isAuthenticated) {
     return (
       <div className="min-h-screen bg-slate-50 flex items-center justify-center text-xs text-slate-500 font-mono">
@@ -113,21 +123,51 @@ export default function AdminPage() {
         onExportCSV={handleExportCSV}
       />
 
-      {/* 2. Admin Content Area */}
-      <div className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 py-8 space-y-8">
-        
-        {/* KPI Revenue Stats Cards */}
-        <RevenueStats stats={stats} />
+      {/* 2. Admin Sidebar & Main Workspace Layout */}
+      <div className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 py-8">
+        <div className="flex flex-col lg:flex-row gap-8">
+          
+          {/* Admin Sidebar */}
+          <AdminSidebar
+            activeTab={activeTab}
+            setActiveTab={setActiveTab}
+            onLogout={handleLogout}
+          />
 
-        {/* Product Google Drive Links & Pricing Settings Panel */}
-        <ProductSettings />
+          {/* Dedicated Tab Section Workspace */}
+          <div className="flex-1 space-y-8 min-w-0">
+            
+            {/* TAB 1: Sales Overview */}
+            {activeTab === 'overview' && (
+              <div className="space-y-8 animate-in fade-in duration-300">
+                <RevenueStats stats={stats} />
+                <SalesChart dailyData={dailyChartData} totalOrders={stats.totalOrders} />
+                <BuyersTable buyers={buyers} />
+              </div>
+            )}
 
-        {/* Real Sales Trend Chart */}
-        <SalesChart dailyData={dailyChartData} totalOrders={stats.totalOrders} />
+            {/* TAB 2: Product Upload & Digital Asset Management */}
+            {activeTab === 'product_upload' && (
+              <ProductUploadManager />
+            )}
 
-        {/* Customer Buyers Table */}
-        <BuyersTable buyers={buyers} />
+            {/* TAB 3: Customer Transactions Ledger */}
+            {activeTab === 'buyers' && (
+              <div className="space-y-8 animate-in fade-in duration-300">
+                <BuyersTable buyers={buyers} />
+              </div>
+            )}
 
+            {/* TAB 4 & 5: Product Settings, Meta Pixel & Security */}
+            {(activeTab === 'pixel' || activeTab === 'security') && (
+              <div className="space-y-8 animate-in fade-in duration-300">
+                <ProductSettings />
+              </div>
+            )}
+
+          </div>
+
+        </div>
       </div>
 
       {/* 3. Footer */}
