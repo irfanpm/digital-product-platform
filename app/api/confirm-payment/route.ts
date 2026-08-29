@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server';
 import dbConnect from '@/lib/dbConnect';
 import Order from '@/models/Order';
+import Setting from '@/models/Setting';
+import { sendProductEmail } from '@/lib/sendProductEmail';
 
 export async function POST(req: Request) {
   try {
@@ -25,6 +27,18 @@ export async function POST(req: Request) {
       );
     }
 
+    // Fetch product Google Drive URL settings from MongoDB
+    let productDriveUrl = 'https://drive.google.com/file/d/1_Sample_AI_Job_Application_Kit_38Page/view';
+    let orderBumpDriveUrl = 'https://notion.so/Sample_10_Word_Templates_And_Job_Tracker_Dashboard';
+
+    if (conn) {
+      const setting = await Setting.findOne({}).lean();
+      if (setting) {
+        productDriveUrl = setting.productDriveUrl || productDriveUrl;
+        orderBumpDriveUrl = setting.orderBumpDriveUrl || orderBumpDriveUrl;
+      }
+    }
+
     const orderData = {
       orderId: orderId || `ord_${Date.now()}`,
       paymentId: paymentId || `pay_fail_${Date.now()}`,
@@ -41,7 +55,7 @@ export async function POST(req: Request) {
     };
 
     if (conn) {
-      // Upsert order in MongoDB database so status is guaranteed accurately stored!
+      // Upsert order in MongoDB database
       await Order.findOneAndUpdate(
         { orderId: orderData.orderId },
         {
@@ -58,10 +72,25 @@ export async function POST(req: Request) {
       );
     }
 
+    // If payment is captured successfully -> Trigger automated client email with Google Drive download link!
+    if (status === 'Captured' && email && email.includes('@')) {
+      sendProductEmail({
+        toEmail: email,
+        customerName: name || 'Valued Customer',
+        paymentId: orderData.paymentId,
+        amount: orderData.amount,
+        productDriveUrl: productDriveUrl,
+        hasOrderBump: !!hasOrderBump,
+        orderBumpDriveUrl: orderBumpDriveUrl,
+      }).catch((e) => console.error('Email send error:', e));
+    }
+
     return NextResponse.json({
       success: true,
-      message: `Order status ${status} successfully updated in database`,
+      message: `Order status ${status} updated in database & email triggered`,
       order: orderData,
+      downloadUrl: productDriveUrl,
+      orderBumpUrl: orderBumpDriveUrl,
     });
   } catch (error: any) {
     console.error('Confirm Payment Error:', error);
