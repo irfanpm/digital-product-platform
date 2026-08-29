@@ -1,142 +1,147 @@
 'use client';
 
 import React, { useState } from 'react';
-import { ArrowRightLeft, Check, X, Sparkles } from 'lucide-react';
+import { ArrowRight, Sparkles, CheckCircle2, XCircle, Copy, Check } from 'lucide-react';
 
 export const BeforeAfterCard: React.FC = () => {
-  const [activeRoleIndex, setActiveRoleIndex] = useState(0);
+  const [activeRole, setActiveRole] = useState<'swe' | 'marketing' | 'sales' | 'ops' | 'cs'>('swe');
+  const [copied, setCopied] = useState<boolean>(false);
 
-  // Real transformation examples from Section 2 of the PDF!
-  const transformations = [
-    {
-      role: 'Digital Marketing',
-      before: 'Handled company social media accounts and posted content.',
-      beforeResult: '0 callbacks, 6 weeks wasted',
-      after: 'Spearheaded organic LinkedIn & Instagram content strategy, generating 120k+ impressions and driving 28% MoM inbound lead growth at 18% lower CAC.',
-      afterResult: '3 recruiter interview invites',
+  const roleExamples = {
+    swe: {
+      role: 'Software Engineering / Tech',
+      before: 'Maintained web application codebase and fixed bugs reported by users.',
+      beforeFlaw: 'Vague, no technologies, no metrics, sounds passive.',
+      after: 'Engineered high-throughput React/Node microservices, resolving 45+ critical bugs and reducing API response latency by 34% across 150k monthly active users.',
+      afterFormula: 'Action Verb (Engineered) + Metric (45+ bugs, -34% latency) + Scope (150k MAU) + Result',
     },
-    {
-      role: 'Software Engineering',
-      before: 'Worked on the backend database and fixed various bugs.',
-      beforeResult: 'Filtered out by ATS for missing metrics',
-      after: 'Refactored legacy PostgreSQL queries and implemented Redis caching, reducing p99 API latency by 42% and supporting 150k+ concurrent active users.',
-      afterResult: 'Shortlisted for Senior SDE (₹24 LPA)',
+    marketing: {
+      role: 'Digital Marketing & Growth',
+      before: 'Handled social media accounts and created weekly marketing posts.',
+      beforeFlaw: 'Generic task dump, zero conversion metrics or lead impact.',
+      after: 'Spearheaded organic LinkedIn & META ad campaigns, generating 120k+ impressions & driving 28% MoM lead growth at 18% lower Customer Acquisition Cost (CAC).',
+      afterFormula: 'Action Verb (Spearheaded) + Metric (120k+ impressions, +28% MoM) + CAC Efficiency',
     },
-    {
-      role: 'Sales & Account Exec',
-      before: 'Reached out to potential clients and tried to sell software.',
-      beforeResult: 'Ignored by top recruiters',
-      after: 'Prospected and closed 14 enterprise B2B accounts across North America, generating ₹1.8Cr in Net New ARR and exceeding annual quota by 135%.',
-      afterResult: 'Recruiter reached out directly on LinkedIn',
+    sales: {
+      role: 'Sales & Business Development',
+      before: 'Called potential clients and tried to sell company SaaS subscriptions.',
+      beforeFlaw: 'Lacks quota percentage, deal sizes, or revenue numbers.',
+      after: 'Outperformed quarterly quota by 142%, closing ₹1.8 Crore in new ARR across 22 enterprise accounts via multi-touch consultative prospecting.',
+      afterFormula: 'Action Verb (Outperformed) + Quota % (142%) + Revenue (₹1.8 Cr ARR) + Process',
     },
-    {
-      role: 'Customer Support',
-      before: 'Responsible for answering customer calls and dealing with complaints.',
-      beforeResult: 'Filtered out by Workday ATS',
-      after: 'Resolved 45+ customer escalations daily via Zendesk and live chat, maintaining a 96% CSAT rating against an industry benchmark of 88%.',
-      afterResult: 'Invited to Support Lead Interview',
+    ops: {
+      role: 'Operations & Supply Chain',
+      before: 'Managed warehouse inventory and coordinated daily shipping schedules.',
+      beforeFlaw: 'No cost savings, no efficiency metrics, generic operations.',
+      after: 'Optimized regional fulfillment logistics, reducing order dispatch cycle time from 48h to 14h while cutting annual shipping overhead by ₹4.5 Lakhs.',
+      afterFormula: 'Action Verb (Optimized) + Speed Metric (48h → 14h) + Cost Savings (₹4.5L)',
     },
-    {
-      role: 'Operations & Project Mgr',
-      before: 'In charge of weekly team meetings and tracking tasks.',
-      beforeResult: 'Stuck at baseline salary tier',
-      after: 'Orchestrated sprint planning and resource allocation for a 12-person cross-functional team, delivering enterprise release 2 weeks ahead of schedule and 14% under budget.',
-      afterResult: 'Invited to Lead Ops Manager Interview',
+    cs: {
+      role: 'Customer Support & Success',
+      before: 'Answered customer support tickets and solved client issues via email.',
+      beforeFlaw: 'No CSAT score, no retention metrics, no response SLA.',
+      after: 'Maintained 98.4% CSAT rating across 2,400+ customer tickets while reducing average first-response SLA to under 8 minutes.',
+      afterFormula: 'Action Verb (Maintained) + CSAT Metric (98.4%) + Ticket Volume (2,400+) + SLA Speed',
     },
-  ];
+  };
 
-  const current = transformations[activeRoleIndex];
+  const current = roleExamples[activeRole];
+
+  const handleCopy = () => {
+    navigator.clipboard.writeText(current.after);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
 
   return (
-    <section className="py-16 bg-slate-50 relative">
-      <div className="max-w-4xl mx-auto px-4 sm:px-6">
+    <section className="py-16 md:py-24 bg-slate-50 border-b border-slate-200 w-full">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8">
         
-        {/* Section Title */}
-        <div className="text-center mb-10">
-          <div className="inline-flex items-center gap-1.5 bg-emerald-50 border border-emerald-200 text-emerald-800 px-3.5 py-1 rounded-full text-xs font-bold uppercase tracking-wider mb-3">
-            <Sparkles className="w-3.5 h-3.5 text-emerald-600" /> PDF Section 2 • ATMR Formula Proof
+        {/* Header */}
+        <div className="text-center max-w-4xl mx-auto mb-12">
+          <div className="inline-flex items-center gap-1.5 bg-emerald-100 border border-emerald-300 text-emerald-800 px-3.5 py-1 rounded-full text-xs font-bold uppercase tracking-wider mb-4">
+            <Sparkles className="w-3.5 h-3.5 text-emerald-700" /> PDF Section 2 • ATMR Formula Rewriter
           </div>
-          <h2 className="text-2xl sm:text-4xl font-extrabold text-slate-900 tracking-tight mb-3">
-            See The ATMR Bullet Rewriter In Action
+          <h2 className="text-3xl sm:text-5xl font-black text-slate-900 tracking-tight mb-4">
+            Real Resume Bullet Transformations
           </h2>
-          <p className="text-slate-600 text-sm sm:text-base max-w-2xl mx-auto">
-            Action-Task-Method-Result (ATMR) formula transforms weak, ignored resume bullets into high-converting interview magnets in 10 seconds.
+          <p className="text-slate-600 text-base sm:text-lg">
+            See how the <strong>Action-Task-Metrics-Result (ATMR) Formula</strong> turns weak resume bullets into high-impact recruiter magnets across different industries.
           </p>
-
-          {/* Role selector tabs */}
-          <div className="flex flex-wrap items-center justify-center gap-2 mt-6">
-            {transformations.map((item, idx) => (
-              <button
-                key={idx}
-                onClick={() => setActiveRoleIndex(idx)}
-                className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${
-                  activeRoleIndex === idx
-                    ? 'bg-emerald-600 text-white shadow-md'
-                    : 'bg-white border border-slate-200 text-slate-600 hover:text-slate-900 hover:bg-slate-100'
-                }`}
-              >
-                {item.role}
-              </button>
-            ))}
-          </div>
         </div>
 
-        {/* Transformation Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 relative">
+        {/* Role Switcher Tabs */}
+        <div className="flex flex-wrap justify-center gap-2 mb-10 max-w-4xl mx-auto">
+          {(Object.keys(roleExamples) as Array<keyof typeof roleExamples>).map((key) => (
+            <button
+              key={key}
+              onClick={() => setActiveRole(key)}
+              className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer ${
+                activeRole === key
+                  ? 'bg-emerald-600 text-white shadow-md shadow-emerald-600/20'
+                  : 'bg-white text-slate-700 hover:bg-slate-100 border border-slate-200'
+              }`}
+            >
+              {roleExamples[key].role}
+            </button>
+          ))}
+        </div>
+
+        {/* Interactive Comparison Card */}
+        <div className="clean-card rounded-3xl p-6 sm:p-10 bg-white border border-slate-200 shadow-xl max-w-5xl mx-auto space-y-6">
           
-          {/* Middle Icon for desktop */}
-          <div className="hidden md:flex absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-20 w-10 h-10 bg-white border border-slate-300 rounded-full items-center justify-center text-emerald-600 shadow-md">
-            <ArrowRightLeft className="w-4 h-4" />
+          <div className="flex items-center justify-between border-b border-slate-100 pb-4">
+            <span className="text-xs font-extrabold text-slate-400 uppercase tracking-wider font-mono">
+              ROLE: {current.role}
+            </span>
+            <button
+              onClick={handleCopy}
+              className="inline-flex items-center gap-1.5 bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold text-xs px-3 py-1.5 rounded-lg border border-slate-300 transition-colors cursor-pointer"
+            >
+              {copied ? (
+                <>
+                  <Check className="w-3.5 h-3.5 text-emerald-600" />
+                  <span>Copied!</span>
+                </>
+              ) : (
+                <>
+                  <Copy className="w-3.5 h-3.5 text-slate-500" />
+                  <span>Copy Sample Bullet</span>
+                </>
+              )}
+            </button>
           </div>
 
-          {/* BEFORE Card (Red) */}
-          <div className="clean-card rounded-3xl p-6 sm:p-7 relative flex flex-col justify-between border-rose-200 bg-rose-50/40">
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <span className="text-rose-700 font-extrabold text-xs uppercase tracking-wider flex items-center gap-1.5">
-                  <X className="w-4 h-4 p-0.5 bg-rose-200 text-rose-800 rounded-full" />
-                  Weak Discarded Bullet
-                </span>
-                <span className="text-slate-400 text-xs font-mono">Before Kit</span>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            
+            {/* BEFORE */}
+            <div className="bg-rose-50/70 border border-rose-200 p-6 rounded-2xl space-y-3">
+              <div className="flex items-center gap-2 text-rose-800 font-bold text-xs uppercase tracking-wider">
+                <XCircle className="w-4 h-4 text-rose-600" />
+                <span>BEFORE (Weak 6-Second Discard)</span>
               </div>
-              
-              <div className="bg-white p-4 rounded-2xl border border-rose-200 text-slate-700 font-mono text-sm leading-relaxed shadow-sm">
+              <p className="text-slate-800 font-mono text-xs sm:text-sm leading-relaxed bg-white p-3.5 rounded-xl border border-rose-200">
                 "{current.before}"
+              </p>
+              <div className="text-[11px] text-rose-700 font-medium">
+                ⚠️ <strong>Flaw:</strong> {current.beforeFlaw}
               </div>
             </div>
 
-            <div className="mt-6 pt-4 border-t border-rose-200 flex items-center justify-between text-xs">
-              <span className="text-slate-500">Recruiter Verdict:</span>
-              <span className="text-rose-800 font-bold bg-rose-100 px-2.5 py-1 rounded-lg border border-rose-200">
-                ❌ {current.beforeResult}
-              </span>
-            </div>
-          </div>
-
-          {/* AFTER Card (Green) */}
-          <div className="clean-card rounded-3xl p-6 sm:p-7 relative flex flex-col justify-between border-emerald-300 bg-emerald-50/40 shadow-lg">
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <span className="text-emerald-800 font-extrabold text-xs uppercase tracking-wider flex items-center gap-1.5">
-                  <Check className="w-4 h-4 p-0.5 bg-emerald-200 text-emerald-800 rounded-full" />
-                  The ATMR Formula Bullet
-                </span>
-                <span className="text-emerald-800 text-xs font-bold bg-emerald-100 px-2 py-0.5 rounded-full border border-emerald-200">
-                  PDF Page 5
-                </span>
+            {/* AFTER */}
+            <div className="bg-emerald-50/70 border-2 border-emerald-500 p-6 rounded-2xl space-y-3 relative shadow-md">
+              <div className="flex items-center gap-2 text-emerald-900 font-extrabold text-xs uppercase tracking-wider">
+                <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                <span>AFTER (ATMR ATS Magnet)</span>
               </div>
-
-              <div className="bg-white p-4 rounded-2xl border border-emerald-200 text-slate-900 font-mono text-sm font-semibold leading-relaxed shadow-sm">
+              <p className="text-slate-900 font-mono text-xs sm:text-sm font-semibold leading-relaxed bg-white p-3.5 rounded-xl border border-emerald-300 text-emerald-950">
                 "{current.after}"
+              </p>
+              <div className="text-[11px] text-emerald-800 font-bold bg-emerald-100 p-2 rounded-lg border border-emerald-200">
+                ✨ <strong>Formula:</strong> {current.afterFormula}
               </div>
             </div>
 
-            <div className="mt-6 pt-4 border-t border-emerald-200 flex items-center justify-between text-xs">
-              <span className="text-slate-600 font-medium">Recruiter Reaction:</span>
-              <span className="text-emerald-900 font-extrabold bg-emerald-100 px-2.5 py-1 rounded-lg border border-emerald-300">
-                ✅ {current.afterResult}
-              </span>
-            </div>
           </div>
 
         </div>
