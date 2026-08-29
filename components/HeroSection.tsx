@@ -12,7 +12,9 @@ import {
   Check,
   FileCheck,
   Award,
-  Bot
+  Cpu,
+  ShieldCheck,
+  Activity
 } from 'lucide-react';
 
 export const HeroSection: React.FC = () => {
@@ -28,15 +30,15 @@ export const HeroSection: React.FC = () => {
   return (
     <section className="relative overflow-hidden pt-8 pb-20 md:pt-14 md:pb-28 subtle-grid-bg bg-slate-50 w-full">
       
-      {/* Background Soft Accents */}
-      <div className="absolute top-10 left-1/2 -translate-x-1/2 w-[900px] h-[400px] bg-emerald-500/5 blur-[140px] rounded-full pointer-events-none" />
-      <div className="absolute top-40 right-10 w-[400px] h-[400px] bg-blue-500/5 blur-[120px] rounded-full pointer-events-none" />
+      {/* Background 3D Glowing Ambient Spheres */}
+      <div className="absolute top-10 left-1/2 -translate-x-1/2 w-[950px] h-[450px] bg-emerald-500/10 blur-[150px] rounded-full pointer-events-none animate-pulse-subtle" />
+      <div className="absolute top-40 right-10 w-[450px] h-[450px] bg-blue-500/10 blur-[140px] rounded-full pointer-events-none" />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8 relative z-10">
         
         {/* Loss Aversion Top Pill */}
         <div className="flex justify-center mb-6">
-          <div className="inline-flex items-center gap-2 bg-amber-500/10 border border-amber-500/30 text-amber-900 px-4 py-2 rounded-full text-xs sm:text-sm font-semibold shadow-sm">
+          <div className="inline-flex items-center gap-2 bg-amber-500/10 border border-amber-500/30 text-amber-900 px-4.5 py-2 rounded-full text-xs sm:text-sm font-semibold shadow-sm animate-float-slow">
             <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0" />
             <span>⚠️ <strong>85% of resumes</strong> are discarded in 6 seconds by ATS algorithms. Fix yours before your next application.</span>
           </div>
@@ -73,8 +75,9 @@ export const HeroSection: React.FC = () => {
         <div className="flex flex-col items-center justify-center gap-3 mb-14">
           <button
             onClick={scrollToCheckout}
-            className="w-full sm:w-auto min-w-[340px] bg-emerald-600 hover:bg-emerald-500 text-white font-black text-lg sm:text-2xl px-9 py-4.5 rounded-2xl shadow-xl shadow-emerald-600/25 transform hover:-translate-y-0.5 transition-all flex items-center justify-center gap-3 group border border-emerald-400/30 cursor-pointer"
+            className="w-full sm:w-auto min-w-[340px] bg-emerald-600 hover:bg-emerald-500 text-white font-black text-lg sm:text-2xl px-9 py-4.5 rounded-2xl shadow-2xl shadow-emerald-600/30 transform hover:-translate-y-1 transition-all flex items-center justify-center gap-3 group border border-emerald-400/30 cursor-pointer"
           >
+            <Zap className="w-6 h-6 fill-white" />
             <span>GET INSTANT ACCESS — ₹299</span>
             <ArrowRight className="w-6 h-6 group-hover:translate-x-1 transition-transform" />
           </button>
@@ -95,42 +98,57 @@ export const HeroSection: React.FC = () => {
           </div>
         </div>
 
-        {/* 🌟 FULL-WIDTH TWO-COLUMN VISUAL GRAPHICS SHOWCASE 🌟 */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-16">
+        {/* 🌟 3D ANIMATED HERO PRODUCT & ISOMETRIC DASHBOARD SHOWCASE 🌟 */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 mb-16 items-center">
           
-          {/* Graphic 1: 3D Product Bundle Mockup */}
-          <div className="clean-card rounded-3xl p-3 sm:p-5 bg-white border border-slate-200 shadow-2xl relative overflow-hidden group flex flex-col justify-between">
-            <img
-              src="/images/career_kit_mockup.jpg"
-              alt="The AI Job Application Kit 38-Page Career Operating System 3D Product Bundle"
-              className="w-full h-auto rounded-2xl object-cover shadow-sm group-hover:scale-[1.01] transition-transform duration-500"
-            />
-            <div className="p-3 pt-4 flex items-center justify-between border-t border-slate-100 mt-2">
-              <div className="flex items-center gap-2 text-xs font-extrabold text-slate-800">
+          {/* Left: 3D Product Bundle Mockup with Tilt */}
+          <div className="lg:col-span-7 perspective-container">
+            <div className="clean-card rounded-3xl p-3 sm:p-5 bg-white border border-slate-200 shadow-2xl relative overflow-hidden group card-3d-tilt">
+              <img
+                src="/images/career_kit_mockup.jpg"
+                alt="The AI Job Application Kit 38-Page Career Operating System 3D Product Bundle"
+                className="w-full h-auto rounded-2xl object-cover shadow-sm group-hover:scale-[1.01] transition-transform duration-500"
+              />
+              
+              {/* Floating 3D Animated Badges */}
+              <div className="absolute top-6 left-6 hidden sm:flex items-center gap-2 bg-white/95 backdrop-blur-md px-3.5 py-1.5 rounded-full border border-slate-200 text-xs font-extrabold text-slate-800 shadow-xl animate-float-slow">
                 <FileCheck className="w-4 h-4 text-emerald-600" />
                 <span>38-Page Complete System PDF</span>
               </div>
-              <span className="text-xs font-bold text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-full border border-emerald-200">
-                100% Print & Mobile Ready
-              </span>
+
+              <div className="absolute bottom-6 right-6 hidden sm:flex items-center gap-2 bg-slate-900/95 backdrop-blur-md text-white px-3.5 py-1.5 rounded-full border border-slate-700 text-xs font-bold shadow-xl animate-float-delayed">
+                <Sparkles className="w-4 h-4 text-emerald-400" />
+                <span>Includes 10 Word & Notion Dashboards</span>
+              </div>
             </div>
           </div>
 
-          {/* Graphic 2: AI Mock Interview Simulator & Scorecard UI */}
-          <div className="clean-card rounded-3xl p-3 sm:p-5 bg-white border border-slate-200 shadow-2xl relative overflow-hidden group flex flex-col justify-between">
-            <img
-              src="/images/interview_simulator_graphic.jpg"
-              alt="AI Mock Interview Simulator & 35-Point STAR Framework Scorecard"
-              className="w-full h-auto rounded-2xl object-cover shadow-sm group-hover:scale-[1.01] transition-transform duration-500"
-            />
-            <div className="p-3 pt-4 flex items-center justify-between border-t border-slate-100 mt-2">
-              <div className="flex items-center gap-2 text-xs font-extrabold text-slate-800">
-                <Award className="w-4 h-4 text-emerald-600" />
-                <span>Section 9 • AI Mock Interview Simulator</span>
+          {/* Right: 3D Isometric Holographic Operating System Graphic */}
+          <div className="lg:col-span-5 space-y-4">
+            <div className="clean-card rounded-3xl p-3 sm:p-4 bg-slate-900 text-white border border-slate-800 shadow-2xl relative overflow-hidden group card-3d-tilt">
+              <img
+                src="/images/3d_career_dashboard_mockup.jpg"
+                alt="3D Holographic AI Career Operating System Dashboard"
+                className="w-full h-auto rounded-2xl object-cover opacity-90 group-hover:opacity-100 transition-opacity"
+              />
+              <div className="p-3 pt-4 border-t border-slate-800 flex items-center justify-between text-xs">
+                <span className="font-bold text-emerald-400 flex items-center gap-1.5">
+                  <Cpu className="w-4 h-4" /> 3D AI Career Operating System
+                </span>
+                <span className="text-slate-400 font-mono text-[11px]">Section 1 - 18</span>
               </div>
-              <span className="text-xs font-bold text-amber-800 bg-amber-100 px-2.5 py-1 rounded-full border border-amber-200">
-                35-Point STAR Scorecard
-              </span>
+            </div>
+
+            {/* Quick feature callouts */}
+            <div className="grid grid-cols-2 gap-3 text-xs">
+              <div className="bg-white p-3.5 rounded-2xl border border-slate-200 shadow-sm flex items-center gap-2 font-bold text-slate-800">
+                <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                <span>10 Complete ATS Templates</span>
+              </div>
+              <div className="bg-white p-3.5 rounded-2xl border border-slate-200 shadow-sm flex items-center gap-2 font-bold text-slate-800">
+                <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                <span>65+ Copy-Paste AI Prompts</span>
+              </div>
             </div>
           </div>
 
@@ -138,7 +156,7 @@ export const HeroSection: React.FC = () => {
 
         {/* Full-Width Interactive Preview Card */}
         <div className="w-full">
-          <div className="clean-card rounded-3xl p-5 sm:p-8 md:p-10 border border-slate-200 shadow-xl bg-white relative overflow-hidden">
+          <div className="clean-card rounded-3xl p-5 sm:p-8 md:p-10 border border-slate-200 shadow-xl bg-white relative overflow-hidden card-3d-tilt">
             
             {/* Header of Interactive Card */}
             <div className="flex flex-col md:flex-row md:items-center justify-between border-b border-slate-100 pb-5 mb-6 gap-4">
