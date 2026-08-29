@@ -28,6 +28,8 @@ declare global {
 export const CheckoutSection: React.FC = () => {
   const [hasOrderBump, setHasOrderBump] = useState<boolean>(false);
   const [enableOrderBump, setEnableOrderBump] = useState<boolean>(true);
+  const [productDriveUrl, setProductDriveUrl] = useState<string>('https://drive.google.com/file/d/1_Sample_AI_Job_Application_Kit_38Page/view');
+  const [orderBumpDriveUrl, setOrderBumpDriveUrl] = useState<string>('https://notion.so/Sample_10_Word_Templates_And_Job_Tracker_Dashboard');
   const [fullName, setFullName] = useState<string>('');
   const [email, setEmail] = useState<string>('');
   const [phone, setPhone] = useState<string>('');
@@ -42,6 +44,8 @@ export const CheckoutSection: React.FC = () => {
     name: string;
     email: string;
     hasOrderBump: boolean;
+    productDriveUrl?: string;
+    orderBumpDriveUrl?: string;
   } | null>(null);
 
   const basePrice = 1; // Test price ₹1 (set to 299 for production)
@@ -49,7 +53,7 @@ export const CheckoutSection: React.FC = () => {
   const isBumpActive = enableOrderBump && hasOrderBump;
   const totalPrice = isBumpActive ? basePrice + bumpPrice : basePrice;
 
-  // Fetch Admin Setting for Order Bump Enablement
+  // Fetch Admin Setting for Order Bump Enablement and Google Drive URLs
   useEffect(() => {
     const fetchSettings = async () => {
       try {
@@ -60,6 +64,12 @@ export const CheckoutSection: React.FC = () => {
           setEnableOrderBump(isEnabled);
           if (!isEnabled) {
             setHasOrderBump(false);
+          }
+          if (data.setting.productDriveUrl) {
+            setProductDriveUrl(data.setting.productDriveUrl);
+          }
+          if (data.setting.orderBumpDriveUrl) {
+            setOrderBumpDriveUrl(data.setting.orderBumpDriveUrl);
           }
         }
       } catch (err) {
@@ -142,22 +152,32 @@ export const CheckoutSection: React.FC = () => {
           trackMetaPurchase(totalPrice, paymentId, isBumpActive);
 
           // Send immediate backend confirmation to guarantee database update (status: Captured)
-          await fetch('/api/confirm-payment', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              orderId: createdOrderId,
-              paymentId: paymentId,
-              status: 'Captured',
-              name: fullName,
-              email: email,
-              phone: phone,
-              amount: totalPrice,
-              hasOrderBump: isBumpActive,
-            }),
-          });
+          let liveProductUrl = productDriveUrl;
+          let liveBumpUrl = orderBumpDriveUrl;
 
-          // Set confirmed order state to render Confirmation & Download Section
+          try {
+            const confirmRes = await fetch('/api/confirm-payment', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                orderId: createdOrderId,
+                paymentId: paymentId,
+                status: 'Captured',
+                name: fullName,
+                email: email,
+                phone: phone,
+                amount: totalPrice,
+                hasOrderBump: isBumpActive,
+              }),
+            });
+            const confirmData = await confirmRes.json();
+            if (confirmData.downloadUrl) liveProductUrl = confirmData.downloadUrl;
+            if (confirmData.orderBumpUrl) liveBumpUrl = confirmData.orderBumpUrl;
+          } catch (confirmErr) {
+            console.warn('Confirm payment background fetch error:', confirmErr);
+          }
+
+          // Set confirmed order state to render Confirmation & Direct Download Buttons
           setConfirmedOrder({
             paymentId: paymentId,
             orderId: createdOrderId,
@@ -165,6 +185,8 @@ export const CheckoutSection: React.FC = () => {
             name: fullName,
             email: email,
             hasOrderBump: isBumpActive,
+            productDriveUrl: liveProductUrl,
+            orderBumpDriveUrl: liveBumpUrl,
           });
         },
       };
@@ -210,6 +232,8 @@ export const CheckoutSection: React.FC = () => {
           name: fullName,
           email: email,
           hasOrderBump: isBumpActive,
+          productDriveUrl: productDriveUrl,
+          orderBumpDriveUrl: orderBumpDriveUrl,
         });
       }
     } catch (err: any) {
@@ -224,7 +248,7 @@ export const CheckoutSection: React.FC = () => {
     <section id="checkout-section" className="py-16 md:py-24 bg-slate-50 border-t border-slate-200 relative">
       <div className="max-w-4xl mx-auto px-4 sm:px-6">
         
-        {/* IF PAYMENT IS CONFIRMED -> SHOW CONFIRMATION & INSTANT DOWNLOAD CARD */}
+        {/* IF PAYMENT IS CONFIRMED -> SHOW CONFIRMATION & DIRECT GOOGLE DRIVE DOWNLOAD BUTTONS */}
         {confirmedOrder ? (
           <div className="clean-card rounded-3xl p-8 sm:p-12 border-2 border-emerald-500 bg-white shadow-2xl text-center space-y-8 animate-in fade-in duration-500">
             
@@ -268,28 +292,24 @@ export const CheckoutSection: React.FC = () => {
               </div>
             </div>
 
-            {/* INSTANT DOWNLOAD BUTTONS */}
+            {/* REAL DIRECT GOOGLE DRIVE DOWNLOAD BUTTONS */}
             <div className="space-y-3 max-w-md mx-auto">
               <a
-                href="#download"
-                onClick={(e) => {
-                  e.preventDefault();
-                  alert(`Downloading "The AI Job Application Kit (38-Page Operating System)" PDF...`);
-                }}
-                className="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-black text-lg py-4 px-6 rounded-2xl shadow-xl shadow-emerald-600/20 transition-all flex items-center justify-center gap-2 cursor-pointer"
+                href={confirmedOrder.productDriveUrl || productDriveUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-black text-base sm:text-lg py-4 px-6 rounded-2xl shadow-xl shadow-emerald-600/20 transition-all flex items-center justify-center gap-2 cursor-pointer border border-emerald-400/30"
               >
                 <Download className="w-5 h-5" />
-                <span>Download 38-Page PDF Toolkit Now</span>
+                <span>Open & Download 38-Page PDF (Google Drive)</span>
               </a>
 
               {confirmedOrder.hasOrderBump && (
                 <a
-                  href="#notion-templates"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    alert(`Opening 10 Editable Microsoft Word (.docx) & Notion Application Tracker Dashboard link...`);
-                  }}
-                  className="w-full bg-slate-900 hover:bg-slate-800 text-white font-bold text-sm py-3 px-6 rounded-xl transition-all flex items-center justify-center gap-2 cursor-pointer"
+                  href={confirmedOrder.orderBumpDriveUrl || orderBumpDriveUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-full bg-slate-900 hover:bg-slate-800 text-white font-bold text-sm py-3.5 px-6 rounded-xl transition-all flex items-center justify-center gap-2 cursor-pointer border border-slate-700"
                 >
                   <ExternalLink className="w-4 h-4 text-emerald-400" />
                   <span>Access Word & Notion Dashboard Templates</span>
@@ -352,7 +372,7 @@ export const CheckoutSection: React.FC = () => {
                   </div>
                 </div>
 
-                {/* 2. HIGH-CONVERTING 1-CLICK ORDER BUMP (STRICTLY HIDDEN WHEN enableOrderBump === false) */}
+                {/* 2. HIGH-CONVERTING 1-CLICK ORDER BUMP */}
                 {enableOrderBump && (
                   <div className="bg-emerald-50/60 border-2 border-emerald-500 rounded-2xl p-5 shadow-sm relative pulse-border-emerald animate-in fade-in duration-200">
                     <div className="flex items-start gap-3">
