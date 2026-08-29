@@ -19,6 +19,7 @@ export async function GET() {
         bumpPrice: 99,
         adminPin: 'admin123',
         metaPixelId: process.env.NEXT_PUBLIC_META_PIXEL_ID || '123456789012345',
+        enableOrderBump: true,
       };
     }
 
@@ -39,7 +40,15 @@ export async function POST(req: Request) {
     const conn = await dbConnect();
     const body = await req.json();
 
-    const { productDriveUrl, orderBumpDriveUrl, basePrice, bumpPrice, adminPin, metaPixelId } = body;
+    const {
+      productDriveUrl,
+      orderBumpDriveUrl,
+      basePrice,
+      bumpPrice,
+      adminPin,
+      metaPixelId,
+      enableOrderBump,
+    } = body;
 
     let updatedSetting = null;
 
@@ -53,6 +62,7 @@ export async function POST(req: Request) {
           bumpPrice: typeof bumpPrice === 'number' ? bumpPrice : 99,
           adminPin: adminPin || 'admin123',
           metaPixelId: metaPixelId || '123456789012345',
+          enableOrderBump: typeof enableOrderBump === 'boolean' ? enableOrderBump : true,
         },
         { upsert: true, new: true }
       );
@@ -64,12 +74,13 @@ export async function POST(req: Request) {
         bumpPrice,
         adminPin,
         metaPixelId,
+        enableOrderBump,
       };
     }
 
     return NextResponse.json({
       success: true,
-      message: 'Product Settings & Meta Pixel ID updated successfully!',
+      message: 'Product Settings & Order Bump Toggle updated successfully!',
       setting: updatedSetting,
     });
   } catch (error: any) {

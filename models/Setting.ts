@@ -7,6 +7,7 @@ export interface ISetting extends Document {
   bumpPrice: number;
   adminPin: string;
   metaPixelId: string;
+  enableOrderBump: boolean;
   updatedAt: Date;
 }
 
@@ -35,6 +36,10 @@ const SettingSchema: Schema = new Schema<ISetting>(
     metaPixelId: {
       type: String,
       default: '123456789012345',
+    },
+    enableOrderBump: {
+      type: Boolean,
+      default: true,
     },
   },
   {

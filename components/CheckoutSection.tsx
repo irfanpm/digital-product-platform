@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   ShieldCheck, 
   Zap, 
@@ -27,6 +27,7 @@ declare global {
 
 export const CheckoutSection: React.FC = () => {
   const [hasOrderBump, setHasOrderBump] = useState<boolean>(false);
+  const [enableOrderBump, setEnableOrderBump] = useState<boolean>(true);
   const [fullName, setFullName] = useState<string>('');
   const [email, setEmail] = useState<string>('');
   const [phone, setPhone] = useState<string>('');
@@ -45,7 +46,26 @@ export const CheckoutSection: React.FC = () => {
 
   const basePrice = 1; // Test price ₹1 (set to 299 for production)
   const bumpPrice = 1;
-  const totalPrice = hasOrderBump ? basePrice + bumpPrice : basePrice;
+  const totalPrice = (hasOrderBump && enableOrderBump) ? basePrice + bumpPrice : basePrice;
+
+  // Fetch Admin Setting for Order Bump Enablement
+  useEffect(() => {
+    const fetchSettings = async () => {
+      try {
+        const res = await fetch('/api/admin/settings');
+        const data = await res.json();
+        if (data.success && data.setting) {
+          if (data.setting.enableOrderBump === false) {
+            setEnableOrderBump(false);
+            setHasOrderBump(false);
+          }
+        }
+      } catch (err) {
+        console.error('Error fetching checkout settings:', err);
+      }
+    };
+    fetchSettings();
+  }, []);
 
   const handleCheckout = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -67,8 +87,8 @@ export const CheckoutSection: React.FC = () => {
     trackMetaEvent('InitiateCheckout', {
       value: totalPrice,
       currency: 'INR',
-      content_name: hasOrderBump ? '38-Page Kit + Word/Notion Bump' : 'The AI Job Application Kit',
-      num_items: hasOrderBump ? 2 : 1,
+      content_name: (hasOrderBump && enableOrderBump) ? '38-Page Kit + Word/Notion Bump' : 'The AI Job Application Kit',
+      num_items: (hasOrderBump && enableOrderBump) ? 2 : 1,
     });
 
     try {
@@ -83,7 +103,7 @@ export const CheckoutSection: React.FC = () => {
             fullName,
             email,
             phone,
-            hasOrderBump: hasOrderBump ? 'Yes' : 'No'
+            hasOrderBump: (hasOrderBump && enableOrderBump) ? 'Yes' : 'No'
           }
         }),
       });
@@ -102,7 +122,7 @@ export const CheckoutSection: React.FC = () => {
         amount: data.order.amount,
         currency: data.order.currency,
         name: 'Career Operating System',
-        description: hasOrderBump 
+        description: (hasOrderBump && enableOrderBump)
           ? '38-Page AI Kit + 10 Editable Word & Notion Templates' 
           : 'The AI Job Application Kit (38-Page COS)',
         prefill: {
@@ -117,7 +137,7 @@ export const CheckoutSection: React.FC = () => {
           const paymentId = response.razorpay_payment_id || `pay_${Date.now()}`;
 
           // Track Meta Pixel Purchase Event
-          trackMetaPurchase(totalPrice, paymentId, hasOrderBump);
+          trackMetaPurchase(totalPrice, paymentId, (hasOrderBump && enableOrderBump));
 
           // Send immediate backend confirmation to guarantee database update (status: Captured)
           await fetch('/api/confirm-payment', {
@@ -131,7 +151,7 @@ export const CheckoutSection: React.FC = () => {
               email: email,
               phone: phone,
               amount: totalPrice,
-              hasOrderBump: hasOrderBump,
+              hasOrderBump: (hasOrderBump && enableOrderBump),
             }),
           });
 
@@ -142,7 +162,7 @@ export const CheckoutSection: React.FC = () => {
             amount: totalPrice,
             name: fullName,
             email: email,
-            hasOrderBump: hasOrderBump,
+            hasOrderBump: (hasOrderBump && enableOrderBump),
           });
         },
       };
@@ -170,7 +190,7 @@ export const CheckoutSection: React.FC = () => {
               email: email,
               phone: phone,
               amount: totalPrice,
-              hasOrderBump: hasOrderBump,
+              hasOrderBump: (hasOrderBump && enableOrderBump),
             }),
           });
 
@@ -180,14 +200,14 @@ export const CheckoutSection: React.FC = () => {
         rzp.open();
       } else {
         // Fallback simulation for local preview without SDK
-        trackMetaPurchase(totalPrice, `pay_sim_${Date.now()}`, hasOrderBump);
+        trackMetaPurchase(totalPrice, `pay_sim_${Date.now()}`, (hasOrderBump && enableOrderBump));
         setConfirmedOrder({
           paymentId: `pay_sim_${Date.now()}`,
           orderId: createdOrderId,
           amount: totalPrice,
           name: fullName,
           email: email,
-          hasOrderBump: hasOrderBump,
+          hasOrderBump: (hasOrderBump && enableOrderBump),
         });
       }
     } catch (err: any) {
@@ -330,32 +350,34 @@ export const CheckoutSection: React.FC = () => {
                   </div>
                 </div>
 
-                {/* 2. HIGH-CONVERTING 1-CLICK ORDER BUMP */}
-                <div className="bg-emerald-50/60 border-2 border-emerald-500 rounded-2xl p-5 shadow-sm relative pulse-border-emerald">
-                  <div className="flex items-start gap-3">
-                    <input
-                      type="checkbox"
-                      id="orderBump"
-                      checked={hasOrderBump}
-                      onChange={(e) => setHasOrderBump(e.target.checked)}
-                      className="mt-1 w-5 h-5 accent-emerald-600 rounded cursor-pointer shrink-0"
-                    />
-                    <label htmlFor="orderBump" className="cursor-pointer space-y-1.5 flex-1">
-                      <div className="flex items-center justify-between flex-wrap gap-2">
-                        <span className="text-emerald-950 font-extrabold text-sm sm:text-base flex items-center gap-1.5">
-                          <Sparkles className="w-4 h-4 text-amber-600 fill-amber-500" />
-                          [+ ₹{bumpPrice}] Add 10 Editable Microsoft Word (.docx) & Notion Dashboard Templates
-                        </span>
-                        <span className="text-xs font-bold text-amber-900 bg-amber-200 px-2 py-0.5 rounded-full border border-amber-300">
-                          78% OF BUYERS ADD THIS
-                        </span>
-                      </div>
-                      <p className="text-slate-700 text-xs leading-relaxed">
-                        Instantly edit and customize your resume in Microsoft Word (.docx) or manage your job applications in a premium pre-built Notion application tracker.
-                      </p>
-                    </label>
+                {/* 2. HIGH-CONVERTING 1-CLICK ORDER BUMP (DISPLAYED ONLY WHEN enableOrderBump === true) */}
+                {enableOrderBump && (
+                  <div className="bg-emerald-50/60 border-2 border-emerald-500 rounded-2xl p-5 shadow-sm relative pulse-border-emerald animate-in fade-in duration-200">
+                    <div className="flex items-start gap-3">
+                      <input
+                        type="checkbox"
+                        id="orderBump"
+                        checked={hasOrderBump}
+                        onChange={(e) => setHasOrderBump(e.target.checked)}
+                        className="mt-1 w-5 h-5 accent-emerald-600 rounded cursor-pointer shrink-0"
+                      />
+                      <label htmlFor="orderBump" className="cursor-pointer space-y-1.5 flex-1">
+                        <div className="flex items-center justify-between flex-wrap gap-2">
+                          <span className="text-emerald-950 font-extrabold text-sm sm:text-base flex items-center gap-1.5">
+                            <Sparkles className="w-4 h-4 text-amber-600 fill-amber-500" />
+                            [+ ₹{bumpPrice}] Add 10 Editable Microsoft Word (.docx) & Notion Dashboard Templates
+                          </span>
+                          <span className="text-xs font-bold text-amber-900 bg-amber-200 px-2 py-0.5 rounded-full border border-amber-300">
+                            78% OF BUYERS ADD THIS
+                          </span>
+                        </div>
+                        <p className="text-slate-700 text-xs leading-relaxed">
+                          Instantly edit and customize your resume in Microsoft Word (.docx) or manage your job applications in a premium pre-built Notion application tracker.
+                        </p>
+                      </label>
+                    </div>
                   </div>
-                </div>
+                )}
 
                 {/* 3. Minimal Customer Form */}
                 <div className="space-y-4">
