@@ -12,7 +12,7 @@ import { Testimonials } from '@/components/Testimonials';
 import { CheckoutSection } from '@/components/CheckoutSection';
 import { FAQAccordion } from '@/components/FAQAccordion';
 import { MobileStickyCTA } from '@/components/MobileStickyCTA';
-import { SupportWidget } from '@/components/SupportWidget';
+import { ChatbotWidget } from '@/components/ChatbotWidget';
 import { LegalFooter } from '@/components/LegalFooter';
 import { ScrollReveal } from '@/components/ScrollReveal';
 
@@ -67,8 +67,8 @@ export default function Home() {
       {/* Mobile Fixed CTA Dock (Hidden on Desktop) */}
       <MobileStickyCTA />
 
-      {/* Floating Instant Customer Support Helper Widget */}
-      <SupportWidget />
+      {/* Interactive AI Customer Doubt Clearance Chatbot */}
+      <ChatbotWidget />
 
       {/* Legal & KYC Compliance Footer */}
       <LegalFooter />
