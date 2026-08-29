@@ -6,12 +6,10 @@ import {
   DollarSign, 
   Key, 
   Save, 
-  Check, 
   FileText, 
   Sparkles, 
   ExternalLink,
-  ShieldCheck,
-  AlertCircle
+  Target
 } from 'lucide-react';
 
 export const ProductSettings: React.FC = () => {
@@ -20,6 +18,7 @@ export const ProductSettings: React.FC = () => {
   const [basePrice, setBasePrice] = useState<number>(299);
   const [bumpPrice, setBumpPrice] = useState<number>(99);
   const [adminPin, setAdminPin] = useState<string>('admin123');
+  const [metaPixelId, setMetaPixelId] = useState<string>('123456789012345');
 
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isSaving, setIsSaving] = useState<boolean>(false);
@@ -36,6 +35,7 @@ export const ProductSettings: React.FC = () => {
         setBasePrice(data.setting.basePrice || 299);
         setBumpPrice(data.setting.bumpPrice || 99);
         setAdminPin(data.setting.adminPin || 'admin123');
+        setMetaPixelId(data.setting.metaPixelId || '123456789012345');
       }
     } catch (err) {
       console.error('Error fetching settings:', err);
@@ -63,12 +63,13 @@ export const ProductSettings: React.FC = () => {
           basePrice: Number(basePrice),
           bumpPrice: Number(bumpPrice),
           adminPin,
+          metaPixelId,
         }),
       });
 
       const data = await res.json();
       if (data.success) {
-        setMessage('✅ Google Drive Links & Product Pricing saved to MongoDB!');
+        setMessage('✅ Google Drive Links, Pricing & Meta Pixel ID saved to MongoDB!');
         setTimeout(() => setMessage(''), 4000);
       } else {
         throw new Error(data.error || 'Failed to save settings');
@@ -88,13 +89,13 @@ export const ProductSettings: React.FC = () => {
         <div>
           <h3 className="text-base font-extrabold text-slate-900 flex items-center gap-2">
             <LinkIcon className="w-5 h-5 text-emerald-600" />
-            Digital Product & Google Drive Link Management
+            Digital Product, Pricing & Meta Pixel Tracking Settings
           </h3>
-          <p className="text-xs text-slate-500">Configure your Google Drive PDF download link, Notion dashboard link, and pricing</p>
+          <p className="text-xs text-slate-500">Configure your Google Drive PDF download link, Meta Ads Pixel ID, and pricing</p>
         </div>
 
         <span className="text-xs font-bold text-emerald-800 bg-emerald-100 px-3 py-1 rounded-full border border-emerald-200 self-start sm:self-auto">
-          ⚡ Automated Email Delivery Active
+          ⚡ Automated Email & Meta Pixel Active
         </span>
       </div>
 
@@ -155,8 +156,8 @@ export const ProductSettings: React.FC = () => {
 
         </div>
 
-        {/* Pricing & Admin Security Row */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-4 border-t border-slate-100">
+        {/* Pricing, Meta Pixel & Admin Security Row */}
+        <div className="grid grid-cols-1 sm:grid-cols-4 gap-4 pt-4 border-t border-slate-100">
           
           {/* Base Product Price */}
           <div className="space-y-1">
@@ -185,6 +186,22 @@ export const ProductSettings: React.FC = () => {
                 required
                 value={bumpPrice}
                 onChange={(e) => setBumpPrice(Number(e.target.value))}
+                className="w-full bg-slate-50 border border-slate-300 rounded-xl pl-9 pr-4 py-2 text-xs text-slate-900 font-bold font-mono focus:outline-none focus:border-emerald-600"
+              />
+            </div>
+          </div>
+
+          {/* Meta Pixel ID (Facebook Ads Pixel) */}
+          <div className="space-y-1">
+            <label className="text-xs font-bold text-slate-700">Meta Pixel ID (FB Ads)</label>
+            <div className="relative">
+              <Target className="w-4 h-4 text-slate-400 absolute left-3 top-3" />
+              <input
+                type="text"
+                required
+                placeholder="123456789012345"
+                value={metaPixelId}
+                onChange={(e) => setMetaPixelId(e.target.value)}
                 className="w-full bg-slate-50 border border-slate-300 rounded-xl pl-9 pr-4 py-2 text-xs text-slate-900 font-bold font-mono focus:outline-none focus:border-emerald-600"
               />
             </div>
@@ -227,7 +244,7 @@ export const ProductSettings: React.FC = () => {
               className="bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold text-xs px-6 py-2.5 rounded-xl shadow-md transition-all flex items-center gap-2 cursor-pointer disabled:opacity-50"
             >
               <Save className="w-4 h-4" />
-              <span>{isSaving ? 'Saving to Database...' : 'Save Product Settings'}</span>
+              <span>{isSaving ? 'Saving Settings...' : 'Save Product & Pixel Settings'}</span>
             </button>
           </div>
 

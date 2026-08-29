@@ -6,6 +6,7 @@ export interface ISetting extends Document {
   basePrice: number;
   bumpPrice: number;
   adminPin: string;
+  metaPixelId: string;
   updatedAt: Date;
 }
 
@@ -30,6 +31,10 @@ const SettingSchema: Schema = new Schema<ISetting>(
     adminPin: {
       type: String,
       default: 'admin123',
+    },
+    metaPixelId: {
+      type: String,
+      default: '123456789012345',
     },
   },
   {

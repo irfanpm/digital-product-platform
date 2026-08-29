@@ -17,6 +17,7 @@ import {
   Check,
   ExternalLink
 } from 'lucide-react';
+import { trackMetaEvent, trackMetaPurchase } from '@/lib/metaPixel';
 
 declare global {
   interface Window {
@@ -62,6 +63,14 @@ export const CheckoutSection: React.FC = () => {
 
     setIsLoading(true);
 
+    // Track Meta Pixel InitiateCheckout Event
+    trackMetaEvent('InitiateCheckout', {
+      value: totalPrice,
+      currency: 'INR',
+      content_name: hasOrderBump ? '38-Page Kit + Word/Notion Bump' : 'The AI Job Application Kit',
+      num_items: hasOrderBump ? 2 : 1,
+    });
+
     try {
       // Step 1: Call API to create order
       const response = await fetch('/api/create-order', {
@@ -106,6 +115,9 @@ export const CheckoutSection: React.FC = () => {
         },
         handler: async function (response: any) {
           const paymentId = response.razorpay_payment_id || `pay_${Date.now()}`;
+
+          // Track Meta Pixel Purchase Event
+          trackMetaPurchase(totalPrice, paymentId, hasOrderBump);
 
           // Send immediate backend confirmation to guarantee database update (status: Captured)
           await fetch('/api/confirm-payment', {
@@ -168,6 +180,7 @@ export const CheckoutSection: React.FC = () => {
         rzp.open();
       } else {
         // Fallback simulation for local preview without SDK
+        trackMetaPurchase(totalPrice, `pay_sim_${Date.now()}`, hasOrderBump);
         setConfirmedOrder({
           paymentId: `pay_sim_${Date.now()}`,
           orderId: createdOrderId,
@@ -226,9 +239,9 @@ export const CheckoutSection: React.FC = () => {
                 <span className="font-mono font-bold text-emerald-700">₹{confirmedOrder.amount} INR</span>
               </div>
               <div className="flex justify-between pt-1 border-t border-slate-200">
-                <span className="text-slate-500">Database Status:</span>
+                <span className="text-slate-500">Database & Meta Pixel:</span>
                 <span className="font-bold text-emerald-700 flex items-center gap-1">
-                  <CheckCircle2 className="w-3.5 h-3.5" /> Captured in MongoDB
+                  <CheckCircle2 className="w-3.5 h-3.5" /> Tracked & Saved to MongoDB
                 </span>
               </div>
             </div>

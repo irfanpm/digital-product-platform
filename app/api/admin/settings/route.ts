@@ -18,6 +18,7 @@ export async function GET() {
         basePrice: 299,
         bumpPrice: 99,
         adminPin: 'admin123',
+        metaPixelId: process.env.NEXT_PUBLIC_META_PIXEL_ID || '123456789012345',
       };
     }
 
@@ -38,7 +39,7 @@ export async function POST(req: Request) {
     const conn = await dbConnect();
     const body = await req.json();
 
-    const { productDriveUrl, orderBumpDriveUrl, basePrice, bumpPrice, adminPin } = body;
+    const { productDriveUrl, orderBumpDriveUrl, basePrice, bumpPrice, adminPin, metaPixelId } = body;
 
     let updatedSetting = null;
 
@@ -51,6 +52,7 @@ export async function POST(req: Request) {
           basePrice: typeof basePrice === 'number' ? basePrice : 299,
           bumpPrice: typeof bumpPrice === 'number' ? bumpPrice : 99,
           adminPin: adminPin || 'admin123',
+          metaPixelId: metaPixelId || '123456789012345',
         },
         { upsert: true, new: true }
       );
@@ -61,12 +63,13 @@ export async function POST(req: Request) {
         basePrice,
         bumpPrice,
         adminPin,
+        metaPixelId,
       };
     }
 
     return NextResponse.json({
       success: true,
-      message: 'Product Google Drive links & pricing updated successfully!',
+      message: 'Product Settings & Meta Pixel ID updated successfully!',
       setting: updatedSetting,
     });
   } catch (error: any) {

@@ -1,40 +1,38 @@
 import type { Metadata } from 'next';
-import { Plus_Jakarta_Sans } from 'next/font/google';
+import { Inter } from 'next/font/google';
 import Script from 'next/script';
 import './globals.css';
 
-const jakarta = Plus_Jakarta_Sans({ 
-  subsets: ['latin'],
-  weight: ['400', '500', '600', '700', '800'],
-  variable: '--font-jakarta'
-});
+const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
-  title: 'The AI Job Application Kit 2026 | Beat ATS & Land 3x More Interviews',
-  description: 'Complete 38-page AI Career Operating System. Includes 10 ATS templates, 65+ copy-paste AI prompts, STAR interview bank & salary negotiation scripts for ₹299.',
-  keywords: 'AI job application kit, ATS resume templates, ChatGPT prompts for resume, STAR interview bank, salary negotiation scripts',
+  title: 'The AI Job Application Kit (2026 Edition) — Beat ATS & Land 3x Interviews',
+  description:
+    'The complete 38-page AI Career Operating System. 10 ATS-optimized templates, 65+ AI prompts, 50-master interview question bank, STAR Framework, salary negotiation scripts, and 30-day action plan.',
   openGraph: {
-    title: 'The AI Job Application Kit (Career Operating System)',
-    description: 'Stop sending 50+ blind applications to get ghosted. Get the complete 38-page toolkit for ₹299.',
+    title: 'The AI Job Application Kit (2026 Edition)',
+    description: '38-Page Complete System for Resume ATS Optimization & AI Mock Interviews.',
     type: 'website',
   },
 };
 
+const metaPixelId = process.env.NEXT_PUBLIC_META_PIXEL_ID || '123456789012345';
+
 export default function RootLayout({
   children,
-}: {
+}: Readonly<{
   children: React.ReactNode;
-}) {
+}>) {
   return (
-    <html lang="en" className={jakarta.variable}>
+    <html lang="en" className="scroll-smooth">
       <head>
-        {/* Razorpay SDK Script */}
+        {/* Razorpay Checkout SDK */}
         <Script
           src="https://checkout.razorpay.com/v1/checkout.js"
           strategy="lazyOnload"
         />
 
-        {/* Meta Pixel Client Script Snippet */}
+        {/* Meta Pixel (Facebook Ads Pixel Tracking) */}
         <Script id="meta-pixel" strategy="afterInteractive">
           {`
             !function(f,b,e,v,n,t,s)
@@ -45,12 +43,26 @@ export default function RootLayout({
             t.src=v;s=b.getElementsByTagName(e)[0];
             s.parentNode.insertBefore(t,s)}(window, document,'script',
             'https://connect.facebook.net/en_US/fbevents.js');
-            fbq('init', '1234567890123456');
+            fbq('init', '${metaPixelId}');
             fbq('track', 'PageView');
+            fbq('track', 'ViewContent', {
+              content_name: 'The AI Job Application Kit 38-Page System',
+              currency: 'INR',
+              value: 299
+            });
           `}
         </Script>
+        <noscript>
+          <img
+            height="1"
+            width="1"
+            style={{ display: 'none' }}
+            src={`https://www.facebook.com/tr?id=${metaPixelId}&ev=PageView&noscript=1`}
+            alt="Meta Pixel"
+          />
+        </noscript>
       </head>
-      <body className="font-sans bg-slate-50 text-slate-900 antialiased selection:bg-emerald-500 selection:text-white">
+      <body className={`${inter.className} bg-slate-50 text-slate-900 antialiased`}>
         {children}
       </body>
     </html>
