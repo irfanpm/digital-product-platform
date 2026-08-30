@@ -57,12 +57,12 @@ export const ChatbotWidget: React.FC = () => {
   const qaKnowledgeBase: { [key: string]: { text: string; ctaText?: string; ctaUrl?: string } } = {
     'How do I receive the PDF kit?': {
       text: '⚡ Instant Delivery! As soon as you complete payment via UPI, GPay, or Card, the download link appears instantly on your screen AND a copy is sent to your email in under 5 seconds.',
-      ctaText: 'Claim ₹299 Access Now',
+      ctaText: 'Claim ₹199 Access Now',
       ctaUrl: '#checkout-section',
     },
     'Is this one-time payment or monthly?': {
-      text: '🎉 100% One-Time Payment! You pay only ₹299 (or ₹1 test price) once. There are zero recurring monthly subscriptions, and you get lifetime access + free future updates.',
-      ctaText: 'Get Lifetime Access — ₹299',
+      text: '🎉 100% One-Time Payment! You pay only ₹199 (or ₹1 test price) once. There are zero recurring monthly subscriptions, and you get lifetime access + free future updates.',
+      ctaText: 'Get Lifetime Access — ₹199',
       ctaUrl: '#checkout-section',
     },
     'Does this work for Freshers / IT / Sales?': {
@@ -93,7 +93,7 @@ export const ChatbotWidget: React.FC = () => {
 
     // Lookup fixed answer
     const answer = qaKnowledgeBase[questionText] || {
-      text: `Thanks for asking! Regarding "${questionText}": You get instant digital delivery of all 38 pages, 10 ATS templates & 65+ AI prompts for ₹299 with a 100% money-back guarantee.`,
+      text: `Thanks for asking! Regarding "${questionText}": You get instant digital delivery of all 38 pages, 10 ATS templates & 65+ AI prompts for ₹199 with a 100% money-back guarantee.`,
       ctaText: 'Proceed to Checkout',
       ctaUrl: '#checkout-section',
     };
@@ -134,8 +134,8 @@ export const ChatbotWidget: React.FC = () => {
       const botMsg: ChatMessage = {
         id: `bot_${Date.now()}`,
         sender: 'bot',
-        text: `Thanks for your question! The AI Job Application Kit gives you instant 38-page PDF access, 10 ATS templates, 65+ AI prompts, and a 6-round AI Mock Interviewer for ₹299 (one-time payment). Feel free to tap any topic below or chat with support at support@aijobkit.in!`,
-        ctaText: 'Claim ₹299 Access Now',
+        text: `Thanks for your question! The AI Job Application Kit gives you instant 38-page PDF access, 10 ATS templates, 65+ AI prompts, and a 6-round AI Mock Interviewer for ₹199 (one-time payment). Feel free to tap any topic below or chat with support at support@aijobkit.in!`,
+        ctaText: 'Claim ₹199 Access Now',
         ctaUrl: '#checkout-section',
         options: [
           'How do I receive the PDF kit?',

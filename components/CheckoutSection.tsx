@@ -29,6 +29,7 @@ export const CheckoutSection: React.FC = () => {
   const [email, setEmail] = useState<string>('');
   const [phone, setPhone] = useState<string>('');
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [isVerifyingPayment, setIsVerifyingPayment] = useState<boolean>(false);
   const [errorMessage, setErrorMessage] = useState<string>('');
 
   // Payment Confirmation State
@@ -130,6 +131,7 @@ export const CheckoutSection: React.FC = () => {
           color: '#059669',
         },
         handler: async function (response: any) {
+          setIsVerifyingPayment(true);
           const paymentId = response.razorpay_payment_id || `pay_${Date.now()}`;
 
           // Track Meta Pixel Purchase Event
@@ -172,6 +174,7 @@ export const CheckoutSection: React.FC = () => {
             email: email,
             productDriveUrl: liveProductUrl,
           });
+          setIsVerifyingPayment(false);
         },
       };
 
@@ -230,8 +233,22 @@ export const CheckoutSection: React.FC = () => {
     <section id="checkout-section" className="py-16 md:py-24 bg-slate-50 border-t border-slate-200 relative">
       <div className="max-w-4xl mx-auto px-4 sm:px-6">
         
-        {/* IF PAYMENT IS CONFIRMED -> SHOW CONFIRMATION & DIRECT GOOGLE DRIVE DOWNLOAD BUTTON */}
-        {confirmedOrder ? (
+        {/* IF VERIFYING PAYMENT -> SHOW PROCESSING SCREEN */}
+        {isVerifyingPayment ? (
+          <div className="clean-card rounded-3xl p-12 sm:p-20 border-2 border-emerald-500 bg-white shadow-2xl text-center space-y-8 animate-in fade-in duration-500">
+            <div className="flex justify-center">
+              <div className="w-16 h-16 border-4 border-emerald-500 border-t-transparent rounded-full animate-spin shadow-lg"></div>
+            </div>
+            <div className="space-y-3 max-w-md mx-auto">
+              <h2 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
+                Processing Payment...
+              </h2>
+              <p className="text-slate-600 text-sm sm:text-base font-medium">
+                Please don't close or refresh this window. We are verifying your transaction and generating your secure download links.
+              </p>
+            </div>
+          </div>
+        ) : confirmedOrder ? (
           <div className="clean-card rounded-3xl p-8 sm:p-12 border-2 border-emerald-500 bg-white shadow-2xl text-center space-y-8 animate-in fade-in duration-500">
             
             <div className="flex justify-center">

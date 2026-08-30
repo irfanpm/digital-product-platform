@@ -8,7 +8,7 @@ export const RoiCalculator: React.FC = () => {
 
   const threeMonthsLoss = monthlySalary * 3;
   const dailyLoss = Math.round(monthlySalary / 30);
-  const kitPrice = 299;
+  const kitPrice = 199;
   const roiMultiplier = Math.round(threeMonthsLoss / kitPrice);
 
   const scrollToCheckout = () => {
@@ -86,7 +86,7 @@ export const RoiCalculator: React.FC = () => {
                   <CheckCircle className="w-4 h-4 text-emerald-600" /> One-time 38-Page Kit Investment:
                 </span>
                 <div className="text-2xl sm:text-3xl font-black text-emerald-700 font-mono">
-                  ₹299
+                  ₹199
                 </div>
                 <p className="text-[11px] text-emerald-800 font-medium">
                   Instant <strong className="text-slate-900">{roiMultiplier}x ROI</strong> on your first paycheck
@@ -104,7 +104,7 @@ export const RoiCalculator: React.FC = () => {
                 <AlertTriangle className="w-5 h-5" />
               </div>
               <p className="text-xs sm:text-sm text-slate-700">
-                ₹299 is less than the price of a single pizza, yet it protects <strong>₹{threeMonthsLoss.toLocaleString('en-IN')}</strong> in career earnings.
+                ₹199 is less than the price of a single pizza, yet it protects <strong>₹{threeMonthsLoss.toLocaleString('en-IN')}</strong> in career earnings.
               </p>
             </div>
 
@@ -112,7 +112,7 @@ export const RoiCalculator: React.FC = () => {
               onClick={scrollToCheckout}
               className="w-full sm:w-auto shrink-0 bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-5 py-2.5 rounded-xl text-xs sm:text-sm shadow-sm transition-all flex items-center justify-center gap-1.5 cursor-pointer"
             >
-              <span>Stop The Loss - Get Kit for ₹299</span>
+              <span>Stop The Loss - Get Kit for ₹199</span>
               <ArrowRight className="w-4 h-4" />
             </button>
           </div>

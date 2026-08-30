@@ -130,7 +130,7 @@ export const PainMatrix: React.FC = () => {
             onClick={scrollToCheckout}
             className="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold px-8 py-4 rounded-2xl shadow-lg shadow-emerald-600/20 transition-all text-base cursor-pointer"
           >
-            <span>Switch to the 38-Page AI System for ₹299</span>
+            <span>Switch to the 38-Page AI System for ₹199</span>
             <ArrowRight className="w-5 h-5" />
           </button>
         </div>

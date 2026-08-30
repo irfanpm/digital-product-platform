@@ -90,7 +90,7 @@ export const RevenueStats: React.FC<StatsProps> = ({ stats }) => {
             ₹{stats.averageOrderValue}
           </div>
           <div className="flex items-center gap-1 text-[11px] text-purple-800 font-semibold pt-1">
-            <span>+₹{(stats.averageOrderValue - 299)} uplift over base ₹299</span>
+            <span>+₹{(stats.averageOrderValue - 199)} uplift over base ₹199</span>
           </div>
         </div>
       </div>

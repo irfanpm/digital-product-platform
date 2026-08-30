@@ -20,7 +20,7 @@ export default function TermsPage() {
           <section className="space-y-2">
             <h2 className="text-lg font-bold text-white">1. Product Overview</h2>
             <p>
-              "The AI Job Application Kit (Career Operating System)" is a digital product consisting of downloadable PDF guides, AI prompt templates, resume frameworks, and interactive dashboard links priced at ₹299 INR (or ₹398 INR with the template add-on).
+              "The AI Job Application Kit (Career Operating System)" is a digital product consisting of downloadable PDF guides, AI prompt templates, resume frameworks, and interactive dashboard links priced at ₹199 INR (or ₹298 INR with the template add-on).
             </p>
           </section>
 

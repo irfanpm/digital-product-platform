@@ -51,6 +51,13 @@ export default function AdminPage() {
         setStats(data.stats);
         setDailyChartData(data.dailyChartData || []);
         setBuyers(data.buyers || []);
+      } else {
+        if (data.error === 'Unauthorized') {
+          alert('Your session is invalid. Please log out and log back in.');
+          handleLogout();
+        } else {
+          alert('Failed to load customers: ' + data.error);
+        }
       }
     } catch (err) {
       console.error('Error fetching real admin data:', err);
@@ -103,6 +110,7 @@ export default function AdminPage() {
   const handleLogout = () => {
     if (typeof window !== 'undefined') {
       localStorage.removeItem('admin_authenticated');
+      localStorage.removeItem('admin_pin');
     }
     router.push('/admin/login');
   };
@@ -138,7 +146,16 @@ export default function AdminPage() {
           />
 
           {/* Dedicated Tab Section Workspace */}
-          <div className="flex-1 space-y-6 min-w-0">
+          <div className="flex-1 space-y-6 min-w-0 relative">
+
+            {isLoading && (
+              <div className="absolute inset-0 bg-white/60 backdrop-blur-sm z-10 flex items-center justify-center rounded-3xl border border-slate-100">
+                <div className="flex flex-col items-center gap-3 bg-white p-6 rounded-2xl shadow-xl border border-emerald-100">
+                  <div className="w-8 h-8 border-4 border-emerald-500 border-t-transparent rounded-full animate-spin"></div>
+                  <span className="text-emerald-700 font-bold text-sm">Fetching Real-Time Data...</span>
+                </div>
+              </div>
+            )}
             
             {/* TAB 1: Sales Overview */}
             {activeTab === 'overview' && (

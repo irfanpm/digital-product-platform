@@ -48,7 +48,7 @@ export default function RootLayout({
             fbq('track', 'ViewContent', {
               content_name: 'The AI Job Application Kit 38-Page System',
               currency: 'INR',
-              value: 299
+              value: 199
             });
           `}
         </Script>

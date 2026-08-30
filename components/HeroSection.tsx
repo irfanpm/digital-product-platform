@@ -78,7 +78,7 @@ export const HeroSection: React.FC = () => {
             className="w-full sm:w-auto min-w-[340px] bg-emerald-600 hover:bg-emerald-500 text-white font-black text-lg sm:text-2xl px-9 py-4.5 rounded-2xl shadow-2xl shadow-emerald-600/30 transform hover:-translate-y-1 transition-all flex items-center justify-center gap-3 group border border-emerald-400/30 cursor-pointer"
           >
             <Zap className="w-6 h-6 fill-white" />
-            <span>GET INSTANT ACCESS — ₹299</span>
+            <span>GET INSTANT ACCESS — ₹199</span>
             <ArrowRight className="w-6 h-6 group-hover:translate-x-1 transition-transform" />
           </button>
 

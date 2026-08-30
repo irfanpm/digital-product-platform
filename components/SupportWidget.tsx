@@ -55,7 +55,7 @@ export const SupportWidget: React.FC = () => {
                 <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" /> Is there any monthly fee?
               </span>
               <p className="text-slate-600 leading-relaxed text-[11px]">
-                No monthly fees! One-time payment of ₹299 for full lifetime access and free updates.
+                No monthly fees! One-time payment of ₹199 for full lifetime access and free updates.
               </p>
             </div>
           </div>

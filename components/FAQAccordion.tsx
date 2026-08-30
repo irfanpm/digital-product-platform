@@ -13,7 +13,7 @@ export const FAQAccordion: React.FC = () => {
     },
     {
       q: 'How fast do I get access to the 38-page PDF?',
-      a: 'Immediately after your payment of ₹299 is confirmed, an instant download button appears on your screen. You will also receive an automated backup copy via email in <5 seconds containing the PDF toolkit and dashboard links.'
+      a: 'Immediately after your payment of ₹199 is confirmed, an instant download button appears on your screen. You will also receive an automated backup copy via email in <5 seconds containing the PDF toolkit and dashboard links.'
     },
     {
       q: 'I am a fresher or from a non-tech background. Is this kit suitable for me?',
@@ -21,7 +21,7 @@ export const FAQAccordion: React.FC = () => {
     },
     {
       q: 'What if corporate ATS algorithms change in 2026?',
-      a: 'Our templates and keyword extractor prompts are updated regularly to comply with the latest parsing logic of major ATS systems like Workday, Taleo, Greenhouse, iCIMS, and Lever. Your ₹299 purchase includes lifetime free access to future kit updates.'
+      a: 'Our templates and keyword extractor prompts are updated regularly to comply with the latest parsing logic of major ATS systems like Workday, Taleo, Greenhouse, iCIMS, and Lever. Your ₹199 purchase includes lifetime free access to future kit updates.'
     },
     {
       q: 'Can I open and read the kit on my mobile phone?',

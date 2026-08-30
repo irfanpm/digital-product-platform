@@ -21,7 +21,7 @@ import {
 export const ProductUploadManager: React.FC = () => {
   const [productDriveUrl, setProductDriveUrl] = useState<string>('');
   const [orderBumpDriveUrl, setOrderBumpDriveUrl] = useState<string>('');
-  const [basePrice, setBasePrice] = useState<number>(299);
+  const [basePrice, setBasePrice] = useState<number>(199);
   const [bumpPrice, setBumpPrice] = useState<number>(99);
   const [enableOrderBump, setEnableOrderBump] = useState<boolean>(true);
 
@@ -37,7 +37,7 @@ export const ProductUploadManager: React.FC = () => {
       if (data.success && data.setting) {
         setProductDriveUrl(data.setting.productDriveUrl || '');
         setOrderBumpDriveUrl(data.setting.orderBumpDriveUrl || '');
-        setBasePrice(data.setting.basePrice || 299);
+        setBasePrice(data.setting.basePrice || 199);
         setBumpPrice(data.setting.bumpPrice || 99);
         setEnableOrderBump(data.setting.enableOrderBump !== false);
       }
@@ -64,7 +64,7 @@ export const ProductUploadManager: React.FC = () => {
         body: JSON.stringify({
           productDriveUrl: productDriveUrl.trim(),
           orderBumpDriveUrl: orderBumpDriveUrl.trim(),
-          basePrice: Number(basePrice) || 299,
+          basePrice: Number(basePrice) || 199,
           bumpPrice: Number(bumpPrice) || 99,
           enableOrderBump: Boolean(enableOrderBump),
         }),

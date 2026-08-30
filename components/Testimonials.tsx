@@ -31,7 +31,7 @@ export const Testimonials: React.FC = () => {
       placedAt: 'Pivoted from Non-Tech Support to Data Role',
       salaryJump: 'Career Pivot Success',
       avatar: 'KN',
-      review: 'I was pivoting from non-tech support to data analytics. The ATS template matched 98% with target JDs. Worth 100x more than ₹299.',
+      review: 'I was pivoting from non-tech support to data analytics. The ATS template matched 98% with target JDs. Worth 100x more than ₹199.',
       verified: 'Verified Buyer',
       date: '2 weeks ago'
     }

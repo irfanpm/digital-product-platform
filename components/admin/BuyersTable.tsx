@@ -103,8 +103,8 @@ export const BuyersTable: React.FC<BuyersTableProps> = ({ buyers }) => {
               className="bg-transparent text-slate-800 focus:outline-none cursor-pointer"
             >
               <option value="all">All Packages</option>
-              <option value="bump">Kit + Bump (₹398)</option>
-              <option value="standard">Standard Kit (₹299)</option>
+              <option value="bump">Kit + Bump (₹298)</option>
+              <option value="standard">Standard Kit (₹199)</option>
             </select>
           </div>
 
