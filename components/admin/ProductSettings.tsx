@@ -15,7 +15,7 @@ import {
 export const ProductSettings: React.FC = () => {
   const [productDriveUrl, setProductDriveUrl] = useState<string>('');
   const [orderBumpDriveUrl, setOrderBumpDriveUrl] = useState<string>('');
-  const [basePrice, setBasePrice] = useState<number>(299);
+  const [basePrice, setBasePrice] = useState<number>(199);
   const [bumpPrice, setBumpPrice] = useState<number>(99);
   const [adminPin, setAdminPin] = useState<string>('admin123');
   const [metaPixelId, setMetaPixelId] = useState<string>('123456789012345');
@@ -32,7 +32,7 @@ export const ProductSettings: React.FC = () => {
       if (data.success && data.setting) {
         setProductDriveUrl(data.setting.productDriveUrl || '');
         setOrderBumpDriveUrl(data.setting.orderBumpDriveUrl || '');
-        setBasePrice(data.setting.basePrice || 299);
+        setBasePrice(data.setting.basePrice || 199);
         setBumpPrice(data.setting.bumpPrice || 99);
         setAdminPin(data.setting.adminPin || 'admin123');
         setMetaPixelId(data.setting.metaPixelId || '123456789012345');

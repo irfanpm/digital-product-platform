@@ -12,7 +12,7 @@ export async function POST(req: Request) {
     
     // Fetch prices securely from DB/Memory
     const conn = await dbConnect();
-    let basePrice = 299;
+    let basePrice = 199;
     let bumpPrice = 99;
     
     if (conn) {

@@ -10,7 +10,7 @@ if (!global.globalMemorySettings) {
   global.globalMemorySettings = {
     productDriveUrl: 'https://drive.google.com/file/d/1_Sample_AI_Job_Application_Kit_38Page/view',
     orderBumpDriveUrl: 'https://notion.so/Sample_10_Word_Templates_And_Job_Tracker_Dashboard',
-    basePrice: 299,
+    basePrice: 199,
     bumpPrice: 99,
     adminPin: 'admin123',
     metaPixelId: process.env.NEXT_PUBLIC_META_PIXEL_ID || '123456789012345',

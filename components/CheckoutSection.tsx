@@ -41,10 +41,10 @@ export const CheckoutSection: React.FC = () => {
     productDriveUrl?: string;
   } | null>(null);
 
-  const basePrice = 1; // Test price ₹1 (set to 299 for production)
+  const [basePrice, setBasePrice] = useState<number>(199);
   const totalPrice = basePrice;
 
-  // Fetch Admin Setting for Google Drive URL
+  // Fetch Admin Setting for Google Drive URL and Base Price
   useEffect(() => {
     const fetchSettings = async () => {
       try {
@@ -53,6 +53,9 @@ export const CheckoutSection: React.FC = () => {
         if (data.success && data.setting) {
           if (data.setting.productDriveUrl) {
             setProductDriveUrl(data.setting.productDriveUrl);
+          }
+          if (data.setting.basePrice !== undefined) {
+            setBasePrice(data.setting.basePrice);
           }
         }
       } catch (err) {
