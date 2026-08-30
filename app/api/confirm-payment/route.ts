@@ -6,6 +6,7 @@ import { sendProductEmail } from '@/lib/sendProductEmail';
 
 declare global {
   var memoryOrders: any[];
+  var globalMemorySettings: any;
 }
 
 if (!global.memoryOrders) {
@@ -36,8 +37,8 @@ export async function POST(req: Request) {
     }
 
     // Fetch product Google Drive URL settings
-    let productDriveUrl = 'https://drive.google.com/file/d/1_Sample_AI_Job_Application_Kit_38Page/view';
-    let orderBumpDriveUrl = 'https://notion.so/Sample_10_Word_Templates_And_Job_Tracker_Dashboard';
+    let productDriveUrl = global.globalMemorySettings?.productDriveUrl || 'https://drive.google.com/file/d/1_Sample_AI_Job_Application_Kit_38Page/view';
+    let orderBumpDriveUrl = global.globalMemorySettings?.orderBumpDriveUrl || 'https://notion.so/Sample_10_Word_Templates_And_Job_Tracker_Dashboard';
 
     if (conn) {
       try {

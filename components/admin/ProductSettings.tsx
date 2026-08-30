@@ -54,9 +54,13 @@ export const ProductSettings: React.FC = () => {
     setMessage('');
 
     try {
+      const pin = localStorage.getItem('admin_pin') || '';
       const res = await fetch('/api/admin/settings', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${pin}`
+        },
         body: JSON.stringify({
           productDriveUrl,
           orderBumpDriveUrl,

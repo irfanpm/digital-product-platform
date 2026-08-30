@@ -42,7 +42,10 @@ export default function AdminPage() {
   const fetchAdminData = async () => {
     setIsLoading(true);
     try {
-      const res = await fetch('/api/admin/orders');
+      const pin = localStorage.getItem('admin_pin') || '';
+      const res = await fetch('/api/admin/orders', {
+        headers: { 'Authorization': `Bearer ${pin}` }
+      });
       const data = await res.json();
       if (data.success) {
         setStats(data.stats);

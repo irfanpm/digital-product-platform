@@ -36,14 +36,19 @@ export async function GET() {
       global.globalMemorySettings = setting;
     }
 
+    const publicSetting = { ...setting };
+    delete publicSetting.adminPin;
+
     return NextResponse.json({
       success: true,
-      setting,
+      setting: publicSetting,
     });
   } catch (error: any) {
+    const publicSetting = { ...global.globalMemorySettings };
+    delete publicSetting.adminPin;
     return NextResponse.json({
       success: true,
-      setting: global.globalMemorySettings,
+      setting: publicSetting,
     });
   }
 }
@@ -51,6 +56,23 @@ export async function GET() {
 export async function POST(req: Request) {
   try {
     const conn = await dbConnect();
+    
+    // Auth Check
+    const authHeader = req.headers.get('authorization');
+    const providedPin = authHeader?.split(' ')[1];
+    
+    let currentValidPin = 'admin123';
+    if (conn) {
+      const existingSetting = await Setting.findOne({}).lean();
+      if (existingSetting?.adminPin) currentValidPin = existingSetting.adminPin;
+    } else if (global.globalMemorySettings?.adminPin) {
+      currentValidPin = global.globalMemorySettings.adminPin;
+    }
+    
+    if (providedPin !== currentValidPin) {
+      return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
+    }
+
     const body = await req.json();
 
     const {
@@ -96,10 +118,13 @@ export async function POST(req: Request) {
       }
     }
 
+    const publicSetting = { ...updatedSetting };
+    delete publicSetting.adminPin;
+
     return NextResponse.json({
       success: true,
       message: `Product Settings saved! Order Bump: ${global.globalMemorySettings.enableOrderBump ? 'ON' : 'OFF'}`,
-      setting: updatedSetting || global.globalMemorySettings,
+      setting: publicSetting,
     });
   } catch (error: any) {
     console.error('Settings Update Error:', error);

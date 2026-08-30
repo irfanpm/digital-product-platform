@@ -6,14 +6,30 @@ import Order from '@/models/Order';
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-    const { amount, currency = 'INR', notes } = body;
+    const { currency = 'INR', notes } = body;
 
-    if (!amount || typeof amount !== 'number') {
-      return NextResponse.json(
-        { success: false, error: 'Invalid amount provided' },
-        { status: 400 }
-      );
+    const hasOrderBump = notes?.hasOrderBump === 'Yes';
+    
+    // Fetch prices securely from DB/Memory
+    const conn = await dbConnect();
+    let basePrice = 299;
+    let bumpPrice = 99;
+    
+    if (conn) {
+      const SettingModel = (await import('@/models/Setting')).default;
+      const existingSetting = await SettingModel.findOne({}).lean();
+      if (existingSetting) {
+        if (existingSetting.basePrice !== undefined) basePrice = existingSetting.basePrice;
+        if (existingSetting.bumpPrice !== undefined) bumpPrice = existingSetting.bumpPrice;
+      }
+    } else if (global.globalMemorySettings) {
+      if (global.globalMemorySettings.basePrice !== undefined) basePrice = global.globalMemorySettings.basePrice;
+      if (global.globalMemorySettings.bumpPrice !== undefined) bumpPrice = global.globalMemorySettings.bumpPrice;
     }
+
+    const calculatedAmount = basePrice + (hasOrderBump ? bumpPrice : 0);
+    const amount = calculatedAmount;
+
 
     const key_id = process.env.RAZORPAY_KEY_ID || process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID;
     const key_secret = process.env.RAZORPAY_KEY_SECRET;

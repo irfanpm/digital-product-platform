@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import dbConnect from '@/lib/dbConnect';
 import Order from '@/models/Order';
+import Setting from '@/models/Setting';
 
 declare global {
   var memoryOrders: any[];
@@ -13,6 +14,23 @@ if (!global.memoryOrders) {
 export async function GET(req: Request) {
   try {
     const conn = await dbConnect();
+    
+    // Auth Check
+    const authHeader = req.headers.get('authorization');
+    const providedPin = authHeader?.split(' ')[1];
+    
+    let currentValidPin = 'admin123';
+    if (conn) {
+      const existingSetting = await Setting.findOne({}).lean();
+      if (existingSetting?.adminPin) currentValidPin = existingSetting.adminPin;
+    } else if (global.globalMemorySettings?.adminPin) {
+      currentValidPin = global.globalMemorySettings.adminPin;
+    }
+    
+    if (providedPin !== currentValidPin) {
+      return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
+    }
+
     let dbOrders: any[] = [];
     let dataSource = 'Server Memory & Database';
 

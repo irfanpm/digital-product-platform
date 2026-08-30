@@ -151,7 +151,11 @@ export const CheckoutSection: React.FC = () => {
               }),
             });
             const confirmData = await confirmRes.json();
-            if (confirmData.downloadUrl) liveProductUrl = confirmData.downloadUrl;
+            if (confirmData.downloadUrl) {
+              if (confirmData.downloadUrl !== 'https://drive.google.com/file/d/1_Sample_AI_Job_Application_Kit_38Page/view' || productDriveUrl === 'https://drive.google.com/file/d/1_Sample_AI_Job_Application_Kit_38Page/view') {
+                liveProductUrl = confirmData.downloadUrl;
+              }
+            }
           } catch (confirmErr) {
             console.warn('Confirm payment background fetch error:', confirmErr);
           }

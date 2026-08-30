@@ -99,10 +99,26 @@ export async function sendProductEmail(payload: EmailPayload) {
         },
       });
 
+      const textContent = `
+Hello ${customerName},
+
+Thank you for your order! Your payment has been confirmed.
+Payment ID: ${paymentId}
+Amount: ₹${amount}
+
+You can access your AI Job Application Kit PDF here:
+${productDriveUrl}
+
+${hasOrderBump && orderBumpDriveUrl ? `Your Order Bump Templates: ${orderBumpDriveUrl}\n` : ''}
+If you have any questions, reply to this email.
+      `;
+
       const info = await transporter.sendMail({
         from: from,
+        replyTo: user,
         to: toEmail,
-        subject: `🎉 Your AI Job Application Kit Access & Download Link (Order: ${paymentId})`,
+        subject: `Your Order #${paymentId} - AI Job Application Kit Download`,
+        text: textContent,
         html: htmlContent,
       });
 

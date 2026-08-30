@@ -16,18 +16,21 @@ export default function AdminLoginPage() {
     setIsLoading(true);
 
     try {
-      // Fetch setting to check admin PIN
-      const res = await fetch('/api/admin/settings');
+      const res = await fetch('/api/admin/verify-pin', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ pin: pin.trim() })
+      });
       const data = await res.json();
-      const validPin = data.setting?.adminPin || 'admin123';
 
-      if (pin.trim() === validPin) {
+      if (res.ok && data.success) {
         if (typeof window !== 'undefined') {
           localStorage.setItem('admin_authenticated', 'true');
+          localStorage.setItem('admin_pin', pin.trim());
         }
         router.push('/admin');
       } else {
-        setErrorMessage('Invalid Admin Passcode/PIN. Default is: admin123');
+        setErrorMessage(data.error || 'Invalid Admin Passcode/PIN.');
       }
     } catch (err: any) {
       setErrorMessage(err.message || 'Login verification failed');
