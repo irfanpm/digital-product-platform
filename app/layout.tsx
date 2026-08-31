@@ -16,13 +16,33 @@ export const metadata: Metadata = {
   },
 };
 
-const metaPixelId = process.env.NEXT_PUBLIC_META_PIXEL_ID || '123456789012345';
+import dbConnect from '@/lib/dbConnect';
+import Setting from '@/models/Setting';
 
-export default function RootLayout({
+async function getMetaPixelId() {
+  try {
+    const conn = await dbConnect();
+    if (conn) {
+      const setting = await Setting.findOne({}).lean() as any;
+      if (setting?.metaPixelId) return setting.metaPixelId;
+    }
+  } catch (err) {
+    console.warn('Error fetching meta pixel:', err);
+  }
+  
+  const globalSettings = (global as any).globalMemorySettings;
+  if (globalSettings?.metaPixelId) return globalSettings.metaPixelId;
+
+  return process.env.NEXT_PUBLIC_META_PIXEL_ID || '123456789012345';
+}
+
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const metaPixelId = await getMetaPixelId();
+
   return (
     <html lang="en" className="scroll-smooth">
       <head>

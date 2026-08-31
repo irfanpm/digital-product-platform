@@ -58,9 +58,13 @@ export const ProductUploadManager: React.FC = () => {
     setMessage('Saving product settings to database...');
 
     try {
+      const pin = localStorage.getItem('admin_pin') || '';
       const res = await fetch('/api/admin/settings', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${pin}`
+        },
         body: JSON.stringify({
           productDriveUrl: productDriveUrl.trim(),
           orderBumpDriveUrl: orderBumpDriveUrl.trim(),
