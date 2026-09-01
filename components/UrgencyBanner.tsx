@@ -42,10 +42,10 @@ export const UrgencyBanner: React.FC = () => {
           </span>
           <span className="text-emerald-400 font-bold tracking-wide flex items-center gap-1">
             <Zap className="w-3.5 h-3.5 fill-emerald-400" />
-            TEST PAYMENT MODE:
+            LIMITED TIME OFFER:
           </span>
           <span className="text-slate-200">
-            Get 38-Page Operating System for <strong className="text-emerald-300 font-extrabold text-base">₹1</strong> <span className="line-through text-slate-400 text-xs">₹999</span>
+            Get 38-Page Operating System for <strong className="text-emerald-300 font-extrabold text-base">₹199</strong> <span className="line-through text-slate-400 text-xs">₹999</span>
           </span>
         </div>
 
@@ -64,7 +64,7 @@ export const UrgencyBanner: React.FC = () => {
             className="hidden md:flex items-center gap-1 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-extrabold px-3 py-1 rounded transition-all text-xs shadow-sm hover:scale-105 cursor-pointer"
           >
             <ShieldCheck className="w-3.5 h-3.5" />
-            Claim ₹1 Deal
+            Claim ₹199 Deal
           </button>
         </div>
 
