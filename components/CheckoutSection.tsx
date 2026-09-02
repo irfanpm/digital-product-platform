@@ -9,11 +9,15 @@ import {
   FileText, 
   Mail, 
   User, 
-  Phone,
-  AlertCircle,
-  Clock,
-  Download,
-  Check
+  Phone, 
+  AlertCircle, 
+  Clock, 
+  Download, 
+  Check, 
+  Sparkles,
+  Calendar,
+  Gift,
+  Palette
 } from 'lucide-react';
 import { trackMetaEvent, trackMetaPurchase } from '@/lib/metaPixel';
 
@@ -24,12 +28,11 @@ declare global {
 }
 
 export const CheckoutSection: React.FC = () => {
-  const [productDriveUrl, setProductDriveUrl] = useState<string>('https://drive.google.com/file/d/1_Sample_AI_Job_Application_Kit_38Page/view');
+  const [productDriveUrl, setProductDriveUrl] = useState<string>('https://drive.google.com/file/d/1_Sample_All_In_One_Digital_Planner_2026_2028/view');
   const [fullName, setFullName] = useState<string>('');
   const [email, setEmail] = useState<string>('');
   const [phone, setPhone] = useState<string>('');
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [isVerifyingPayment, setIsVerifyingPayment] = useState<boolean>(false);
   const [errorMessage, setErrorMessage] = useState<string>('');
 
   // Payment Confirmation State
@@ -42,10 +45,10 @@ export const CheckoutSection: React.FC = () => {
     productDriveUrl?: string;
   } | null>(null);
 
-  const [basePrice, setBasePrice] = useState<number>(199);
+  const basePrice = 1; // Test price ₹1 (set to 299 for live production)
   const totalPrice = basePrice;
 
-  // Fetch Admin Setting for Google Drive URL and Base Price
+  // Fetch Admin Setting for Google Drive URL
   useEffect(() => {
     const fetchSettings = async () => {
       try {
@@ -54,9 +57,6 @@ export const CheckoutSection: React.FC = () => {
         if (data.success && data.setting) {
           if (data.setting.productDriveUrl) {
             setProductDriveUrl(data.setting.productDriveUrl);
-          }
-          if (data.setting.basePrice !== undefined) {
-            setBasePrice(data.setting.basePrice);
           }
         }
       } catch (err) {
@@ -71,12 +71,12 @@ export const CheckoutSection: React.FC = () => {
     setErrorMessage('');
 
     if (!fullName.trim() || !email.trim() || !phone.trim()) {
-      setErrorMessage('Please fill in your Name, Email, and Phone number to receive your download links.');
+      setErrorMessage('Please enter your Name, Email, and WhatsApp number to receive your Planner bundle.');
       return;
     }
 
     if (!email.includes('@') || !email.includes('.')) {
-      setErrorMessage('Please enter a valid email address for instant PDF delivery.');
+      setErrorMessage('Please enter a valid email address for instant digital delivery.');
       return;
     }
 
@@ -86,7 +86,7 @@ export const CheckoutSection: React.FC = () => {
     trackMetaEvent('InitiateCheckout', {
       value: totalPrice,
       currency: 'INR',
-      content_name: 'The AI Job Application Kit',
+      content_name: 'All-In-One Digital Planner (2026-2028 Edition)',
       num_items: 1,
     });
 
@@ -102,7 +102,7 @@ export const CheckoutSection: React.FC = () => {
             fullName,
             email,
             phone,
-            hasOrderBump: 'No'
+            product: 'All-In-One Digital Planner (2026-2028 Edition)'
           }
         }),
       });
@@ -120,18 +120,17 @@ export const CheckoutSection: React.FC = () => {
         key: data.order.key || process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || 'rzp_live_TVBfC6ISeEF8o7',
         amount: data.order.amount,
         currency: data.order.currency,
-        name: 'Career Operating System',
-        description: 'The AI Job Application Kit (38-Page COS)',
+        name: 'Digital Planner Studio',
+        description: 'All-In-One Digital Planner (2026-2028) + 5000 Stickers Bundle',
         prefill: {
           name: fullName,
           email: email,
           contact: phone,
         },
         theme: {
-          color: '#059669',
+          color: '#e11d48', // Rose-600
         },
         handler: async function (response: any) {
-          setIsVerifyingPayment(true);
           const paymentId = response.razorpay_payment_id || `pay_${Date.now()}`;
 
           // Track Meta Pixel Purchase Event
@@ -153,14 +152,11 @@ export const CheckoutSection: React.FC = () => {
                 phone: phone,
                 amount: totalPrice,
                 hasOrderBump: false,
+                package: 'All-In-One Digital Planner (2026-2028 Edition)',
               }),
             });
             const confirmData = await confirmRes.json();
-            if (confirmData.downloadUrl) {
-              if (confirmData.downloadUrl !== 'https://drive.google.com/file/d/1_Sample_AI_Job_Application_Kit_38Page/view' || productDriveUrl === 'https://drive.google.com/file/d/1_Sample_AI_Job_Application_Kit_38Page/view') {
-                liveProductUrl = confirmData.downloadUrl;
-              }
-            }
+            if (confirmData.downloadUrl) liveProductUrl = confirmData.downloadUrl;
           } catch (confirmErr) {
             console.warn('Confirm payment background fetch error:', confirmErr);
           }
@@ -174,7 +170,6 @@ export const CheckoutSection: React.FC = () => {
             email: email,
             productDriveUrl: liveProductUrl,
           });
-          setIsVerifyingPayment(false);
         },
       };
 
@@ -189,7 +184,7 @@ export const CheckoutSection: React.FC = () => {
         rzp.on('payment.failed', async function (failedResp: any) {
           console.warn('Payment Failed event:', failedResp.error);
           
-          // Log failed payment in MongoDB backend database
+          // Log failed payment in backend database
           await fetch('/api/confirm-payment', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -202,10 +197,11 @@ export const CheckoutSection: React.FC = () => {
               phone: phone,
               amount: totalPrice,
               hasOrderBump: false,
+              package: 'All-In-One Digital Planner (2026-2028 Edition)',
             }),
           });
 
-          setErrorMessage(`Payment failed: ${failedResp.error?.description || 'Transaction cancelled'}. Recorded in database.`);
+          setErrorMessage(`Payment failed: ${failedResp.error?.description || 'Transaction cancelled'}. Please try again.`);
         });
 
         rzp.open();
@@ -230,25 +226,11 @@ export const CheckoutSection: React.FC = () => {
   };
 
   return (
-    <section id="checkout-section" className="py-16 md:py-24 bg-slate-50 border-t border-slate-200 relative">
+    <section id="checkout-section" className="py-16 md:py-24 bg-gradient-to-b from-slate-50 via-rose-50/40 to-slate-50 border-t border-slate-200 relative">
       <div className="max-w-4xl mx-auto px-4 sm:px-6">
         
-        {/* IF VERIFYING PAYMENT -> SHOW PROCESSING SCREEN */}
-        {isVerifyingPayment ? (
-          <div className="clean-card rounded-3xl p-12 sm:p-20 border-2 border-emerald-500 bg-white shadow-2xl text-center space-y-8 animate-in fade-in duration-500">
-            <div className="flex justify-center">
-              <div className="w-16 h-16 border-4 border-emerald-500 border-t-transparent rounded-full animate-spin shadow-lg"></div>
-            </div>
-            <div className="space-y-3 max-w-md mx-auto">
-              <h2 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
-                Processing Payment...
-              </h2>
-              <p className="text-slate-600 text-sm sm:text-base font-medium">
-                Please don't close or refresh this window. We are verifying your transaction and generating your secure download links.
-              </p>
-            </div>
-          </div>
-        ) : confirmedOrder ? (
+        {/* IF PAYMENT IS CONFIRMED -> SHOW CONFIRMATION & DIRECT GOOGLE DRIVE DOWNLOAD BUTTON */}
+        {confirmedOrder ? (
           <div className="clean-card rounded-3xl p-8 sm:p-12 border-2 border-emerald-500 bg-white shadow-2xl text-center space-y-8 animate-in fade-in duration-500">
             
             <div className="flex justify-center">
@@ -262,15 +244,19 @@ export const CheckoutSection: React.FC = () => {
                 🎉 PAYMENT SUCCESSFUL & CONFIRMED
               </span>
               <h2 className="text-2xl sm:text-4xl font-black text-slate-900 tracking-tight">
-                Your AI Career Operating System Is Ready!
+                Your Digital Planner Bundle Is Ready!
               </h2>
               <p className="text-slate-600 text-sm">
-                Thank you, <strong className="text-slate-900">{confirmedOrder.name}</strong>! Your order has been recorded and verified. A confirmation copy was sent to <strong className="text-slate-900">{confirmedOrder.email}</strong>.
+                Thank you, <strong className="text-slate-900">{confirmedOrder.name}</strong>! Your order has been recorded. A confirmation receipt with your download link was sent to <strong className="text-slate-900">{confirmedOrder.email}</strong>.
               </p>
             </div>
 
             {/* Receipt Details Box */}
             <div className="bg-slate-50 p-5 rounded-2xl border border-slate-200 max-w-md mx-auto text-left space-y-2 text-xs">
+              <div className="flex justify-between">
+                <span className="text-slate-500">Product:</span>
+                <span className="font-bold text-slate-900">All-In-One Digital Planner (2026-2028)</span>
+              </div>
               <div className="flex justify-between">
                 <span className="text-slate-500">Payment ID:</span>
                 <span className="font-mono font-bold text-slate-900">{confirmedOrder.paymentId}</span>
@@ -284,9 +270,9 @@ export const CheckoutSection: React.FC = () => {
                 <span className="font-mono font-bold text-emerald-700">₹{confirmedOrder.amount} INR</span>
               </div>
               <div className="flex justify-between pt-1 border-t border-slate-200">
-                <span className="text-slate-500">Database & Meta Pixel:</span>
+                <span className="text-slate-500">Includes:</span>
                 <span className="font-bold text-emerald-700 flex items-center gap-1">
-                  <CheckCircle2 className="w-3.5 h-3.5" /> Tracked & Saved to MongoDB
+                  <CheckCircle2 className="w-3.5 h-3.5" /> 600+ Pages, 5,000+ Stickers & 150 Covers
                 </span>
               </div>
             </div>
@@ -297,10 +283,10 @@ export const CheckoutSection: React.FC = () => {
                 href={confirmedOrder.productDriveUrl || productDriveUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-black text-base sm:text-lg py-4 px-6 rounded-2xl shadow-xl shadow-emerald-600/20 transition-all flex items-center justify-center gap-2 cursor-pointer border border-emerald-400/30"
+                className="w-full bg-gradient-to-r from-rose-500 to-purple-600 hover:from-rose-600 hover:to-purple-700 text-white font-black text-base sm:text-lg py-4 px-6 rounded-2xl shadow-xl shadow-rose-500/25 transition-all flex items-center justify-center gap-2 cursor-pointer border border-rose-300/30"
               >
                 <Download className="w-5 h-5" />
-                <span>Open & Download 38-Page PDF (Google Drive)</span>
+                <span>Open & Download Planner Bundle (Google Drive)</span>
               </a>
             </div>
 
@@ -309,82 +295,82 @@ export const CheckoutSection: React.FC = () => {
           /* STANDARD CLEAN CHECKOUT FORM */
           <>
             <div className="text-center max-w-2xl mx-auto mb-10">
-              <div className="inline-flex items-center gap-1.5 bg-emerald-100 border border-emerald-300 text-emerald-900 px-3.5 py-1 rounded-full text-xs font-bold uppercase tracking-wider mb-3">
-                <Lock className="w-3.5 h-3.5 text-emerald-700" /> 256-Bit SSL Encrypted Instant Checkout
+              <div className="inline-flex items-center gap-1.5 bg-rose-100 border border-rose-300 text-rose-900 px-3.5 py-1 rounded-full text-xs font-bold uppercase tracking-wider mb-3">
+                <Lock className="w-3.5 h-3.5 text-rose-700" /> 256-Bit SSL Encrypted Instant Checkout
               </div>
               <h2 className="text-3xl sm:text-5xl font-black text-slate-900 tracking-tight mb-3">
-                Claim Your AI Career Operating System
+                Start Planning & Achieving Today
               </h2>
               <p className="text-slate-600 text-sm sm:text-base">
-                Get instant digital access to all 38 pages, 65+ AI prompts, 18 sections, templates & mock interview engine.
+                Get instant digital access to all 600+ pages, 100+ templates, 150 covers, 5,000+ stickers & free 2026-2028 yearly updates.
               </p>
             </div>
 
-            <div className="clean-card rounded-3xl p-6 sm:p-10 border-2 border-emerald-500 bg-white shadow-2xl relative">
+            <div className="clean-card rounded-3xl p-6 sm:p-10 border-2 border-rose-300 bg-white shadow-2xl relative">
               
               <form onSubmit={handleCheckout} className="space-y-8">
                 
                 {/* 1. Product Summary & Price Box */}
-                <div className="bg-slate-50 p-5 rounded-2xl border border-slate-200 space-y-4">
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-slate-200">
+                <div className="bg-gradient-to-br from-rose-50/70 to-purple-50/50 p-5 rounded-2xl border border-rose-200 space-y-4">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-rose-200/80">
                     <div>
-                      <h3 className="text-slate-900 font-extrabold text-lg sm:text-xl flex items-center gap-2">
-                        <FileText className="w-5 h-5 text-emerald-600" />
-                        The AI Job Application Kit (38-Page System)
+                      <h3 className="text-slate-900 font-black text-lg sm:text-xl flex items-center gap-2">
+                        <Calendar className="w-5 h-5 text-rose-500" />
+                        All-In-One Digital Planner (2026-2028 Edition)
                       </h3>
-                      <p className="text-xs text-slate-500 mt-0.5">
-                        Includes 18 Core Sections, 65+ AI Prompts, 10 Resume Templates & Interview Simulator
+                      <p className="text-xs text-slate-600 mt-0.5 font-medium">
+                        600+ Hyperlinked Pages • 100+ Templates • 150 Covers • 5,000+ Stickers
                       </p>
                     </div>
                     
                     <div className="text-right">
-                      <div className="text-xs text-slate-400 line-through font-mono">Regular ₹999</div>
-                      <div className="text-2xl sm:text-3xl font-black text-emerald-700 font-mono">
+                      <div className="text-xs text-slate-400 line-through font-mono">Regular ₹1,999</div>
+                      <div className="text-2xl sm:text-3xl font-black text-rose-600 font-mono">
                         ₹{basePrice}
                       </div>
                     </div>
                   </div>
 
                   {/* Instant Perks */}
-                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 text-xs text-slate-700">
-                    <span className="flex items-center gap-1 font-medium">
-                      <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" /> Instant PDF Delivery
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 text-xs text-slate-700 font-semibold">
+                    <span className="flex items-center gap-1">
+                      <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" /> Instant Drive Access
                     </span>
-                    <span className="flex items-center gap-1 font-medium">
-                      <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" /> Lifetime Updates
+                    <span className="flex items-center gap-1">
+                      <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" /> 2026, 2027, 2028 Included
                     </span>
-                    <span className="flex items-center gap-1 font-medium">
-                      <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" /> Free & Paid AI Ready
+                    <span className="flex items-center gap-1">
+                      <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" /> iPad & Android Ready
                     </span>
                   </div>
                 </div>
 
-                {/* 2. Minimal Customer Form */}
+                {/* 2. Customer Delivery Form */}
                 <div className="space-y-4">
-                  <h4 className="text-xs font-extrabold text-slate-500 uppercase tracking-wider flex items-center gap-2">
-                    <User className="w-4 h-4 text-emerald-600" /> Customer Delivery Details
+                  <h4 className="text-xs font-black text-slate-500 uppercase tracking-wider flex items-center gap-2">
+                    <User className="w-4 h-4 text-rose-500" /> Customer Delivery Details
                   </h4>
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     {/* Full Name */}
                     <div className="space-y-1">
-                      <label className="text-xs text-slate-700 font-semibold">Full Name *</label>
+                      <label className="text-xs text-slate-700 font-bold">Full Name *</label>
                       <div className="relative">
                         <User className="w-4 h-4 text-slate-400 absolute left-3 top-3.5" />
                         <input
                           type="text"
                           required
-                          placeholder="e.g. Rahul Sharma"
+                          placeholder="e.g. Aanya Sharma"
                           value={fullName}
                           onChange={(e) => setFullName(e.target.value)}
-                          className="w-full bg-slate-50 border border-slate-300 rounded-xl pl-9 pr-4 py-2.5 text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:border-emerald-600 transition-colors"
+                          className="w-full bg-slate-50 border border-slate-300 rounded-xl pl-9 pr-4 py-2.5 text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:border-rose-500 transition-colors"
                         />
                       </div>
                     </div>
 
                     {/* Phone Number */}
                     <div className="space-y-1">
-                      <label className="text-xs text-slate-700 font-semibold">Phone / WhatsApp Number *</label>
+                      <label className="text-xs text-slate-700 font-bold">Phone / WhatsApp Number *</label>
                       <div className="relative">
                         <Phone className="w-4 h-4 text-slate-400 absolute left-3 top-3.5" />
                         <input
@@ -393,7 +379,7 @@ export const CheckoutSection: React.FC = () => {
                           placeholder="e.g. +91 9876543210"
                           value={phone}
                           onChange={(e) => setPhone(e.target.value)}
-                          className="w-full bg-slate-50 border border-slate-300 rounded-xl pl-9 pr-4 py-2.5 text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:border-emerald-600 transition-colors"
+                          className="w-full bg-slate-50 border border-slate-300 rounded-xl pl-9 pr-4 py-2.5 text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:border-rose-500 transition-colors"
                         />
                       </div>
                     </div>
@@ -401,20 +387,20 @@ export const CheckoutSection: React.FC = () => {
 
                   {/* Email */}
                   <div className="space-y-1">
-                    <label className="text-xs text-slate-700 font-semibold">Email Address *</label>
+                    <label className="text-xs text-slate-700 font-bold">Email Address *</label>
                     <div className="relative">
                       <Mail className="w-4 h-4 text-slate-400 absolute left-3 top-3.5" />
                       <input
                         type="email"
                         required
-                        placeholder="e.g. rahul@gmail.com"
+                        placeholder="e.g. aanya@gmail.com"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
-                        className="w-full bg-slate-50 border border-slate-300 rounded-xl pl-9 pr-4 py-2.5 text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:border-emerald-600 transition-colors"
+                        className="w-full bg-slate-50 border border-slate-300 rounded-xl pl-9 pr-4 py-2.5 text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:border-rose-500 transition-colors"
                       />
                     </div>
-                    <p className="text-[11px] text-emerald-700 font-medium pt-0.5">
-                      ⚡ Your 38-page PDF & download link are sent here instantly in &lt;5 seconds.
+                    <p className="text-[11px] text-rose-600 font-medium pt-0.5">
+                      🌸 Your full Google Drive download bundle link is sent here instantly in &lt;5 seconds.
                     </p>
                   </div>
                 </div>
@@ -432,7 +418,7 @@ export const CheckoutSection: React.FC = () => {
                   
                   <div className="flex items-center justify-between text-sm sm:text-base font-bold text-slate-800">
                     <span>Total Amount Payable:</span>
-                    <span className="text-2xl sm:text-3xl font-black text-emerald-700 font-mono">
+                    <span className="text-2xl sm:text-3xl font-black text-rose-600 font-mono">
                       ₹{totalPrice} INR
                     </span>
                   </div>
@@ -440,7 +426,7 @@ export const CheckoutSection: React.FC = () => {
                   <button
                     type="submit"
                     disabled={isLoading}
-                    className="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-black text-lg sm:text-xl py-4 px-6 rounded-2xl shadow-xl shadow-emerald-600/20 transition-all flex items-center justify-center gap-2 border border-emerald-400/30 cursor-pointer disabled:opacity-50"
+                    className="w-full bg-gradient-to-r from-rose-500 via-purple-600 to-indigo-600 hover:from-rose-600 hover:to-indigo-700 text-white font-black text-lg sm:text-xl py-4 px-6 rounded-2xl shadow-xl shadow-rose-500/20 transition-all flex items-center justify-center gap-2 border border-rose-300/30 cursor-pointer disabled:opacity-50"
                   >
                     {isLoading ? (
                       <span className="flex items-center gap-2">
@@ -449,7 +435,7 @@ export const CheckoutSection: React.FC = () => {
                     ) : (
                       <span className="flex items-center gap-2">
                         <Zap className="w-5 h-5 fill-white" />
-                        Pay ₹{totalPrice} & Download Instantly ⚡
+                        Pay ₹{totalPrice} & Download Planner Instantly 🌸
                       </span>
                     )}
                   </button>

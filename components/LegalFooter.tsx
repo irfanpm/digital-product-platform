@@ -1,88 +1,55 @@
-'use client';
-
 import React from 'react';
 import Link from 'next/link';
-import { ShieldCheck, Mail, MapPin, Clock } from 'lucide-react';
+import { Sparkles, ShieldCheck, Heart } from 'lucide-react';
 
 export const LegalFooter: React.FC = () => {
   return (
-    <footer className="bg-slate-900 border-t border-slate-800 text-slate-400 py-12 px-4 sm:px-6">
-      <div className="max-w-6xl mx-auto space-y-8">
+    <footer className="bg-slate-900 text-slate-400 py-12 border-t border-slate-800 text-xs">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
         
-        {/* Top Info Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 text-xs border-b border-slate-800 pb-8">
+        <div className="flex flex-col md:flex-row items-center justify-between gap-6 pb-8 border-b border-slate-800">
           
-          {/* Brand Info */}
-          <div className="space-y-2 md:col-span-1">
-            <h4 className="text-white font-extrabold text-sm tracking-wide">
-              Career Operating System
-            </h4>
-            <p className="text-slate-400 text-xs leading-relaxed">
-              The AI Job Application Kit (2026 Edition) is a digital 38-page career enablement system designed to optimize resumes, pass corporate ATS filters, and automate interview preparation.
-            </p>
-          </div>
-
-          {/* Delivery SLA & Compliance */}
-          <div className="space-y-2">
-            <h5 className="text-slate-200 font-bold flex items-center gap-1.5">
-              <Clock className="w-3.5 h-3.5 text-emerald-400" /> Digital Delivery SLA
-            </h5>
-            <p className="text-slate-400 leading-relaxed">
-              Instant digital download link presented on screen after successful payment. Automated email dispatch in under 5 seconds.
-            </p>
-          </div>
-
-          {/* Payment Gateway Trust */}
-          <div className="space-y-2">
-            <h5 className="text-slate-200 font-bold flex items-center gap-1.5">
-              <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" /> Security & Gateway
-            </h5>
-            <p className="text-slate-400 leading-relaxed">
-              Payments processed securely via Razorpay (PCI-DSS Level 1 compliant). 256-Bit SSL encrypted transaction system.
-            </p>
-          </div>
-
-          {/* Contact & Merchant Info */}
-          <div className="space-y-2">
-            <h5 className="text-slate-200 font-bold flex items-center gap-1.5">
-              <Mail className="w-3.5 h-3.5 text-emerald-400" /> Merchant & Support
-            </h5>
-            <div className="space-y-1 text-slate-400">
-              <p>Email: <strong className="text-slate-200">support@aijobkit.in</strong></p>
-              <p className="flex items-start gap-1">
-                <MapPin className="w-3.5 h-3.5 shrink-0 text-slate-500 mt-0.5" />
-                <span>Sector 62, Digital Hub, Noida, Uttar Pradesh, India - 201309</span>
-              </p>
+          {/* Brand Logo & Name */}
+          <div className="space-y-1 text-center md:text-left">
+            <div className="flex items-center justify-center md:justify-start gap-2">
+              <span className="w-8 h-8 rounded-xl bg-gradient-to-r from-rose-500 to-purple-600 flex items-center justify-center text-white font-black text-sm">
+                🌸
+              </span>
+              <span className="text-base font-black text-white tracking-tight">
+                All-In-One Digital Planner (2026-2028 Edition)
+              </span>
             </div>
+            <p className="text-[11px] text-slate-500">
+              Plan Better. Stay Organized. Achieve More Every Day.
+            </p>
+          </div>
+
+          {/* Legal Links */}
+          <div className="flex flex-wrap items-center justify-center gap-6 font-semibold text-slate-300">
+            <Link href="/terms" className="hover:text-white transition-colors">
+              Terms of Service
+            </Link>
+            <Link href="/privacy" className="hover:text-white transition-colors">
+              Privacy Policy
+            </Link>
+            <Link href="/refund" className="hover:text-white transition-colors">
+              Refund Policy
+            </Link>
+            <Link href="/contact" className="hover:text-white transition-colors">
+              Customer Support
+            </Link>
           </div>
 
         </div>
 
-        {/* Legal Links */}
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 text-xs">
-          
-          <div className="flex flex-wrap items-center justify-center gap-4 text-slate-300 font-medium">
-            <Link href="/terms" className="hover:text-emerald-400 transition-colors">
-              Terms & Conditions
-            </Link>
-            <span>•</span>
-            <Link href="/privacy" className="hover:text-emerald-400 transition-colors">
-              Privacy Policy
-            </Link>
-            <span>•</span>
-            <Link href="/refund" className="hover:text-emerald-400 transition-colors">
-              Cancellation & Refund Policy
-            </Link>
-            <span>•</span>
-            <Link href="/contact" className="hover:text-emerald-400 transition-colors">
-              Contact Us
-            </Link>
+        {/* Disclaimer & Copyright */}
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 text-[11px] text-slate-500">
+          <p>© {new Date().getFullYear()} Digital Planner Studio. All rights reserved.</p>
+          <div className="flex items-center gap-1">
+            <span>Crafted with</span>
+            <Heart className="w-3.5 h-3.5 text-rose-500 fill-rose-500" />
+            <span>for organizers & dreamers worldwide.</span>
           </div>
-
-          <div className="text-slate-500 text-center sm:text-right">
-            © {new Date().getFullYear()} AI Job Application Kit. All rights reserved. Not affiliated with OpenAI, LinkedIn, or Google.
-          </div>
-
         </div>
 
       </div>

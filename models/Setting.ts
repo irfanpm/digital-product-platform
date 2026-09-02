@@ -15,11 +15,11 @@ const SettingSchema: Schema = new Schema<ISetting>(
   {
     productDriveUrl: {
       type: String,
-      default: 'https://drive.google.com/file/d/1_Sample_AI_Job_Application_Kit_38Page/view',
+      default: 'https://drive.google.com/file/d/1_Sample_All_In_One_Digital_Planner_2026_2028/view',
     },
     orderBumpDriveUrl: {
       type: String,
-      default: 'https://notion.so/Sample_10_Word_Templates_And_Job_Tracker_Dashboard',
+      default: 'https://notion.so/Sample_Planner_Bonus_Pack',
     },
     basePrice: {
       type: Number,
@@ -39,16 +39,15 @@ const SettingSchema: Schema = new Schema<ISetting>(
     },
     enableOrderBump: {
       type: Boolean,
-      default: true,
+      default: false,
     },
   },
   {
     timestamps: true,
-    strict: false, // Ensure new schema fields are never stripped by Mongoose
+    strict: false,
   }
 );
 
-// Clear model cache in Next.js to force schema reload
 if (mongoose.models && mongoose.models.Setting) {
   delete (mongoose.models as any).Setting;
 }

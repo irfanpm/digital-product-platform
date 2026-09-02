@@ -13,17 +13,14 @@ import {
   FileCheck,
   Zap,
   FolderArchive,
-  ToggleLeft,
-  ToggleRight,
-  AlertCircle
+  Calendar,
+  Gift,
+  Palette
 } from 'lucide-react';
 
 export const ProductUploadManager: React.FC = () => {
   const [productDriveUrl, setProductDriveUrl] = useState<string>('');
-  const [orderBumpDriveUrl, setOrderBumpDriveUrl] = useState<string>('');
-  const [basePrice, setBasePrice] = useState<number>(199);
-  const [bumpPrice, setBumpPrice] = useState<number>(99);
-  const [enableOrderBump, setEnableOrderBump] = useState<boolean>(true);
+  const [basePrice, setBasePrice] = useState<number>(299);
 
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isSaving, setIsSaving] = useState<boolean>(false);
@@ -36,10 +33,7 @@ export const ProductUploadManager: React.FC = () => {
       const data = await res.json();
       if (data.success && data.setting) {
         setProductDriveUrl(data.setting.productDriveUrl || '');
-        setOrderBumpDriveUrl(data.setting.orderBumpDriveUrl || '');
-        setBasePrice(data.setting.basePrice || 199);
-        setBumpPrice(data.setting.bumpPrice || 99);
-        setEnableOrderBump(data.setting.enableOrderBump !== false);
+        setBasePrice(data.setting.basePrice || 299);
       }
     } catch (err) {
       console.error('Error fetching settings:', err);
@@ -58,25 +52,18 @@ export const ProductUploadManager: React.FC = () => {
     setMessage('Saving product settings to database...');
 
     try {
-      const pin = localStorage.getItem('admin_pin') || '';
       const res = await fetch('/api/admin/settings', {
         method: 'POST',
-        headers: { 
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${pin}`
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           productDriveUrl: productDriveUrl.trim(),
-          orderBumpDriveUrl: orderBumpDriveUrl.trim(),
-          basePrice: Number(basePrice) || 199,
-          bumpPrice: Number(bumpPrice) || 99,
-          enableOrderBump: Boolean(enableOrderBump),
+          basePrice: Number(basePrice) || 299,
         }),
       });
 
       const data = await res.json();
       if (data.success) {
-        setMessage(`✅ Settings Saved! Order Bump is now ${enableOrderBump ? 'ON (Enabled)' : 'OFF (Hidden)'}`);
+        setMessage('✅ All-In-One Digital Planner Drive Link & Pricing Saved!');
         setTimeout(() => setMessage(''), 4000);
       } else {
         throw new Error(data.error || 'Failed to save settings');
@@ -95,12 +82,12 @@ export const ProductUploadManager: React.FC = () => {
       {/* Top Banner */}
       <div className="clean-card rounded-3xl p-6 sm:p-8 bg-white border border-slate-200 shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
         <div className="flex items-center gap-3.5">
-          <div className="p-3 bg-emerald-100 text-emerald-800 rounded-2xl border border-emerald-200">
-            <UploadCloud className="w-6 h-6" />
+          <div className="p-3 bg-rose-100 text-rose-600 rounded-2xl border border-rose-200">
+            <Calendar className="w-6 h-6" />
           </div>
           <div>
-            <h2 className="text-xl font-black text-slate-900">Product File Upload & Delivery Center</h2>
-            <p className="text-xs text-slate-500">Manage digital PDF downloads, Google Drive links, and order bump ON/OFF controls</p>
+            <h2 className="text-xl font-black text-slate-900">All-In-One Digital Planner Asset Manager</h2>
+            <p className="text-xs text-slate-500">Manage 600+ page planner bundle Google Drive links, 5,000+ stickers, and pricing</p>
           </div>
         </div>
 
@@ -119,100 +106,41 @@ export const ProductUploadManager: React.FC = () => {
           
           <div className="pb-4 border-b border-slate-100 flex items-center justify-between">
             <h3 className="font-extrabold text-slate-900 text-sm flex items-center gap-2">
-              <FileCheck className="w-4 h-4 text-emerald-600" /> Digital Product Download Link Configuration
+              <FileCheck className="w-4 h-4 text-rose-600" /> Digital Product Download Link Configuration
             </h3>
             <span className="text-[11px] text-slate-400 font-mono">Stored in MongoDB</span>
           </div>
 
           <form onSubmit={handleSave} className="space-y-6">
             
-            {/* ON / OFF Toggle for 10 Editable Microsoft Word Order Bump Section */}
-            <div className="bg-slate-50 border border-slate-200 p-4.5 rounded-2xl flex items-center justify-between gap-4">
-              <div>
-                <span className="font-extrabold text-slate-900 text-xs sm:text-sm flex items-center gap-1.5">
-                  <Sparkles className="w-4 h-4 text-amber-600" /> 
-                  10 Editable Microsoft Word & Notion Templates Order Bump Section
-                </span>
-                <p className="text-slate-500 text-[11px] mt-0.5">
-                  Turn ON or OFF the [+ ₹99] Order Bump checkbox box on the customer checkout page.
-                </p>
-              </div>
-
-              <button
-                type="button"
-                onClick={() => setEnableOrderBump(!enableOrderBump)}
-                className={`px-4 py-2 rounded-xl text-xs font-extrabold transition-all flex items-center gap-2 cursor-pointer shrink-0 ${
-                  enableOrderBump
-                    ? 'bg-emerald-600 text-white shadow-md'
-                    : 'bg-slate-800 text-slate-200 border border-slate-700'
-                }`}
-              >
-                {enableOrderBump ? (
-                  <>
-                    <ToggleRight className="w-5 h-5 text-white" />
-                    <span>ON (Enabled)</span>
-                  </>
-                ) : (
-                  <>
-                    <ToggleLeft className="w-5 h-5 text-slate-400" />
-                    <span>OFF (Hidden)</span>
-                  </>
-                )}
-              </button>
-            </div>
-
-            {/* 1. Main PDF Download Link */}
+            {/* 1. Main Planner Bundle Google Drive Link */}
             <div className="space-y-2">
               <label className="text-xs font-extrabold text-slate-700 uppercase tracking-wider flex items-center justify-between">
                 <span className="flex items-center gap-1.5">
-                  <FileText className="w-4 h-4 text-emerald-600" /> Main 38-Page PDF Google Drive Link
+                  <Calendar className="w-4 h-4 text-rose-600" /> All-In-One Digital Planner Bundle Google Drive Link *
                 </span>
                 {productDriveUrl && (
-                  <a href={productDriveUrl} target="_blank" rel="noreferrer" className="text-emerald-600 font-bold hover:underline flex items-center gap-1 text-[11px] lowercase">
+                  <a href={productDriveUrl} target="_blank" rel="noreferrer" className="text-rose-600 font-bold hover:underline flex items-center gap-1 text-[11px] lowercase">
                     Test Download Link <ExternalLink className="w-3 h-3" />
                   </a>
                 )}
               </label>
               <input
                 type="text"
-                placeholder="https://drive.google.com/file/d/YOUR_FILE_ID/view"
+                placeholder="https://drive.google.com/file/d/YOUR_PLANNER_BUNDLE_ID/view"
                 value={productDriveUrl}
                 onChange={(e) => setProductDriveUrl(e.target.value)}
-                className="w-full bg-slate-50 border border-slate-300 rounded-xl px-4 py-3 text-xs text-slate-900 font-mono placeholder-slate-400 focus:outline-none focus:border-emerald-600 transition-colors"
+                className="w-full bg-slate-50 border border-slate-300 rounded-xl px-4 py-3 text-xs text-slate-900 font-mono placeholder-slate-400 focus:outline-none focus:border-rose-500 transition-colors"
               />
               <p className="text-[11px] text-slate-500">
-                This link is automatically sent to the buyer's email and displayed on the confirmation screen immediately after payment.
-              </p>
-            </div>
-
-            {/* 2. Order Bump Link */}
-            <div className={`space-y-2 transition-opacity ${enableOrderBump ? 'opacity-100' : 'opacity-50'}`}>
-              <label className="text-xs font-extrabold text-slate-700 uppercase tracking-wider flex items-center justify-between">
-                <span className="flex items-center gap-1.5">
-                  <Sparkles className="w-4 h-4 text-amber-600" /> Order Bump Notion / Word Templates Link {enableOrderBump ? '' : '(Optional when OFF)'}
-                </span>
-                {orderBumpDriveUrl && (
-                  <a href={orderBumpDriveUrl} target="_blank" rel="noreferrer" className="text-emerald-600 font-bold hover:underline flex items-center gap-1 text-[11px] lowercase">
-                    Test Download Link <ExternalLink className="w-3 h-3" />
-                  </a>
-                )}
-              </label>
-              <input
-                type="text"
-                placeholder="https://notion.so/YOUR_WORD_TEMPLATES_AND_TRACKER"
-                value={orderBumpDriveUrl}
-                onChange={(e) => setOrderBumpDriveUrl(e.target.value)}
-                className="w-full bg-slate-50 border border-slate-300 rounded-xl px-4 py-3 text-xs text-slate-900 font-mono placeholder-slate-400 focus:outline-none focus:border-emerald-600 transition-colors"
-              />
-              <p className="text-[11px] text-slate-500">
-                Delivered to buyers who select the 1-click Order Bump checkbox at checkout.
+                This Google Drive link contains the 2026/2027/2028 Planners (GoodNotes/PDF), 5,000+ Stickers, 150 Covers, and Video Setup Guides. Sent automatically to buyers upon payment capture.
               </p>
             </div>
 
             {/* Price Config */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-4 border-t border-slate-100">
-              <div className="space-y-1">
-                <label className="text-xs font-bold text-slate-700">Base Kit Product Price (₹ INR)</label>
+            <div className="pt-4 border-t border-slate-100">
+              <div className="space-y-1 max-w-xs">
+                <label className="text-xs font-bold text-slate-700">Planner Product Base Price (₹ INR)</label>
                 <div className="relative">
                   <DollarSign className="w-4 h-4 text-slate-400 absolute left-3 top-3" />
                   <input
@@ -220,21 +148,7 @@ export const ProductUploadManager: React.FC = () => {
                     min="1"
                     value={basePrice}
                     onChange={(e) => setBasePrice(Number(e.target.value))}
-                    className="w-full bg-slate-50 border border-slate-300 rounded-xl pl-9 pr-4 py-2.5 text-xs font-bold text-slate-900 font-mono focus:outline-none focus:border-emerald-600"
-                  />
-                </div>
-              </div>
-
-              <div className={`space-y-1 transition-opacity ${enableOrderBump ? 'opacity-100' : 'opacity-50'}`}>
-                <label className="text-xs font-bold text-slate-700">Order Bump Add-on Price (₹ INR)</label>
-                <div className="relative">
-                  <DollarSign className="w-4 h-4 text-slate-400 absolute left-3 top-3" />
-                  <input
-                    type="number"
-                    min="1"
-                    value={bumpPrice}
-                    onChange={(e) => setBumpPrice(Number(e.target.value))}
-                    className="w-full bg-slate-50 border border-slate-300 rounded-xl pl-9 pr-4 py-2.5 text-xs font-bold text-slate-900 font-mono focus:outline-none focus:border-emerald-600"
+                    className="w-full bg-slate-50 border border-slate-300 rounded-xl pl-9 pr-4 py-2.5 text-xs font-bold text-slate-900 font-mono focus:outline-none focus:border-rose-500"
                   />
                 </div>
               </div>
@@ -258,10 +172,10 @@ export const ProductUploadManager: React.FC = () => {
                 type="button"
                 onClick={() => handleSave()}
                 disabled={isSaving}
-                className="ml-auto bg-emerald-600 hover:bg-emerald-500 text-white font-black text-xs px-7 py-3.5 rounded-xl shadow-lg shadow-emerald-600/20 transition-all flex items-center gap-2 cursor-pointer disabled:opacity-50"
+                className="ml-auto bg-gradient-to-r from-rose-500 to-purple-600 hover:from-rose-600 hover:to-purple-700 text-white font-black text-xs px-7 py-3.5 rounded-xl shadow-lg shadow-rose-500/20 transition-all flex items-center gap-2 cursor-pointer disabled:opacity-50"
               >
                 <Save className="w-4 h-4" />
-                <span>{isSaving ? 'Saving to Database...' : 'Save Product Settings'}</span>
+                <span>{isSaving ? 'Saving to Database...' : 'Save Planner Settings'}</span>
               </button>
             </div>
 
@@ -269,34 +183,17 @@ export const ProductUploadManager: React.FC = () => {
 
         </div>
 
-        {/* Right Column: Upload Files Card & Active Digital Assets */}
+        {/* Right Column: Active Digital Assets */}
         <div className="lg:col-span-4 space-y-6">
           
-          {/* File Upload Dropzone Simulator */}
-          <div className="clean-card rounded-3xl p-6 bg-white border border-slate-200 shadow-sm space-y-4">
-            <h4 className="font-extrabold text-slate-900 text-xs uppercase tracking-wider flex items-center gap-2">
-              <UploadCloud className="w-4 h-4 text-emerald-600" /> Direct File Upload Dropzone
-            </h4>
-
-            <div className="border-2 border-dashed border-slate-300 rounded-2xl p-6 text-center space-y-3 bg-slate-50 hover:bg-emerald-50/50 hover:border-emerald-400 transition-colors cursor-pointer">
-              <div className="w-12 h-12 bg-white text-emerald-600 rounded-full mx-auto flex items-center justify-center border border-slate-200 shadow-sm">
-                <UploadCloud className="w-6 h-6" />
-              </div>
-              <div className="space-y-1">
-                <span className="text-xs font-bold text-slate-900 block">Click or Drag PDF / Zip Files Here</span>
-                <span className="text-[11px] text-slate-500 block">Supports PDF, DOCX, ZIP (Max 100 MB)</span>
-              </div>
-            </div>
-          </div>
-
           {/* Active Product Assets Card */}
           <div className="clean-card rounded-3xl p-6 bg-slate-900 text-white border border-slate-800 shadow-xl space-y-4">
             <div className="flex items-center justify-between border-b border-slate-800 pb-3">
               <h4 className="font-extrabold text-xs text-white uppercase tracking-wider flex items-center gap-2">
-                <FileCheck className="w-4 h-4 text-emerald-400" /> Active Digital Product Assets
+                <FileCheck className="w-4 h-4 text-rose-400" /> Active Planner Assets
               </h4>
-              <span className="text-[10px] text-emerald-400 font-mono font-bold bg-emerald-950 px-2 py-0.5 rounded border border-emerald-800">
-                {enableOrderBump ? '2 Assets Live' : '1 Asset Live'}
+              <span className="text-[10px] text-rose-400 font-mono font-bold bg-rose-950 px-2 py-0.5 rounded border border-rose-800">
+                4 Bundles Live
               </span>
             </div>
 
@@ -304,30 +201,41 @@ export const ProductUploadManager: React.FC = () => {
               <div className="bg-slate-800/80 p-3 rounded-2xl border border-slate-700 space-y-1">
                 <div className="flex items-center justify-between">
                   <span className="font-bold text-slate-200 flex items-center gap-1.5">
-                    <FileText className="w-4 h-4 text-emerald-400" /> The_AI_Job_Kit_38Page_2026.pdf
+                    <Calendar className="w-4 h-4 text-rose-400" /> All_In_One_Planner_2026_2028.pdf
                   </span>
-                  <span className="text-[10px] text-slate-400 font-mono">4.2 MB</span>
+                  <span className="text-[10px] text-slate-400 font-mono">18.4 MB</span>
                 </div>
                 <div className="flex items-center justify-between text-[11px] text-slate-400 pt-1">
-                  <span>Status: Active Delivery</span>
+                  <span>600+ Hyperlinked Pages</span>
                   <span className="text-emerald-400 font-bold">Verified</span>
                 </div>
               </div>
 
-              {enableOrderBump && (
-                <div className="bg-slate-800/80 p-3 rounded-2xl border border-slate-700 space-y-1 animate-in fade-in duration-200">
-                  <div className="flex items-center justify-between">
-                    <span className="font-bold text-slate-200 flex items-center gap-1.5">
-                      <FolderArchive className="w-4 h-4 text-amber-400" /> 10_Word_Notion_Templates.zip
-                    </span>
-                    <span className="text-[10px] text-slate-400 font-mono">1.8 MB</span>
-                  </div>
-                  <div className="flex items-center justify-between text-[11px] text-slate-400 pt-1">
-                    <span>Status: Order Bump Add-on</span>
-                    <span className="text-amber-400 font-bold">Verified</span>
-                  </div>
+              <div className="bg-slate-800/80 p-3 rounded-2xl border border-slate-700 space-y-1">
+                <div className="flex items-center justify-between">
+                  <span className="font-bold text-slate-200 flex items-center gap-1.5">
+                    <Palette className="w-4 h-4 text-pink-400" /> 5000_Digital_Stickers.zip
+                  </span>
+                  <span className="text-[10px] text-slate-400 font-mono">42.1 MB</span>
                 </div>
-              )}
+                <div className="flex items-center justify-between text-[11px] text-slate-400 pt-1">
+                  <span>Pre-cropped PNGs + GoodNotes</span>
+                  <span className="text-pink-400 font-bold">Verified</span>
+                </div>
+              </div>
+
+              <div className="bg-slate-800/80 p-3 rounded-2xl border border-slate-700 space-y-1">
+                <div className="flex items-center justify-between">
+                  <span className="font-bold text-slate-200 flex items-center gap-1.5">
+                    <FolderArchive className="w-4 h-4 text-purple-400" /> 150_Aesthetic_Covers.zip
+                  </span>
+                  <span className="text-[10px] text-slate-400 font-mono">14.6 MB</span>
+                </div>
+                <div className="flex items-center justify-between text-[11px] text-slate-400 pt-1">
+                  <span>High-Res Covers</span>
+                  <span className="text-purple-400 font-bold">Verified</span>
+                </div>
+              </div>
             </div>
 
           </div>

@@ -1,122 +1,104 @@
 'use client';
 
 import React from 'react';
-import { XCircle, CheckCircle2, Sparkles, ArrowRight } from 'lucide-react';
+import { XCircle, CheckCircle2, Sparkles, ArrowRight, Zap } from 'lucide-react';
 
 export const PainMatrix: React.FC = () => {
   const comparisons = [
     {
-      feature: 'Resume Optimization',
-      oldWay: 'Sending 50+ generic resumes blindly on LinkedIn/Naukri',
-      oldResult: '0 Callbacks, 6 weeks wasted',
-      aiWay: '10 ATS-customized resume templates matching target JDs',
-      aiResult: 'Passes Workday/Taleo ATS with 95%+ score',
+      pain: 'Carrying 4 heavy paper notebooks for work, budget, meals & habits',
+      solution: 'All 8 life operating hubs organized inside 1 lightweight iPad/tablet file',
     },
     {
-      feature: 'Resume Bullets',
-      oldWay: '"Responsible for sales and client communication"',
-      oldResult: 'Boring, rejected in 6 secs',
-      aiWay: 'ATMR Formula: "Scaled B2B pipeline by ₹1.2Cr with 40% win rate"',
-      aiResult: 'Instant recruiter interview invites',
+      pain: 'Messy pen scribbles, whiteout mistakes & running out of paper pages',
+      solution: 'Flawless 1-tap undo, digital lasso tool, custom handwriting & infinite pages',
     },
     {
-      feature: 'Interview Preparation',
-      oldWay: 'Googling random questions 2 hours before the interview',
-      oldResult: 'Anxious, stammering, blanking out',
-      aiWay: '50 Master Questions + 6-Round AI Mock Interview Simulator',
-      aiResult: 'Crush technical & HR rounds smoothly',
+      pain: 'Spending ₹3,500+ every single year buying new paper planners & stickers',
+      solution: 'One-time ₹299 payment with 2026, 2027 & 2028 yearly updates included free',
     },
     {
-      feature: 'Salary Offer Negotiation',
-      oldWay: 'Accepting whatever initial offer the recruiter gives',
-      oldResult: 'Leaving ₹2L to ₹5L on the table',
-      aiWay: '10 Plug-and-play counter-offer scripts & leverage tactics',
-      aiResult: '+₹2 LPA to +₹5 LPA salary boost',
+      pain: 'Flipping through hundreds of physical pages trying to find last month’s notes',
+      solution: 'Lightning-fast 1-click hyperlinked tabs taking you anywhere in 0.1 seconds',
+    },
+    {
+      pain: 'Losing all your plans and notes if a physical notebook gets lost or wet',
+      solution: '100% safe automatic cloud sync to iCloud, Google Drive & OneDrive',
+    },
+    {
+      pain: 'Boring monochrome paper that kills your motivation to stay organized',
+      solution: 'Vibrant Rainbow & Minimalist aesthetic with 5,000+ cute digital stickers',
     },
   ];
 
-  const scrollToCheckout = () => {
-    const el = document.getElementById('checkout-section');
-    if (el) {
-      el.scrollIntoView({ behavior: 'smooth' });
-    }
-  };
-
   return (
-    <section className="py-16 md:py-24 bg-white border-y border-slate-200 w-full">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8">
+    <section className="py-16 md:py-24 bg-white relative border-y border-slate-200">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
-        {/* Header */}
-        <div className="text-center max-w-4xl mx-auto mb-14">
-          <div className="inline-flex items-center gap-1.5 bg-slate-100 border border-slate-200 text-slate-800 px-3.5 py-1 rounded-full text-xs font-bold uppercase tracking-wider mb-4">
-            <Sparkles className="w-3.5 h-3.5 text-emerald-600" /> Direct Comparison
-          </div>
-          <h2 className="text-3xl sm:text-5xl font-extrabold text-slate-900 tracking-tight mb-4">
-            Why 90% of Applicants Get Ghosted (And How You Win)
+        {/* Section Header */}
+        <div className="text-center max-w-3xl mx-auto mb-14 space-y-3">
+          <span className="text-xs font-black uppercase tracking-wider text-rose-600 bg-rose-50 border border-rose-200 px-3.5 py-1.5 rounded-full inline-flex items-center gap-1.5">
+            <Sparkles className="w-3.5 h-3.5 text-amber-500 fill-amber-500" />
+            WHY SWITCH TO DIGITAL PLANNING?
+          </span>
+          <h2 className="text-3xl sm:text-5xl font-black text-slate-900 tracking-tight">
+            Stop Carrying Paper Chaos. Experience Digital Clarity.
           </h2>
-          <p className="text-slate-600 text-base sm:text-lg">
-            See the exact difference between manual blind applications versus leveraging the battle-tested 38-Page AI Career Operating System.
+          <p className="text-slate-600 text-sm sm:text-base">
+            See why over 12,400+ planners threw away their physical notebooks this year.
           </p>
         </div>
 
-        {/* Comparison Cards Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
+        {/* Comparison Table / Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-8 max-w-5xl mx-auto mb-12">
           
-          {/* Column 1: The Old Way (Red) */}
-          <div className="bg-rose-50/50 border border-rose-200 rounded-3xl p-6 sm:p-8 md:p-10">
-            <div className="flex items-center gap-3 pb-4 mb-6 border-b border-rose-200">
-              <div className="p-2.5 bg-rose-100 rounded-2xl text-rose-700">
-                <XCircle className="w-6 h-6" />
-              </div>
+          {/* Left Column: Old Paper Way (Pain) */}
+          <div className="rounded-3xl p-6 sm:p-8 bg-rose-50/50 border-2 border-rose-200/80 space-y-6">
+            <div className="flex items-center justify-between border-b border-rose-200 pb-4">
               <div>
-                <h3 className="text-xl font-bold text-rose-950">The Old Discarded Way</h3>
-                <p className="text-xs text-rose-700">Manual, frustrating, 0 callbacks</p>
+                <span className="text-xs font-black uppercase tracking-wider text-rose-700 bg-rose-100 px-2.5 py-0.5 rounded-full">
+                  The Old Way
+                </span>
+                <h3 className="text-xl font-black text-slate-900 mt-1">
+                  Physical Paper Planners
+                </h3>
               </div>
+              <XCircle className="w-8 h-8 text-rose-500" />
             </div>
 
-            <div className="space-y-6">
-              {comparisons.map((item, index) => (
-                <div key={index} className="bg-white p-5 rounded-2xl border border-rose-100 space-y-2 shadow-sm">
-                  <div className="text-xs font-bold text-slate-500 uppercase tracking-wider">{item.feature}</div>
-                  <p className="text-sm text-slate-800 flex items-start gap-2">
-                    <XCircle className="w-4 h-4 text-rose-600 shrink-0 mt-0.5" />
-                    <span>{item.oldWay}</span>
-                  </p>
-                  <div className="inline-block text-[11px] font-bold text-rose-700 bg-rose-50 px-2.5 py-0.5 rounded border border-rose-200">
-                    Result: {item.oldResult}
-                  </div>
+            <div className="space-y-4">
+              {comparisons.map((c, idx) => (
+                <div key={idx} className="flex items-start gap-3 text-xs sm:text-sm text-slate-700 font-medium">
+                  <XCircle className="w-4 h-4 text-rose-500 shrink-0 mt-0.5" />
+                  <span>{c.pain}</span>
                 </div>
               ))}
             </div>
           </div>
 
-          {/* Column 2: The AI System Way (Green) */}
-          <div className="bg-emerald-50/50 border-2 border-emerald-500 rounded-3xl p-6 sm:p-8 md:p-10 relative shadow-lg">
-            <div className="absolute -top-3.5 right-8 bg-emerald-600 text-white text-[11px] font-black uppercase px-4 py-1 rounded-full shadow-sm">
-              RECOMMENDED 38-PAGE SYSTEM
+          {/* Right Column: All-In-One Digital Planner (Solution) */}
+          <div className="rounded-3xl p-6 sm:p-8 bg-emerald-50/60 border-2 border-emerald-500 shadow-xl space-y-6 relative overflow-hidden">
+            <div className="absolute top-0 right-0 bg-emerald-600 text-white text-[10px] font-black px-3 py-1 rounded-bl-xl uppercase tracking-wider">
+              Recommended
             </div>
 
-            <div className="flex items-center gap-3 pb-4 mb-6 border-b border-emerald-200">
-              <div className="p-2.5 bg-emerald-100 rounded-2xl text-emerald-800">
-                <CheckCircle2 className="w-6 h-6" />
-              </div>
+            <div className="flex items-center justify-between border-b border-emerald-200 pb-4">
               <div>
-                <h3 className="text-xl font-bold text-emerald-950">The 38-Page AI Operating System</h3>
-                <p className="text-xs text-emerald-800">Automated, ATS-proof, high salary offers</p>
+                <span className="text-xs font-black uppercase tracking-wider text-emerald-800 bg-emerald-100 px-2.5 py-0.5 rounded-full">
+                  The Smart Way
+                </span>
+                <h3 className="text-xl font-black text-slate-900 mt-1">
+                  All-In-One Digital Planner (2026-2028)
+                </h3>
               </div>
+              <CheckCircle2 className="w-8 h-8 text-emerald-600" />
             </div>
 
-            <div className="space-y-6">
-              {comparisons.map((item, index) => (
-                <div key={index} className="bg-white p-5 rounded-2xl border border-emerald-200 space-y-2 shadow-sm">
-                  <div className="text-xs font-bold text-emerald-700 uppercase tracking-wider">{item.feature}</div>
-                  <p className="text-sm text-slate-900 font-medium flex items-start gap-2">
-                    <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
-                    <span>{item.aiWay}</span>
-                  </p>
-                  <div className="inline-block text-[11px] font-bold text-emerald-800 bg-emerald-100 px-2.5 py-0.5 rounded border border-emerald-200">
-                    Result: {item.aiResult}
-                  </div>
+            <div className="space-y-4">
+              {comparisons.map((c, idx) => (
+                <div key={idx} className="flex items-start gap-3 text-xs sm:text-sm text-slate-900 font-bold">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                  <span>{c.solution}</span>
                 </div>
               ))}
             </div>
@@ -126,13 +108,14 @@ export const PainMatrix: React.FC = () => {
 
         {/* CTA Banner */}
         <div className="text-center">
-          <button
-            onClick={scrollToCheckout}
-            className="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold px-8 py-4 rounded-2xl shadow-lg shadow-emerald-600/20 transition-all text-base cursor-pointer"
+          <a
+            href="#checkout-section"
+            className="inline-flex items-center gap-2 bg-slate-900 hover:bg-slate-800 text-white font-black text-sm sm:text-base py-4 px-8 rounded-2xl shadow-lg transition-all cursor-pointer"
           >
-            <span>Switch to the 38-Page AI System for ₹199</span>
-            <ArrowRight className="w-5 h-5" />
-          </button>
+            <Zap className="w-4 h-4 text-amber-400 fill-amber-400" />
+            <span>Switch to Digital Planning Today (Only ₹299 Lifetime)</span>
+            <ArrowRight className="w-4 h-4" />
+          </a>
         </div>
 
       </div>

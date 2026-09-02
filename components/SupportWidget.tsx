@@ -1,78 +1,74 @@
 'use client';
 
 import React, { useState } from 'react';
-import { MessageCircle, X, HelpCircle, Send, CheckCircle2, ShieldCheck } from 'lucide-react';
+import { HelpCircle, X, MessageCircle, Mail, Sparkles, Heart } from 'lucide-react';
 
 export const SupportWidget: React.FC = () => {
   const [isOpen, setIsOpen] = useState<boolean>(false);
 
   return (
-    <div className="fixed bottom-20 right-4 sm:bottom-6 sm:right-6 z-40">
-      
-      {/* Floating Trigger Button */}
+    <>
+      {/* Floating Helper Button */}
       {!isOpen && (
         <button
           onClick={() => setIsOpen(true)}
-          className="bg-slate-900 hover:bg-slate-800 text-white font-extrabold text-xs px-4 py-3 rounded-full shadow-2xl border border-slate-700 flex items-center gap-2 transition-all transform hover:scale-105 cursor-pointer animate-float-slow"
+          className="fixed bottom-6 left-6 z-40 bg-white hover:bg-slate-50 text-slate-800 font-bold text-xs px-3.5 py-2.5 rounded-full shadow-xl border border-slate-200 flex items-center gap-2 transition-all hover:scale-105 cursor-pointer"
         >
-          <div className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping" />
-          <MessageCircle className="w-4 h-4 text-emerald-400" />
-          <span>Have Questions? Chat Support</span>
+          <HelpCircle className="w-4 h-4 text-rose-500" />
+          <span>Support & Help</span>
         </button>
       )}
 
-      {/* Support Micro-Modal */}
+      {/* Floating Support Modal */}
       {isOpen && (
-        <div className="clean-card rounded-3xl p-5 bg-white border border-slate-200 shadow-2xl max-w-sm w-[340px] space-y-4 animate-in fade-in slide-in-from-bottom-4 duration-300">
-          
+        <div className="fixed bottom-6 left-4 sm:left-6 z-50 w-[90vw] sm:w-[320px] bg-white rounded-3xl shadow-2xl border-2 border-rose-200 p-5 space-y-4 animate-in fade-in slide-in-from-bottom-4 duration-200">
           <div className="flex items-center justify-between border-b border-slate-100 pb-3">
             <div className="flex items-center gap-2">
-              <div className="p-1.5 bg-emerald-100 text-emerald-800 rounded-lg">
-                <HelpCircle className="w-4 h-4" />
+              <span className="w-7 h-7 rounded-xl bg-rose-100 text-rose-600 flex items-center justify-center font-bold text-sm">
+                🌸
+              </span>
+              <div>
+                <h4 className="text-xs font-black text-slate-900">Planner VIP Support</h4>
+                <span className="text-[10px] text-emerald-600 font-bold flex items-center gap-1">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                  Available 24/7
+                </span>
               </div>
-              <span className="font-extrabold text-slate-900 text-sm">Instant Help & Support</span>
             </div>
+
             <button
               onClick={() => setIsOpen(false)}
-              className="p-1 text-slate-400 hover:text-slate-700 rounded-lg transition-colors cursor-pointer"
+              className="p-1 rounded-full text-slate-400 hover:text-slate-700 transition-colors"
             >
               <X className="w-4 h-4" />
             </button>
           </div>
 
-          <div className="space-y-2.5 text-xs">
-            <div className="bg-slate-50 p-3 rounded-xl border border-slate-200 space-y-1">
-              <span className="font-bold text-slate-900 flex items-center gap-1 text-[11px]">
-                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" /> How do I get the PDF kit?
-              </span>
-              <p className="text-slate-600 leading-relaxed text-[11px]">
-                Instant download on screen right after payment + emailed to your inbox in &lt;5 seconds.
-              </p>
-            </div>
+          <p className="text-xs text-slate-600 leading-relaxed">
+            Need assistance downloading your Google Drive bundle or importing into GoodNotes / Penly? We are here to help!
+          </p>
 
-            <div className="bg-slate-50 p-3 rounded-xl border border-slate-200 space-y-1">
-              <span className="font-bold text-slate-900 flex items-center gap-1 text-[11px]">
-                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" /> Is there any monthly fee?
-              </span>
-              <p className="text-slate-600 leading-relaxed text-[11px]">
-                No monthly fees! One-time payment of ₹199 for full lifetime access and free updates.
-              </p>
-            </div>
-          </div>
-
-          <div className="pt-2 border-t border-slate-100 text-center">
+          <div className="space-y-2 pt-1">
             <a
-              href="mailto:support@aijobkit.in"
-              className="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold text-xs py-2.5 px-4 rounded-xl shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer"
+              href="mailto:muhammedirfanpm@gmail.com?subject=Digital%20Planner%20Support%20Request"
+              className="w-full bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs py-2.5 px-4 rounded-xl flex items-center justify-center gap-2 transition-all cursor-pointer"
             >
-              <Send className="w-3.5 h-3.5" />
-              <span>Email Support (support@aijobkit.in)</span>
+              <Mail className="w-3.5 h-3.5 text-rose-400" />
+              <span>Email Support Team</span>
+            </a>
+
+            <a
+              href="https://wa.me/919876543210?text=Hi%2C%20I%20need%20help%20with%20my%20All-In-One%20Digital%20Planner"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs py-2.5 px-4 rounded-xl flex items-center justify-center gap-2 transition-all cursor-pointer"
+            >
+              <MessageCircle className="w-3.5 h-3.5" />
+              <span>WhatsApp Instant Chat</span>
             </a>
           </div>
-
         </div>
       )}
-
-    </div>
+    </>
   );
 };

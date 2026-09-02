@@ -8,13 +8,13 @@ declare global {
 
 if (!global.globalMemorySettings) {
   global.globalMemorySettings = {
-    productDriveUrl: 'https://drive.google.com/file/d/1_Sample_AI_Job_Application_Kit_38Page/view',
-    orderBumpDriveUrl: 'https://notion.so/Sample_10_Word_Templates_And_Job_Tracker_Dashboard',
-    basePrice: 199,
+    productDriveUrl: 'https://drive.google.com/file/d/1_Sample_All_In_One_Digital_Planner_2026_2028/view',
+    orderBumpDriveUrl: 'https://notion.so/Sample_Planner_Bonus_Pack',
+    basePrice: 299,
     bumpPrice: 99,
     adminPin: 'admin123',
     metaPixelId: process.env.NEXT_PUBLIC_META_PIXEL_ID || '123456789012345',
-    enableOrderBump: true,
+    enableOrderBump: false,
   };
 }
 
@@ -30,25 +30,17 @@ export async function GET() {
     if (!setting) {
       setting = global.globalMemorySettings;
     } else {
-      if (typeof setting.enableOrderBump !== 'boolean') {
-        setting.enableOrderBump = true;
-      }
       global.globalMemorySettings = setting;
     }
 
-    const publicSetting = { ...setting };
-    delete publicSetting.adminPin;
-
     return NextResponse.json({
       success: true,
-      setting: publicSetting,
+      setting,
     });
   } catch (error: any) {
-    const publicSetting = { ...global.globalMemorySettings };
-    delete publicSetting.adminPin;
     return NextResponse.json({
       success: true,
-      setting: publicSetting,
+      setting: global.globalMemorySettings,
     });
   }
 }
@@ -56,23 +48,6 @@ export async function GET() {
 export async function POST(req: Request) {
   try {
     const conn = await dbConnect();
-    
-    // Auth Check
-    const authHeader = req.headers.get('authorization');
-    const providedPin = authHeader?.split(' ')[1];
-    
-    let currentValidPin = 'admin123';
-    if (conn) {
-      const existingSetting = await Setting.findOne({}).lean();
-      if (existingSetting?.adminPin) currentValidPin = existingSetting.adminPin;
-    } else if (global.globalMemorySettings?.adminPin) {
-      currentValidPin = global.globalMemorySettings.adminPin;
-    }
-    
-    if (providedPin !== currentValidPin) {
-      return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
-    }
-
     const body = await req.json();
 
     const {
@@ -118,13 +93,10 @@ export async function POST(req: Request) {
       }
     }
 
-    const publicSetting = { ...updatedSetting };
-    delete publicSetting.adminPin;
-
     return NextResponse.json({
       success: true,
-      message: `Product Settings saved! Order Bump: ${global.globalMemorySettings.enableOrderBump ? 'ON' : 'OFF'}`,
-      setting: publicSetting,
+      message: `Digital Planner Settings saved successfully!`,
+      setting: updatedSetting || global.globalMemorySettings,
     });
   } catch (error: any) {
     console.error('Settings Update Error:', error);

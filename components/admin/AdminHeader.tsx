@@ -35,13 +35,13 @@ export const AdminHeader: React.FC<AdminHeaderProps> = ({
               <h1 className="text-lg sm:text-xl font-black text-slate-900 tracking-tight">
                 Seller Sales Admin
               </h1>
-              <span className="text-[10px] font-extrabold text-emerald-800 bg-emerald-100 border border-emerald-300 px-2.5 py-0.5 rounded-full flex items-center gap-1">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-ping" />
+              <span className="text-[10px] font-extrabold text-rose-800 bg-rose-100 border border-rose-300 px-2.5 py-0.5 rounded-full flex items-center gap-1">
+                <span className="w-1.5 h-1.5 rounded-full bg-rose-500 animate-ping" />
                 LIVE REVENUE
               </span>
             </div>
             <p className="text-xs text-slate-500 font-medium">
-              The AI Job Application Kit (2026 Edition) • Real-Time Sales & Customer Ledger
+              All-In-One Digital Planner (2026-2028 Edition) • Real-Time Sales & Customer Ledger
             </p>
           </div>
         </div>
@@ -78,7 +78,7 @@ export const AdminHeader: React.FC<AdminHeaderProps> = ({
           {/* Export Buyers CSV */}
           <button
             onClick={onExportCSV}
-            className="bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold text-xs px-4 py-2 rounded-xl shadow-md transition-all flex items-center gap-1.5 cursor-pointer border border-emerald-400/30"
+            className="bg-rose-600 hover:bg-rose-500 text-white font-extrabold text-xs px-4 py-2 rounded-xl shadow-md transition-all flex items-center gap-1.5 cursor-pointer border border-rose-400/30"
           >
             <Download className="w-3.5 h-3.5" />
             <span>Export Buyers CSV</span>

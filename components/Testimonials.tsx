@@ -1,105 +1,120 @@
 'use client';
 
 import React from 'react';
-import { Star, CheckCircle2, Sparkles } from 'lucide-react';
+import { Star, CheckCircle2, Sparkles, Heart } from 'lucide-react';
 
 export const Testimonials: React.FC = () => {
   const reviews = [
     {
-      name: 'Rohan Sharma',
-      role: 'Full Stack Engineer (Ex-Fresher)',
-      placedAt: 'Secured ₹14 LPA at FinTech Startup',
-      salaryJump: '+85% Salary Hike',
-      avatar: 'RS',
-      review: 'I sent 60+ applications over 2 months with zero calls. After using Section 4 ATMR Prompt #3 on my resume, I got 4 recruiter calls in 10 days! The AI Mock Interview Simulator in Section 9 gave me the exact confidence I needed.',
-      verified: 'Verified Buyer',
-      date: '3 days ago'
+      name: 'Aishwarya Patel',
+      role: 'Medical Student & GoodNotes User',
+      rating: 5,
+      date: '2 days ago',
+      title: '“The best investment I made for medical school.”',
+      text: 'I used to carry 3 binders to campus every day. The hyperlinks in this planner are insanely fast, and having the Cornell notes + lecture schedules right next to my monthly calendar is a game-changer.',
+      avatar: '👩‍⚕️',
+      verified: true,
+      tag: 'Verified iPad Buyer',
     },
     {
-      name: 'Ananya Verma',
-      role: 'Product Marketing Specialist',
-      placedAt: 'Landed Senior Role at E-commerce Unicorn',
-      salaryJump: '+₹3.5 LPA Negotiated',
-      avatar: 'AV',
-      review: 'The Salary Negotiation scripts in Section 10 alone earned me an extra ₹3.5 LPA on my joining offer! The recruiter agreed within 24 hours of receiving the script email.',
-      verified: 'Verified Buyer',
-      date: '1 week ago'
+      name: 'Karan Mehra',
+      role: 'Senior Software Engineer & Freelancer',
+      rating: 5,
+      date: '1 week ago',
+      title: '“Replaced Notion, Google Keep and my paper diary.”',
+      text: 'The hourly time-blocking from 6 AM to 11 PM helps me plan deep work sprint cycles. Also, the finance tracker alone saved me over ₹30,000 by cutting unused subscriptions.',
+      avatar: '👨‍💻',
+      verified: true,
+      tag: 'Verified Galaxy Tab Buyer',
     },
     {
-      name: 'Karthik Nair',
-      role: 'Data Analyst (Career Pivot)',
-      placedAt: 'Pivoted from Non-Tech Support to Data Role',
-      salaryJump: 'Career Pivot Success',
-      avatar: 'KN',
-      review: 'I was pivoting from non-tech support to data analytics. The ATS template matched 98% with target JDs. Worth 100x more than ₹199.',
-      verified: 'Verified Buyer',
-      date: '2 weeks ago'
-    }
+      name: 'Pooja Deshmukh',
+      role: 'Working Mom & Content Creator',
+      rating: 5,
+      date: '3 days ago',
+      title: '“The 5,000+ stickers and meal planner are pure magic!”',
+      text: 'My Sunday planning routine is now my favorite part of the week. Decorating with the cute pastel stickers and organizing our family meals for the week brings so much calm to our home.',
+      avatar: '👩‍👧',
+      verified: true,
+      tag: 'Verified GoodNotes Buyer',
+    },
+    {
+      name: 'Sneha Roy',
+      role: 'Fashion Designer & Small Business Owner',
+      rating: 5,
+      date: '5 days ago',
+      title: '“Aesthetic, vibrant & zero lag on Notability.”',
+      text: 'I am super picky about typography and color palettes. This Rainbow theme is gorgeous! Every tab works with 1 tap, and the 150 covers let me switch styles whenever I want.',
+      avatar: '🎨',
+      verified: true,
+      tag: 'Verified iPad Pro Buyer',
+    },
   ];
 
   return (
-    <section className="py-16 bg-white border-t border-slate-200">
-      <div className="max-w-6xl mx-auto px-4 sm:px-6">
+    <section className="py-16 md:py-24 bg-white relative border-t border-slate-200">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Header */}
-        <div className="text-center max-w-3xl mx-auto mb-12">
-          <div className="inline-flex items-center gap-1.5 bg-slate-100 border border-slate-200 text-slate-800 px-3.5 py-1 rounded-full text-xs font-bold uppercase tracking-wider mb-3">
-            <Sparkles className="w-3.5 h-3.5 text-emerald-600" /> Real Success Stories
+        <div className="text-center max-w-3xl mx-auto mb-14 space-y-3">
+          <div className="flex items-center justify-center gap-1.5 text-amber-400 mb-2">
+            {[...Array(5)].map((_, i) => (
+              <Star key={i} className="w-5 h-5 fill-amber-400 text-amber-400" />
+            ))}
           </div>
-          <h2 className="text-3xl sm:text-4xl font-black text-slate-900 tracking-tight mb-3">
-            1,240+ Job Seekers Hired & Promoted
+          <span className="text-xs font-black uppercase tracking-wider text-rose-600 bg-rose-50 border border-rose-200 px-3.5 py-1.5 rounded-full inline-flex items-center gap-1.5">
+            <Heart className="w-3.5 h-3.5 text-rose-500 fill-rose-500" />
+            LOVED BY 12,400+ PLANNERS WORLDWIDE
+          </span>
+          <h2 className="text-3xl sm:text-5xl font-black text-slate-900 tracking-tight">
+            Real Stories from Real Organizers
           </h2>
           <p className="text-slate-600 text-sm sm:text-base">
-            See how real applicants transformed their career trajectory using the 38-Page AI Kit.
+            See how the All-In-One Digital Planner is helping thousands achieve their goals every single day.
           </p>
         </div>
 
-        {/* Reviews Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {reviews.map((rev, index) => (
+        {/* 4-Card Testimonials Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-8 max-w-5xl mx-auto">
+          {reviews.map((r, idx) => (
             <div
-              key={index}
-              className="clean-card rounded-3xl p-6 border border-slate-200 flex flex-col justify-between shadow-sm bg-white hover:border-emerald-300 transition-all"
+              key={idx}
+              className="clean-card rounded-3xl p-6 sm:p-8 bg-slate-50 border border-slate-200 shadow-sm hover:shadow-xl transition-all duration-300 space-y-4 flex flex-col justify-between"
             >
-              <div className="space-y-4">
-                {/* Header */}
-                <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full bg-emerald-600 text-white font-black flex items-center justify-center text-sm shadow-sm">
-                      {rev.avatar}
-                    </div>
-                    <div>
-                      <h4 className="text-slate-900 font-bold text-sm leading-tight">{rev.name}</h4>
-                      <p className="text-slate-500 text-[11px]">{rev.role}</p>
-                    </div>
+              <div className="space-y-3">
+                
+                {/* Rating & Tag */}
+                <div className="flex items-center justify-between">
+                  <div className="flex text-amber-400">
+                    {[...Array(r.rating)].map((_, i) => (
+                      <Star key={i} className="w-4 h-4 fill-amber-400 text-amber-400" />
+                    ))}
                   </div>
-
-                  <span className="text-[10px] text-emerald-800 font-bold bg-emerald-100 px-2 py-0.5 rounded-full border border-emerald-200">
-                    {rev.salaryJump}
+                  <span className="text-[11px] font-bold text-emerald-700 bg-emerald-100 px-2.5 py-0.5 rounded-full flex items-center gap-1">
+                    <CheckCircle2 className="w-3 h-3 text-emerald-600" /> {r.tag}
                   </span>
                 </div>
 
-                {/* Rating */}
-                <div className="flex items-center gap-1 text-amber-400">
-                  {[...Array(5)].map((_, i) => (
-                    <Star key={i} className="w-3.5 h-3.5 fill-amber-400" />
-                  ))}
-                </div>
+                <h3 className="text-base font-black text-slate-900 leading-snug">
+                  {r.title}
+                </h3>
 
-                {/* Review Text */}
-                <p className="text-slate-700 text-xs sm:text-sm leading-relaxed italic">
-                  "{rev.review}"
+                <p className="text-xs sm:text-sm text-slate-600 leading-relaxed italic">
+                  {r.text}
                 </p>
               </div>
 
-              {/* Footer info */}
-              <div className="mt-6 pt-3 border-t border-slate-100 flex items-center justify-between text-[11px]">
-                <div className="flex items-center gap-1 text-emerald-700 font-medium">
-                  <CheckCircle2 className="w-3.5 h-3.5" />
-                  <span>{rev.verified}</span>
+              {/* Author Footer */}
+              <div className="flex items-center gap-3 pt-4 border-t border-slate-200/80">
+                <div className="w-10 h-10 rounded-full bg-white border border-slate-200 flex items-center justify-center text-xl shadow-sm">
+                  {r.avatar}
                 </div>
-                <span className="text-slate-400">{rev.date}</span>
+                <div>
+                  <h4 className="text-xs sm:text-sm font-black text-slate-900">{r.name}</h4>
+                  <p className="text-[11px] text-slate-500 font-medium">{r.role} • {r.date}</p>
+                </div>
               </div>
+
             </div>
           ))}
         </div>
