@@ -15,36 +15,40 @@ import { MobileStickyCTA } from '@/components/MobileStickyCTA';
 import { ChatbotWidget } from '@/components/ChatbotWidget';
 import { LegalFooter } from '@/components/LegalFooter';
 import { ScrollReveal } from '@/components/ScrollReveal';
+import { VisitorTracker } from '@/components/VisitorTracker';
 
 export default function Home() {
   return (
-    <main className="min-h-screen bg-slate-50 text-slate-900 flex flex-col selection:bg-emerald-500 selection:text-white relative">
+    <main className="min-h-screen bg-slate-50 text-slate-900 flex flex-col selection:bg-rose-500 selection:text-white relative">
       
+      {/* Real-time Website Visitor & Click Tracker */}
+      <VisitorTracker />
+
       {/* Top Urgency Sticky Deal Ticker */}
       <UrgencyBanner />
 
       {/* Hero Section */}
       <HeroSection />
 
-      {/* Infinite Scrolling Ticker (Company & ATS Badges) */}
+      {/* Infinite Scrolling Ticker (GoodNotes, Notability, iPad & Android) */}
       <CompanyMarquee />
 
-      {/* Section 1: Pain Matrix (Old Way vs 38-Page AI System) */}
+      {/* Section 1: Pain Matrix (Paper Notebooks vs All-In-One Digital Planner) */}
       <ScrollReveal delay={100}>
         <PainMatrix />
       </ScrollReveal>
 
-      {/* Section 2: Before & After Real ATMR Resume Bullets */}
+      {/* Section 2: Interactive Persona Switcher (Students, Pros, Founders & Moms) */}
       <ScrollReveal delay={100}>
         <BeforeAfterCard />
       </ScrollReveal>
 
-      {/* Section 3: Interactive Salary ROI Calculator */}
+      {/* Section 3: Interactive Organization Savings Calculator */}
       <ScrollReveal delay={100}>
         <RoiCalculator />
       </ScrollReveal>
 
-      {/* Section 4: All 18 Sections Grid Breakdown */}
+      {/* Section 4: 8 Core Life Operating Hubs & 5000+ Stickers Showcase */}
       <ScrollReveal delay={100}>
         <ModuleGrid />
       </ScrollReveal>
@@ -54,7 +58,7 @@ export default function Home() {
         <Testimonials />
       </ScrollReveal>
 
-      {/* Section 6: Instant 1-Click Order Bump & Razorpay Checkout */}
+      {/* Section 6: Instant Razorpay Checkout & Direct Download */}
       <ScrollReveal delay={100}>
         <CheckoutSection />
       </ScrollReveal>

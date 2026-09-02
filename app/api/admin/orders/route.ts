@@ -2,13 +2,29 @@ import { NextResponse } from 'next/server';
 import dbConnect from '@/lib/dbConnect';
 import Order from '@/models/Order';
 import Setting from '@/models/Setting';
+import Analytics from '@/models/Analytics';
 
 declare global {
   var memoryOrders: any[];
+  var globalAnalytics: {
+    pageViews: number;
+    uniqueVisitors: number;
+    ctaClicks: number;
+    daily: { [date: string]: { views: number; clicks: number } };
+  };
 }
 
 if (!global.memoryOrders) {
   global.memoryOrders = [];
+}
+
+if (!global.globalAnalytics) {
+  global.globalAnalytics = {
+    pageViews: 0,
+    uniqueVisitors: 0,
+    ctaClicks: 0,
+    daily: {},
+  };
 }
 
 export async function GET(req: Request) {
@@ -34,10 +50,22 @@ export async function GET(req: Request) {
     let dbOrders: any[] = [];
     let dataSource = 'Server Memory & Database';
 
+    // Retrieve analytics counts
+    let totalPageViews = global.globalAnalytics.pageViews;
+    let totalCtaClicks = global.globalAnalytics.ctaClicks;
+
     if (conn) {
       try {
         dbOrders = await Order.find({}).sort({ createdAt: -1 }).lean();
         dataSource = 'MongoDB Cloud Database';
+
+        const allAnalytics = await Analytics.find({}).lean();
+        if (allAnalytics && allAnalytics.length > 0) {
+          const dbViews = allAnalytics.reduce((acc, a) => acc + (a.pageViews || 0), 0);
+          const dbClicks = allAnalytics.reduce((acc, a) => acc + (a.ctaClicks || 0), 0);
+          totalPageViews = Math.max(totalPageViews, dbViews);
+          totalCtaClicks = Math.max(totalCtaClicks, dbClicks);
+        }
       } catch (err) {
         console.warn('MongoDB query warning, using memory fallback:', err);
       }
@@ -88,6 +116,14 @@ export async function GET(req: Request) {
     const bumpTakeRate = totalOrders > 0 ? Math.round((bumpOrdersCount / totalOrders) * 100) : 0;
     const averageOrderValue = totalOrders > 0 ? Math.round(totalRevenue / totalOrders) : 0;
 
+    // Conversion & Traffic Rates
+    const conversionRate = totalPageViews > 0 
+      ? Number(((totalOrders / totalPageViews) * 100).toFixed(1)) 
+      : 0;
+    const clickThroughRate = totalPageViews > 0 
+      ? Number(((totalCtaClicks / totalPageViews) * 100).toFixed(1)) 
+      : 0;
+
     // Build real 7-day revenue grouping
     const daysMap: { [key: string]: { revenue: number; orders: number; bumpOrders: number } } = {};
     
@@ -126,6 +162,10 @@ export async function GET(req: Request) {
         bumpRevenue,
         bumpTakeRate,
         averageOrderValue,
+        pageViews: totalPageViews,
+        ctaClicks: totalCtaClicks,
+        conversionRate,
+        clickThroughRate,
       },
       dailyChartData,
       buyers,
@@ -162,17 +202,24 @@ export async function DELETE(req: Request) {
       return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
     }
 
-    // Clear in-memory orders
+    // Clear in-memory orders & analytics
     global.memoryOrders = [];
+    global.globalAnalytics = {
+      pageViews: 0,
+      uniqueVisitors: 0,
+      ctaClicks: 0,
+      daily: {},
+    };
 
-    // Clear MongoDB orders if connected
+    // Clear MongoDB orders & analytics if connected
     if (conn) {
       await Order.deleteMany({});
+      await Analytics.deleteMany({});
     }
 
     return NextResponse.json({
       success: true,
-      message: 'All test orders and customer ledger records cleared successfully!',
+      message: 'All test orders, page views, and customer ledger records cleared successfully!',
     });
   } catch (error: any) {
     console.error('Clear Orders Error:', error);
