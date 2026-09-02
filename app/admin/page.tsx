@@ -6,27 +6,23 @@ import { AdminHeader } from '@/components/admin/AdminHeader';
 import { AdminSidebar, AdminTab } from '@/components/admin/AdminSidebar';
 import { RevenueStats } from '@/components/admin/RevenueStats';
 import { SalesChart } from '@/components/admin/SalesChart';
-import { ProductSettings } from '@/components/admin/ProductSettings';
+import { BuyersTable } from '@/components/admin/BuyersTable';
 import { ProductUploadManager } from '@/components/admin/ProductUploadManager';
-import { BuyersTable, Buyer } from '@/components/admin/BuyersTable';
-import { LegalFooter } from '@/components/LegalFooter';
+import { ProductSettings } from '@/components/admin/ProductSettings';
+import { AlertCircle, RefreshCw, ShieldCheck } from 'lucide-react';
 
-export default function AdminPage() {
+export default function AdminDashboardPage() {
   const router = useRouter();
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
   const [activeTab, setActiveTab] = useState<AdminTab>('overview');
   const [dateRange, setDateRange] = useState<string>('all');
-  const [isLoading, setIsLoading] = useState<boolean>(true);
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
-  const [stats, setStats] = useState({
-    totalRevenue: 0,
-    totalOrders: 0,
-    bumpOrdersCount: 0,
-    bumpRevenue: 0,
-    bumpTakeRate: 0,
-    averageOrderValue: 0,
-  });
+
+  const [stats, setStats] = useState<any>(null);
   const [dailyChartData, setDailyChartData] = useState<any[]>([]);
-  const [buyers, setBuyers] = useState<Buyer[]>([]);
+  const [buyers, setBuyers] = useState<any[]>([]);
+  const [dataSource, setDataSource] = useState<string>('Connecting to Database...');
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string>('');
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -41,26 +37,34 @@ export default function AdminPage() {
 
   const fetchAdminData = async () => {
     setIsLoading(true);
+    setError('');
+
     try {
       const pin = localStorage.getItem('admin_pin') || '';
       const res = await fetch('/api/admin/orders', {
-        headers: { 'Authorization': `Bearer ${pin}` }
+        headers: {
+          Authorization: `Bearer ${pin}`,
+        },
       });
+
+      if (res.status === 401) {
+        localStorage.removeItem('admin_authenticated');
+        router.push('/admin/login');
+        return;
+      }
+
       const data = await res.json();
       if (data.success) {
         setStats(data.stats);
         setDailyChartData(data.dailyChartData || []);
         setBuyers(data.buyers || []);
+        setDataSource(data.source || 'MongoDB Cloud Database');
       } else {
-        if (data.error === 'Unauthorized') {
-          alert('Your session is invalid. Please log out and log back in.');
-          handleLogout();
-        } else {
-          alert('Failed to load customers: ' + data.error);
-        }
+        throw new Error(data.error || 'Failed to retrieve ledger data');
       }
-    } catch (err) {
-      console.error('Error fetching real admin data:', err);
+    } catch (err: any) {
+      console.error('Fetch error:', err);
+      setError(err.message || 'Could not connect to backend server');
     } finally {
       setIsLoading(false);
     }
@@ -70,22 +74,22 @@ export default function AdminPage() {
     if (isAuthenticated) {
       fetchAdminData();
     }
-  }, [isAuthenticated]);
+  }, [isAuthenticated, dateRange]);
 
   const handleExportCSV = () => {
     if (buyers.length === 0) {
-      alert('No buyer records in MongoDB to export.');
+      alert('No buyer orders recorded yet to export.');
       return;
     }
 
-    const headers = ['Order ID', 'Payment ID', 'Name', 'Email', 'Phone', 'Date', 'Amount (INR)', 'Order Bump', 'Status', 'Package'];
+    const headers = ['Order ID', 'Payment ID', 'Customer Name', 'Email', 'Phone', 'Date', 'Amount (INR)', 'Order Bump Added', 'Status', 'Package Purchased'];
     const csvRows = [
       headers.join(','),
       ...buyers.map((b) =>
         [
-          b.id,
-          b.paymentId,
-          `"${b.name}"`,
+          `"${b.id}"`,
+          `"${b.paymentId}"`,
+          `"${b.name.replace(/"/g, '""')}"`,
           `"${b.email}"`,
           `"${b.phone}"`,
           `"${b.date}"`,
@@ -107,6 +111,32 @@ export default function AdminPage() {
     document.body.removeChild(link);
   };
 
+  const handleClearOrders = async () => {
+    const confirmReset = window.confirm(
+      'Are you sure you want to clear all test orders and reset the purchase count to 0?'
+    );
+    if (!confirmReset) return;
+
+    try {
+      const pin = localStorage.getItem('admin_pin') || '';
+      const res = await fetch('/api/admin/orders', {
+        method: 'DELETE',
+        headers: {
+          Authorization: `Bearer ${pin}`,
+        },
+      });
+      const data = await res.json();
+      if (data.success) {
+        alert('Dashboard and customer purchase count successfully reset to 0!');
+        fetchAdminData();
+      } else {
+        alert(data.error || 'Failed to clear orders');
+      }
+    } catch (err: any) {
+      alert(`Error clearing orders: ${err.message}`);
+    }
+  };
+
   const handleLogout = () => {
     if (typeof window !== 'undefined') {
       localStorage.removeItem('admin_authenticated');
@@ -124,7 +154,7 @@ export default function AdminPage() {
   }
 
   return (
-    <main className="min-h-screen bg-slate-50 text-slate-900 flex flex-col selection:bg-emerald-500 selection:text-white w-full">
+    <main className="min-h-screen bg-slate-50 text-slate-900 flex flex-col selection:bg-rose-500 selection:text-white w-full">
       
       {/* 1. Admin Sticky Full-Width Header */}
       <AdminHeader
@@ -132,6 +162,7 @@ export default function AdminPage() {
         setDateRange={setDateRange}
         onRefresh={fetchAdminData}
         onExportCSV={handleExportCSV}
+        onClearOrders={handleClearOrders}
       />
 
       {/* 2. Admin Sidebar & Main Workspace Layout (Full-Width Edge-to-Edge) */}
@@ -147,40 +178,62 @@ export default function AdminPage() {
 
           {/* Dedicated Tab Section Workspace */}
           <div className="flex-1 space-y-6 min-w-0 relative">
+            
+            {/* Database & Memory Health Indicator Pill */}
+            <div className="flex flex-wrap items-center justify-between gap-2 bg-white px-4 py-2.5 rounded-2xl border border-slate-200 shadow-sm text-xs font-semibold">
+              <div className="flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                <span className="text-slate-600">Active Storage:</span>
+                <span className="font-extrabold text-slate-900 font-mono">{dataSource}</span>
+              </div>
+              <div className="flex items-center gap-2 text-[11px] text-slate-500">
+                <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
+                <span>Protected by PIN Authentication</span>
+              </div>
+            </div>
 
-            {isLoading && (
-              <div className="absolute inset-0 bg-white/60 backdrop-blur-sm z-10 flex items-center justify-center rounded-3xl border border-slate-100">
-                <div className="flex flex-col items-center gap-3 bg-white p-6 rounded-2xl shadow-xl border border-emerald-100">
-                  <div className="w-8 h-8 border-4 border-emerald-500 border-t-transparent rounded-full animate-spin"></div>
-                  <span className="text-emerald-700 font-bold text-sm">Fetching Real-Time Data...</span>
+            {/* Error Banner */}
+            {error && (
+              <div className="bg-rose-50 border border-rose-200 text-rose-800 p-4 rounded-2xl text-xs flex items-center gap-2">
+                <AlertCircle className="w-4 h-4 shrink-0 text-rose-600" />
+                <span>{error}</span>
+                <button
+                  onClick={fetchAdminData}
+                  className="ml-auto underline font-bold hover:text-rose-900"
+                >
+                  Retry Connection
+                </button>
+              </div>
+            )}
+
+            {/* TAB 1: OVERVIEW */}
+            {activeTab === 'overview' && (
+              <div className="space-y-6">
+                <RevenueStats stats={stats} />
+                <div className="grid grid-cols-1 gap-6">
+                  <SalesChart dailyData={dailyChartData} totalOrders={stats?.totalOrders || 0} />
+                  <BuyersTable buyers={buyers} />
                 </div>
               </div>
             )}
-            
-            {/* TAB 1: Sales Overview */}
-            {activeTab === 'overview' && (
-              <div className="space-y-6 animate-in fade-in duration-300">
-                <RevenueStats stats={stats} />
-                <SalesChart dailyData={dailyChartData} totalOrders={stats.totalOrders} />
-                <BuyersTable buyers={buyers} />
-              </div>
-            )}
 
-            {/* TAB 2: Product Upload & Digital Asset Management */}
-            {activeTab === 'product_upload' && (
-              <ProductUploadManager />
-            )}
-
-            {/* TAB 3: Customer Transactions Ledger */}
+            {/* TAB 2: BUYERS / CUSTOMER LEDGER */}
             {activeTab === 'buyers' && (
-              <div className="space-y-6 animate-in fade-in duration-300">
+              <div className="space-y-6">
                 <BuyersTable buyers={buyers} />
               </div>
             )}
 
-            {/* TAB 4 & 5: Product Settings, Meta Pixel & Security */}
+            {/* TAB 3: PRODUCT UPLOAD & GOOGLE DRIVE MANAGER */}
+            {activeTab === 'product_upload' && (
+              <div className="space-y-6">
+                <ProductUploadManager />
+              </div>
+            )}
+
+            {/* TAB 4: PIXEL & SECURITY */}
             {(activeTab === 'pixel' || activeTab === 'security') && (
-              <div className="space-y-6 animate-in fade-in duration-300">
+              <div className="space-y-6">
                 <ProductSettings />
               </div>
             )}
@@ -189,10 +242,6 @@ export default function AdminPage() {
 
         </div>
       </div>
-
-      {/* 3. Footer */}
-      <LegalFooter />
-
     </main>
   );
 }

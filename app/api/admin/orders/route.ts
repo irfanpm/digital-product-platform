@@ -141,3 +141,44 @@ export async function GET(req: Request) {
     );
   }
 }
+
+export async function DELETE(req: Request) {
+  try {
+    const conn = await dbConnect();
+    
+    // Auth Check
+    const authHeader = req.headers.get('authorization');
+    const providedPin = authHeader?.split(' ')[1];
+    
+    let currentValidPin = 'admin123';
+    if (conn) {
+      const existingSetting = await Setting.findOne({}).lean();
+      if (existingSetting?.adminPin) currentValidPin = existingSetting.adminPin;
+    } else if (global.globalMemorySettings?.adminPin) {
+      currentValidPin = global.globalMemorySettings.adminPin;
+    }
+    
+    if (providedPin !== currentValidPin) {
+      return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
+    }
+
+    // Clear in-memory orders
+    global.memoryOrders = [];
+
+    // Clear MongoDB orders if connected
+    if (conn) {
+      await Order.deleteMany({});
+    }
+
+    return NextResponse.json({
+      success: true,
+      message: 'All test orders and customer ledger records cleared successfully!',
+    });
+  } catch (error: any) {
+    console.error('Clear Orders Error:', error);
+    return NextResponse.json(
+      { success: false, error: error.message || 'Error clearing orders' },
+      { status: 500 }
+    );
+  }
+}
