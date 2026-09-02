@@ -37,8 +37,8 @@ export async function POST(req: Request) {
     }
 
     // Fetch product Google Drive URL settings
-    let productDriveUrl = global.globalMemorySettings?.productDriveUrl || 'https://drive.google.com/file/d/1_Sample_AI_Job_Application_Kit_38Page/view';
-    let orderBumpDriveUrl = global.globalMemorySettings?.orderBumpDriveUrl || 'https://notion.so/Sample_10_Word_Templates_And_Job_Tracker_Dashboard';
+    let productDriveUrl = global.globalMemorySettings?.productDriveUrl || 'https://drive.google.com/file/d/1_Sample_All_In_One_Digital_Planner_2026_2028/view';
+    let orderBumpDriveUrl = global.globalMemorySettings?.orderBumpDriveUrl || 'https://notion.so/Sample_Planner_Bonus_Pack';
 
     if (conn) {
       try {
@@ -58,11 +58,9 @@ export async function POST(req: Request) {
       name: name || 'Valued Buyer',
       email: email || 'buyer@example.com',
       phone: phone || '+91 9876543210',
-      amount: Number(amount) || 1,
+      amount: Number(amount) || 199,
       hasOrderBump: !!hasOrderBump,
-      package: hasOrderBump 
-        ? '38-Page Kit + Editable Templates' 
-        : 'The AI Job Application Kit',
+      package: body.package || 'All-In-One Digital Planner (2026-2028 Edition)',
       status: status || 'Captured',
       createdAt: new Date(),
     };

@@ -74,10 +74,10 @@ export async function GET(req: Request) {
         timeStyle: 'short',
       }),
       rawDate: o.createdAt || new Date(),
-      amount: Number(o.amount) || 1,
+      amount: Number(o.amount) || 199,
       hasOrderBump: !!o.hasOrderBump,
       status: o.status || 'Captured',
-      package: o.package || (o.hasOrderBump ? '38-Page Kit + Editable Templates' : 'The AI Job Application Kit'),
+      package: o.package || 'All-In-One Digital Planner (2026-2028 Edition)',
     }));
 
     // Aggregate real statistics directly from actual documents
