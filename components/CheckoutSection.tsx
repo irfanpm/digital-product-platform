@@ -6,7 +6,6 @@ import {
   Zap, 
   Lock, 
   CheckCircle2, 
-  FileText, 
   Mail, 
   User, 
   Phone, 
@@ -14,10 +13,7 @@ import {
   Clock, 
   Download, 
   Check, 
-  Sparkles,
-  Calendar,
-  Gift,
-  Palette
+  Calendar
 } from 'lucide-react';
 import { trackMetaEvent, trackMetaPurchase } from '@/lib/metaPixel';
 
@@ -29,6 +25,7 @@ declare global {
 
 export const CheckoutSection: React.FC = () => {
   const [productDriveUrl, setProductDriveUrl] = useState<string>('https://drive.google.com/file/d/1_Sample_All_In_One_Digital_Planner_2026_2028/view');
+  const [price, setPrice] = useState<number>(199);
   const [fullName, setFullName] = useState<string>('');
   const [email, setEmail] = useState<string>('');
   const [phone, setPhone] = useState<string>('');
@@ -45,16 +42,16 @@ export const CheckoutSection: React.FC = () => {
     productDriveUrl?: string;
   } | null>(null);
 
-  const basePrice = 1; // Test price ₹1 (set to 299 for live production)
-  const totalPrice = basePrice;
-
-  // Fetch Admin Setting for Google Drive URL
+  // Fetch Admin Setting for Price and Google Drive URL dynamically from Database
   useEffect(() => {
     const fetchSettings = async () => {
       try {
         const res = await fetch('/api/admin/settings');
         const data = await res.json();
         if (data.success && data.setting) {
+          if (data.setting.basePrice && !isNaN(Number(data.setting.basePrice))) {
+            setPrice(Number(data.setting.basePrice));
+          }
           if (data.setting.productDriveUrl) {
             setProductDriveUrl(data.setting.productDriveUrl);
           }
@@ -84,19 +81,19 @@ export const CheckoutSection: React.FC = () => {
 
     // Track Meta Pixel InitiateCheckout Event
     trackMetaEvent('InitiateCheckout', {
-      value: totalPrice,
+      value: price,
       currency: 'INR',
       content_name: 'All-In-One Digital Planner (2026-2028 Edition)',
       num_items: 1,
     });
 
     try {
-      // Step 1: Call API to create order
+      // Step 1: Call API to create order with dynamic database price
       const response = await fetch('/api/create-order', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          amount: totalPrice,
+          amount: price,
           currency: 'INR',
           notes: {
             fullName,
@@ -134,7 +131,7 @@ export const CheckoutSection: React.FC = () => {
           const paymentId = response.razorpay_payment_id || `pay_${Date.now()}`;
 
           // Track Meta Pixel Purchase Event
-          trackMetaPurchase(totalPrice, paymentId, false);
+          trackMetaPurchase(price, paymentId, false);
 
           // Send immediate backend confirmation to guarantee database update (status: Captured)
           let liveProductUrl = productDriveUrl;
@@ -150,7 +147,7 @@ export const CheckoutSection: React.FC = () => {
                 name: fullName,
                 email: email,
                 phone: phone,
-                amount: totalPrice,
+                amount: price,
                 hasOrderBump: false,
                 package: 'All-In-One Digital Planner (2026-2028 Edition)',
               }),
@@ -165,7 +162,7 @@ export const CheckoutSection: React.FC = () => {
           setConfirmedOrder({
             paymentId: paymentId,
             orderId: createdOrderId,
-            amount: totalPrice,
+            amount: price,
             name: fullName,
             email: email,
             productDriveUrl: liveProductUrl,
@@ -195,7 +192,7 @@ export const CheckoutSection: React.FC = () => {
               name: fullName,
               email: email,
               phone: phone,
-              amount: totalPrice,
+              amount: price,
               hasOrderBump: false,
               package: 'All-In-One Digital Planner (2026-2028 Edition)',
             }),
@@ -207,11 +204,11 @@ export const CheckoutSection: React.FC = () => {
         rzp.open();
       } else {
         // Fallback simulation for local preview without SDK
-        trackMetaPurchase(totalPrice, `pay_sim_${Date.now()}`, false);
+        trackMetaPurchase(price, `pay_sim_${Date.now()}`, false);
         setConfirmedOrder({
           paymentId: `pay_sim_${Date.now()}`,
           orderId: createdOrderId,
-          amount: totalPrice,
+          amount: price,
           name: fullName,
           email: email,
           productDriveUrl: productDriveUrl,
@@ -326,7 +323,7 @@ export const CheckoutSection: React.FC = () => {
                     <div className="text-right">
                       <div className="text-xs text-slate-400 line-through font-mono">Regular ₹1,999</div>
                       <div className="text-2xl sm:text-3xl font-black text-rose-600 font-mono">
-                        ₹{basePrice}
+                        ₹{price}
                       </div>
                     </div>
                   </div>
@@ -419,7 +416,7 @@ export const CheckoutSection: React.FC = () => {
                   <div className="flex items-center justify-between text-sm sm:text-base font-bold text-slate-800">
                     <span>Total Amount Payable:</span>
                     <span className="text-2xl sm:text-3xl font-black text-rose-600 font-mono">
-                      ₹{totalPrice} INR
+                      ₹{price} INR
                     </span>
                   </div>
 
@@ -435,7 +432,7 @@ export const CheckoutSection: React.FC = () => {
                     ) : (
                       <span className="flex items-center gap-2">
                         <Zap className="w-5 h-5 fill-white" />
-                        Pay ₹{totalPrice} & Download Planner Instantly 🌸
+                        Pay ₹{price} & Download Planner Instantly 🌸
                       </span>
                     )}
                   </button>
