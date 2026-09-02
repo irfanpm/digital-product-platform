@@ -10,7 +10,7 @@ if (!global.globalMemorySettings) {
   global.globalMemorySettings = {
     productDriveUrl: 'https://drive.google.com/file/d/1_Sample_All_In_One_Digital_Planner_2026_2028/view',
     orderBumpDriveUrl: 'https://notion.so/Sample_Planner_Bonus_Pack',
-    basePrice: 299,
+    basePrice: 199,
     bumpPrice: 99,
     adminPin: 'admin123',
     metaPixelId: process.env.NEXT_PUBLIC_META_PIXEL_ID || '123456789012345',
@@ -95,7 +95,7 @@ export async function POST(req: Request) {
 
     return NextResponse.json({
       success: true,
-      message: `Digital Planner Settings saved successfully!`,
+      message: `Digital Planner Settings saved successfully! Base price is ₹${updateFields.basePrice}`,
       setting: updatedSetting || global.globalMemorySettings,
     });
   } catch (error: any) {

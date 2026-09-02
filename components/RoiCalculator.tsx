@@ -1,11 +1,23 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Calculator, Sparkles, CheckCircle2, DollarSign, Clock, ArrowRight, Smile } from 'lucide-react';
 
 export const RoiCalculator: React.FC = () => {
   const [dailyPlanningMinutes, setDailyPlanningMinutes] = useState<number>(30);
   const [yearlyNotebooksCount, setYearlyNotebooksCount] = useState<number>(4);
+  const [price, setPrice] = useState<number>(199);
+
+  useEffect(() => {
+    fetch('/api/admin/settings')
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.success && data.setting && data.setting.basePrice) {
+          setPrice(Number(data.setting.basePrice));
+        }
+      })
+      .catch((err) => console.error(err));
+  }, []);
 
   // Calculations
   const stationerySavings = yearlyNotebooksCount * 850 + 1500; // Notebooks + Stickers/Pens
@@ -116,7 +128,7 @@ export const RoiCalculator: React.FC = () => {
                 3-Year Total Planner ROI
               </span>
               <div className="text-2xl sm:text-4xl font-black text-rose-600 font-mono">
-                {Math.round((stationerySavings * 3) / 299)}x Return
+                {Math.round((stationerySavings * 3) / price)}x Return
               </div>
               <p className="text-[11px] text-slate-500">
                 Includes free 2026, 2027 & 2028 yearly updates
@@ -131,7 +143,7 @@ export const RoiCalculator: React.FC = () => {
               href="#checkout-section"
               className="inline-flex items-center gap-2 bg-gradient-to-r from-rose-500 to-purple-600 hover:from-rose-600 hover:to-purple-700 text-white font-black text-sm sm:text-base py-3.5 px-8 rounded-2xl shadow-lg transition-all cursor-pointer"
             >
-              <span>Unlock 3-Year All-In-One Digital Planner For ₹299</span>
+              <span>Unlock 3-Year All-In-One Digital Planner For ₹{price}</span>
               <ArrowRight className="w-4 h-4" />
             </a>
           </div>

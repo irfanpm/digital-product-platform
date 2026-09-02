@@ -23,7 +23,7 @@ const SettingSchema: Schema = new Schema<ISetting>(
     },
     basePrice: {
       type: Number,
-      default: 299,
+      default: 199,
     },
     bumpPrice: {
       type: Number,
