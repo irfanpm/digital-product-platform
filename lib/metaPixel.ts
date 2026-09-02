@@ -21,15 +21,13 @@ export const trackMetaEvent = (eventName: string, options: Record<string, any> =
 };
 
 /**
- * Helper to track successful Meta Purchase event
+ * Helper to track successful Meta Purchase event with exact revenue value
  */
-export const trackMetaPurchase = (amount: number, transactionId: string, hasOrderBump: boolean) => {
+export const trackMetaPurchase = (amount: number, transactionId: string, hasOrderBump?: boolean) => {
   trackMetaEvent('Purchase', {
     value: amount,
     currency: 'INR',
-    content_name: hasOrderBump 
-      ? '38-Page AI Kit + 10 Word/Notion Templates' 
-      : 'The AI Job Application Kit (38-Page PDF)',
+    content_name: 'All-In-One Digital Planner (2026-2028 Edition)',
     content_type: 'product',
     order_id: transactionId,
   });
