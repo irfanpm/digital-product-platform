@@ -18,36 +18,14 @@ const outfit = Outfit({
 });
 
 export const metadata: Metadata = {
-  title: 'All-In-One Digital Planner (2026-2028) | 600+ Pages, 5,000+ Stickers & Templates',
-  description:
-    'Plan better, stay organized, and achieve more with the Ultimate All-In-One Hyperlinked Digital Planner (2026, 2027 & 2028). Features Rainbow Theme, 100+ Templates, 150 Covers, and 5000+ Aesthetic Digital Stickers for GoodNotes, Notability & iPad/Android.',
-  keywords: [
-    'Digital Planner 2026',
-    'GoodNotes Planner',
-    'iPad Planner',
-    'All In One Digital Planner',
-    'Notability Planner',
-    'Penly Android Planner',
-    'Digital Stickers',
-    'Budget Planner',
-    'Habit Tracker',
-  ],
-  authors: [{ name: 'Digital Planner Studio' }],
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || (process.env.VERCEL_PROJECT_PRODUCTION_URL ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}` : 'https://digital-product-platform-ten.vercel.app')),
+  title: 'The Money Saving System | Plan. Save. See Progress.',
+  description: 'A complete savings system: printable challenges, a smart Excel Savings Goal Tracker and a step-by-step guide. Try the interactive preview and see the real product.',
   openGraph: {
-    title: 'All-In-One Digital Planner (2026-2028 Edition)',
-    description:
-      'The complete 600+ page hyperlinked digital life planner with 5,000+ stickers, 100+ templates, and free lifetime yearly updates.',
-    url: 'https://digital-product-platform-ten.vercel.app',
-    siteName: 'Digital Planner Studio',
-    images: [
-      {
-        url: '/images/digital_planner_main_mockup.jpg',
-        width: 1200,
-        height: 630,
-        alt: 'All-In-One Digital Planner 2026-2028 Mockup',
-      },
-    ],
-    locale: 'en_US',
+    title: 'The Money Saving System',
+    description: 'Give your savings a clearer place to plan, record and understand progress.',
+    images: [{ url: '/images/savings/dashboard.png', width: 1536, height: 1024, alt: 'Real Savings Goal Tracker dashboard' }],
+    locale: 'en_IN',
     type: 'website',
   },
 };

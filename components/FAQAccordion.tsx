@@ -1,39 +1,35 @@
 'use client';
 
 import React, { useState } from 'react';
-import { ChevronDown, HelpCircle, Sparkles } from 'lucide-react';
+import { ChevronDown, HelpCircle, Leaf } from 'lucide-react';
 
 export const FAQAccordion: React.FC = () => {
   const [openIdx, setOpenIdx] = useState<number | null>(0);
 
   const faqs = [
     {
-      q: 'How do I download and import the planner into GoodNotes or Notability?',
-      a: 'It takes under 60 seconds! After completing checkout, you will receive an instant Google Drive download link on your screen and in your email. Simply tap the link, click "Open in GoodNotes" (or Notability / Penly), and your 600+ page hyperlinked planner is ready to use immediately.',
+      q: 'Do I need to print the files?',
+      a: 'No. The Excel tracker can be used digitally. Printable challenges are available for customers who prefer printing.',
     },
     {
-      q: 'Does it work on Android tablets (Samsung Tab, Penly, Noteshelf)?',
-      a: 'Yes, 100%! The planner works on ANY Android device or tablet with PDF annotation apps like Penly, Samsung Notes, Noteshelf, or Xodo. All hyperlinks, tabs, and calendar integrations work smoothly on Android.',
+      q: 'Do I need Excel knowledge?',
+      a: 'The tracker is designed to be simple, and the included user guide explains how to use it.',
     },
     {
-      q: 'Do I get access to 2026, 2027, and 2028 yearly planners?',
-      a: 'Yes! Your one-time purchase includes full access to the 2026, 2027, and 2028 dated planners, as well as an undated reusable edition. Future yearly updates are delivered to your Google Drive link completely free.',
+      q: 'Can I choose my own savings target?',
+      a: 'Yes. The Excel tracker allows users to enter their own target amount and dates.',
     },
     {
-      q: 'How do the 1-click hyperlinks and calendar sync work?',
-      a: 'Every monthly, weekly, and daily tab is coded with fast hyperlinks. Tap any date on your monthly calendar to jump straight to that day’s hourly schedule. Plus, tap the Google or Apple Calendar icons to schedule live digital reminders on your phone.',
+      q: 'What happens if I cannot save the full amount one day?',
+      a: 'The remaining required amount can carry forward automatically according to the tracker logic.',
     },
     {
-      q: 'Are the 5,000+ digital stickers pre-cropped and easy to use?',
-      a: 'Yes! You get both individual pre-cropped transparent PNG files and a dedicated GoodNotes Sticker Book collection. You can simply drag and drop or copy/paste any sticker into your planner in 1 click.',
+      q: 'Is this a physical product?',
+      a: 'No. This is a digital product.',
     },
     {
-      q: 'Is this a one-time payment or a monthly subscription?',
-      a: 'This is a strictly 100% ONE-TIME payment of ₹299 (or ₹1 test price). There are zero recurring fees, zero monthly charges, and you get lifetime access with free updates forever.',
-    },
-    {
-      q: 'What if I need help setting it up on my iPad or tablet?',
-      a: 'Every download includes step-by-step video tutorials for iPad (GoodNotes, Notability) and Android (Penly, Samsung Notes). Plus, our 24/7 customer support team is available anytime to assist you.',
+      q: 'How do I receive the files?',
+      a: 'You will receive an instant Google Drive download link directly on your screen and in your email right after successful purchase.',
     },
   ];
 
@@ -42,20 +38,20 @@ export const FAQAccordion: React.FC = () => {
   };
 
   return (
-    <section className="py-16 md:py-24 bg-slate-50 relative border-t border-slate-200">
+    <section id="faq-section" className="py-16 md:py-24 bg-[#FDFBF7] relative border-t border-[#E8F0E9]">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Section Header */}
         <div className="text-center max-w-2xl mx-auto mb-14 space-y-3">
-          <span className="text-xs font-black uppercase tracking-wider text-rose-600 bg-rose-50 border border-rose-200 px-3.5 py-1.5 rounded-full inline-flex items-center gap-1.5">
-            <HelpCircle className="w-3.5 h-3.5 text-rose-500" />
+          <span className="text-xs font-black uppercase tracking-wider text-[#728A7C] bg-[#E8F0E9] border border-[#2C4A3B]/10 px-3.5 py-1.5 rounded-full inline-flex items-center gap-1.5">
+            <HelpCircle className="w-3.5 h-3.5" />
             FREQUENTLY ASKED QUESTIONS
           </span>
-          <h2 className="text-3xl sm:text-5xl font-black text-slate-900 tracking-tight">
+          <h2 className="text-3xl sm:text-5xl font-black text-[#2C4A3B] tracking-tight">
             Got Questions? We’ve Got Answers.
           </h2>
           <p className="text-slate-600 text-sm sm:text-base">
-            Everything you need to know about device compatibility, stickers, hyperlinks and instant delivery.
+            Everything you need to know about the Money Saving Bundle.
           </p>
         </div>
 
@@ -66,25 +62,25 @@ export const FAQAccordion: React.FC = () => {
             return (
               <div
                 key={idx}
-                className="clean-card rounded-2xl bg-white border border-slate-200 shadow-sm overflow-hidden transition-all duration-200"
+                className="rounded-2xl bg-white border border-[#E8F0E9] shadow-sm overflow-hidden transition-all duration-200"
               >
                 <button
                   onClick={() => toggleAccordion(idx)}
-                  className="w-full text-left px-6 py-5 flex items-center justify-between gap-4 font-black text-slate-900 text-sm sm:text-base cursor-pointer hover:text-rose-600 transition-colors"
+                  className="w-full text-left px-6 py-5 flex items-center justify-between gap-4 font-black text-[#2C4A3B] text-sm sm:text-base cursor-pointer hover:text-[#728A7C] transition-colors"
                 >
                   <span className="flex items-center gap-2.5">
-                    <span className="w-2 h-2 rounded-full bg-rose-500 shrink-0" />
+                    <span className="w-2 h-2 rounded-full bg-[#C6A87C] shrink-0" />
                     {faq.q}
                   </span>
                   <ChevronDown
                     className={`w-5 h-5 text-slate-400 shrink-0 transition-transform duration-300 ${
-                      isOpen ? 'rotate-180 text-rose-600' : ''
+                      isOpen ? 'rotate-180 text-[#C6A87C]' : ''
                     }`}
                   />
                 </button>
 
                 {isOpen && (
-                  <div className="px-6 pb-5 text-xs sm:text-sm text-slate-600 leading-relaxed border-t border-slate-100 pt-3 animate-in fade-in duration-200">
+                  <div className="px-6 pb-5 text-xs sm:text-sm text-slate-600 leading-relaxed border-t border-[#E8F0E9] pt-3 animate-in fade-in duration-200">
                     {faq.a}
                   </div>
                 )}

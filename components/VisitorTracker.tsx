@@ -36,7 +36,7 @@ export const VisitorTracker: React.FC = () => {
     const handleGlobalClick = (e: MouseEvent) => {
       const target = e.target as HTMLElement | null;
       if (target) {
-        const anchor = target.closest('a[href="#checkout-section"]') || target.closest('button[type="submit"]');
+        const anchor = target.closest('a[href="#checkout-section"]') || target.closest('#checkout-section button[type="submit"]');
         if (anchor) {
           trackCtaClick();
         }

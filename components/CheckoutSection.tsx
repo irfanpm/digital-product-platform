@@ -1,19 +1,19 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { 
-  ShieldCheck, 
-  Zap, 
-  Lock, 
-  CheckCircle2, 
-  Mail, 
-  User, 
-  Phone, 
-  AlertCircle, 
-  Clock, 
-  Download, 
-  Check, 
-  Calendar
+import {
+  ShieldCheck,
+  Zap,
+  Lock,
+  CheckCircle2,
+  Mail,
+  User,
+  Phone,
+  AlertCircle,
+  Clock,
+  Download,
+  Check,
+  Package
 } from 'lucide-react';
 import { trackMetaEvent, trackMetaPurchase } from '@/lib/metaPixel';
 
@@ -24,8 +24,9 @@ declare global {
 }
 
 export const CheckoutSection: React.FC = () => {
-  const [productDriveUrl, setProductDriveUrl] = useState<string>('https://drive.google.com/file/d/1_Sample_All_In_One_Digital_Planner_2026_2028/view');
-  const [price, setPrice] = useState<number>(199);
+  const [productDriveUrl, setProductDriveUrl] = useState<string>('https://drive.google.com/file/d/1_Sample_Money_Saving_Bundle/view');
+  const [price, setPrice] = useState<number>(0);
+  const [priceReady, setPriceReady] = useState(false);
   const [fullName, setFullName] = useState<string>('');
   const [email, setEmail] = useState<string>('');
   const [phone, setPhone] = useState<string>('');
@@ -51,6 +52,9 @@ export const CheckoutSection: React.FC = () => {
         if (data.success && data.setting) {
           if (data.setting.basePrice && !isNaN(Number(data.setting.basePrice))) {
             setPrice(Number(data.setting.basePrice));
+            setPriceReady(true);
+          } else {
+            setErrorMessage('The current price could not be loaded. Please refresh and try again.');
           }
           if (data.setting.productDriveUrl) {
             setProductDriveUrl(data.setting.productDriveUrl);
@@ -58,6 +62,7 @@ export const CheckoutSection: React.FC = () => {
         }
       } catch (err) {
         console.error('Error fetching checkout settings:', err);
+        setErrorMessage('The current price could not be loaded. Please refresh and try again.');
       }
     };
     fetchSettings();
@@ -67,8 +72,10 @@ export const CheckoutSection: React.FC = () => {
     e.preventDefault();
     setErrorMessage('');
 
+    if (!priceReady) { setErrorMessage('The current price is unavailable. Please refresh and try again.'); return; }
+
     if (!fullName.trim() || !email.trim() || !phone.trim()) {
-      setErrorMessage('Please enter your Name, Email, and WhatsApp number to receive your Planner bundle.');
+      setErrorMessage('Please enter your Name, Email, and WhatsApp number to receive your Bundle.');
       return;
     }
 
@@ -83,7 +90,7 @@ export const CheckoutSection: React.FC = () => {
     trackMetaEvent('InitiateCheckout', {
       value: price,
       currency: 'INR',
-      content_name: 'All-In-One Digital Planner (2026-2028 Edition)',
+      content_name: 'Money Saving 3-in-1 Bundle',
       num_items: 1,
     });
 
@@ -99,7 +106,7 @@ export const CheckoutSection: React.FC = () => {
             fullName,
             email,
             phone,
-            product: 'All-In-One Digital Planner (2026-2028 Edition)'
+            product: 'Money Saving 3-in-1 Bundle'
           }
         }),
       });
@@ -117,15 +124,15 @@ export const CheckoutSection: React.FC = () => {
         key: data.order.key || process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || 'rzp_live_TVBfC6ISeEF8o7',
         amount: data.order.amount,
         currency: data.order.currency,
-        name: 'Digital Planner Studio',
-        description: 'All-In-One Digital Planner (2026-2028) + 5000 Stickers Bundle',
+        name: 'Little Savings, Big Dreams',
+        description: 'Money Saving 3-in-1 Bundle',
         prefill: {
           name: fullName,
           email: email,
           contact: phone,
         },
         theme: {
-          color: '#e11d48', // Rose-600
+          color: '#2C4A3B', // Deep forest/olive green
         },
         handler: async function (response: any) {
           const paymentId = response.razorpay_payment_id || `pay_${Date.now()}`;
@@ -149,7 +156,7 @@ export const CheckoutSection: React.FC = () => {
                 phone: phone,
                 amount: price,
                 hasOrderBump: false,
-                package: 'All-In-One Digital Planner (2026-2028 Edition)',
+                package: 'Money Saving 3-in-1 Bundle',
               }),
             });
             const confirmData = await confirmRes.json();
@@ -176,11 +183,11 @@ export const CheckoutSection: React.FC = () => {
 
       if (typeof window !== 'undefined' && window.Razorpay) {
         const rzp = new window.Razorpay(options);
-        
+
         // Listen for payment failure or modal dismissal
         rzp.on('payment.failed', async function (failedResp: any) {
           console.warn('Payment Failed event:', failedResp.error);
-          
+
           // Log failed payment in backend database
           await fetch('/api/confirm-payment', {
             method: 'POST',
@@ -194,7 +201,7 @@ export const CheckoutSection: React.FC = () => {
               phone: phone,
               amount: price,
               hasOrderBump: false,
-              package: 'All-In-One Digital Planner (2026-2028 Edition)',
+              package: 'Money Saving 3-in-1 Bundle',
             }),
           });
 
@@ -223,25 +230,25 @@ export const CheckoutSection: React.FC = () => {
   };
 
   return (
-    <section id="checkout-section" className="py-16 md:py-24 bg-gradient-to-b from-slate-50 via-rose-50/40 to-slate-50 border-t border-slate-200 relative">
+    <section id="checkout-section" className="py-16 md:py-24 bg-[#FDFBF7] border-t border-[#E8F0E9] relative">
       <div className="max-w-4xl mx-auto px-4 sm:px-6">
-        
+
         {/* IF PAYMENT IS CONFIRMED -> SHOW CONFIRMATION & DIRECT GOOGLE DRIVE DOWNLOAD BUTTON */}
         {confirmedOrder ? (
-          <div className="clean-card rounded-3xl p-8 sm:p-12 border-2 border-emerald-500 bg-white shadow-2xl text-center space-y-8 animate-in fade-in duration-500">
-            
+          <div className="rounded-3xl p-8 sm:p-12 border-2 border-[#2C4A3B] bg-white shadow-xl text-center space-y-8 animate-in fade-in duration-500">
+
             <div className="flex justify-center">
-              <div className="w-16 h-16 bg-emerald-100 text-emerald-700 rounded-full flex items-center justify-center border-4 border-emerald-200 shadow-md">
+              <div className="w-16 h-16 bg-[#E8F0E9] text-[#2C4A3B] rounded-full flex items-center justify-center border-4 border-[#2C4A3B]/20 shadow-md">
                 <Check className="w-8 h-8 stroke-[3]" />
               </div>
             </div>
 
             <div className="space-y-2 max-w-lg mx-auto">
-              <span className="text-xs font-extrabold text-emerald-800 bg-emerald-100 px-3 py-1 rounded-full uppercase tracking-wider">
-                🎉 PAYMENT SUCCESSFUL & CONFIRMED
+              <span className="text-xs font-extrabold text-[#2C4A3B] bg-[#E8F0E9] px-3 py-1 rounded-full uppercase tracking-wider">
+                PAYMENT CONFIRMED
               </span>
-              <h2 className="text-2xl sm:text-4xl font-black text-slate-900 tracking-tight">
-                Your Digital Planner Bundle Is Ready!
+              <h2 className="text-2xl sm:text-4xl font-black text-[#2C4A3B] tracking-tight">
+                Your Money Saving Bundle Is Ready!
               </h2>
               <p className="text-slate-600 text-sm">
                 Thank you, <strong className="text-slate-900">{confirmedOrder.name}</strong>! Your order has been recorded. A confirmation receipt with your download link was sent to <strong className="text-slate-900">{confirmedOrder.email}</strong>.
@@ -249,10 +256,10 @@ export const CheckoutSection: React.FC = () => {
             </div>
 
             {/* Receipt Details Box */}
-            <div className="bg-slate-50 p-5 rounded-2xl border border-slate-200 max-w-md mx-auto text-left space-y-2 text-xs">
+            <div className="bg-[#FDFBF7] p-5 rounded-2xl border border-[#E8F0E9] max-w-md mx-auto text-left space-y-2 text-xs">
               <div className="flex justify-between">
                 <span className="text-slate-500">Product:</span>
-                <span className="font-bold text-slate-900">All-In-One Digital Planner (2026-2028)</span>
+                <span className="font-bold text-slate-900">Money Saving 3-in-1 Bundle</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-slate-500">Payment ID:</span>
@@ -264,12 +271,12 @@ export const CheckoutSection: React.FC = () => {
               </div>
               <div className="flex justify-between">
                 <span className="text-slate-500">Amount Paid:</span>
-                <span className="font-mono font-bold text-emerald-700">₹{confirmedOrder.amount} INR</span>
+                <span className="font-mono font-bold text-[#2C4A3B]">₹{confirmedOrder.amount} INR</span>
               </div>
-              <div className="flex justify-between pt-1 border-t border-slate-200">
+              <div className="flex justify-between pt-1 border-t border-[#E8F0E9]">
                 <span className="text-slate-500">Includes:</span>
-                <span className="font-bold text-emerald-700 flex items-center gap-1">
-                  <CheckCircle2 className="w-3.5 h-3.5" /> 600+ Pages, 5,000+ Stickers & 150 Covers
+                <span className="font-bold text-[#2C4A3B] flex items-center gap-1">
+                  <CheckCircle2 className="w-3.5 h-3.5" /> Savings Challenges, Tracker & Guide
                 </span>
               </div>
             </div>
@@ -280,10 +287,10 @@ export const CheckoutSection: React.FC = () => {
                 href={confirmedOrder.productDriveUrl || productDriveUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="w-full bg-gradient-to-r from-rose-500 to-purple-600 hover:from-rose-600 hover:to-purple-700 text-white font-black text-base sm:text-lg py-4 px-6 rounded-2xl shadow-xl shadow-rose-500/25 transition-all flex items-center justify-center gap-2 cursor-pointer border border-rose-300/30"
+                className="w-full bg-[#2C4A3B] hover:bg-[#1a2d24] text-white font-black text-base sm:text-lg py-4 px-6 rounded-2xl shadow-xl shadow-[#2C4A3B]/20 transition-all flex items-center justify-center gap-2 cursor-pointer"
               >
                 <Download className="w-5 h-5" />
-                <span>Open & Download Planner Bundle (Google Drive)</span>
+                <span>Open & Download Bundle</span>
               </a>
             </div>
 
@@ -292,52 +299,55 @@ export const CheckoutSection: React.FC = () => {
           /* STANDARD CLEAN CHECKOUT FORM */
           <>
             <div className="text-center max-w-2xl mx-auto mb-10">
-              <div className="inline-flex items-center gap-1.5 bg-rose-100 border border-rose-300 text-rose-900 px-3.5 py-1 rounded-full text-xs font-bold uppercase tracking-wider mb-3">
-                <Lock className="w-3.5 h-3.5 text-rose-700" /> 256-Bit SSL Encrypted Instant Checkout
+              <div className="inline-flex items-center gap-1.5 bg-[#E8F0E9] border border-[#2C4A3B]/20 text-[#2C4A3B] px-3.5 py-1 rounded-full text-xs font-bold uppercase tracking-wider mb-3">
+                <Lock className="w-3.5 h-3.5 text-[#2C4A3B]" /> CHECKOUT WITH RAZORPAY
               </div>
-              <h2 className="text-3xl sm:text-5xl font-black text-slate-900 tracking-tight mb-3">
-                Start Planning & Achieving Today
+              <h2 className="text-3xl sm:text-5xl font-black text-[#2C4A3B] tracking-tight mb-3">
+                Give your goal a place to start.
               </h2>
               <p className="text-slate-600 text-sm sm:text-base">
-                Get instant digital access to all 600+ pages, 100+ templates, 150 covers, 5,000+ stickers & free 2026-2028 yearly updates.
+                One complete savings system. Enter your details to continue to the existing secure payment gateway.
               </p>
             </div>
 
-            <div className="clean-card rounded-3xl p-6 sm:p-10 border-2 border-rose-300 bg-white shadow-2xl relative">
-              
+            <div className="rounded-3xl p-6 sm:p-10 border-2 border-[#E8F0E9] bg-white shadow-2xl relative">
+
               <form onSubmit={handleCheckout} className="space-y-8">
-                
+
                 {/* 1. Product Summary & Price Box */}
-                <div className="bg-gradient-to-br from-rose-50/70 to-purple-50/50 p-5 rounded-2xl border border-rose-200 space-y-4">
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-rose-200/80">
+                <div className="bg-[#FDFBF7] p-5 rounded-2xl border border-[#E8F0E9] space-y-4">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-[#E8F0E9]">
                     <div>
-                      <h3 className="text-slate-900 font-black text-lg sm:text-xl flex items-center gap-2">
-                        <Calendar className="w-5 h-5 text-rose-500" />
-                        All-In-One Digital Planner (2026-2028 Edition)
+                      <h3 className="text-[#2C4A3B] font-black text-lg sm:text-xl flex items-center gap-2">
+                        <Package className="w-5 h-5 text-[#C6A87C]" />
+                        Money Saving 3-in-1 Bundle
                       </h3>
                       <p className="text-xs text-slate-600 mt-0.5 font-medium">
-                        600+ Hyperlinked Pages • 100+ Templates • 150 Covers • 5,000+ Stickers
+                        ✓ Printable Savings Challenges ✓ Smart Excel Savings Tracker ✓ Step-by-Step User Guide
                       </p>
                     </div>
-                    
+
                     <div className="text-right">
-                      <div className="text-xs text-slate-400 line-through font-mono">Regular ₹1,999</div>
-                      <div className="text-2xl sm:text-3xl font-black text-rose-600 font-mono">
-                        ₹{price}
+
+                      <div className="text-2xl sm:text-3xl font-black text-[#2C4A3B] font-mono">
+                        {priceReady ? `₹${price}` : 'Loading…'}
                       </div>
                     </div>
                   </div>
 
                   {/* Instant Perks */}
-                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 text-xs text-slate-700 font-semibold">
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs text-slate-700 font-semibold">
                     <span className="flex items-center gap-1">
-                      <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" /> Instant Drive Access
+                      <CheckCircle2 className="w-3.5 h-3.5 text-[#728A7C]" /> Digital Delivery
                     </span>
                     <span className="flex items-center gap-1">
-                      <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" /> 2026, 2027, 2028 Included
+                      <CheckCircle2 className="w-3.5 h-3.5 text-[#728A7C]" /> Secure Payment
                     </span>
                     <span className="flex items-center gap-1">
-                      <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" /> iPad & Android Ready
+                      <CheckCircle2 className="w-3.5 h-3.5 text-[#728A7C]" /> Excel + PDF
+                    </span>
+                    <span className="flex items-center gap-1">
+                      <CheckCircle2 className="w-3.5 h-3.5 text-[#728A7C]" /> One-Time Purchase
                     </span>
                   </div>
                 </div>
@@ -345,38 +355,42 @@ export const CheckoutSection: React.FC = () => {
                 {/* 2. Customer Delivery Form */}
                 <div className="space-y-4">
                   <h4 className="text-xs font-black text-slate-500 uppercase tracking-wider flex items-center gap-2">
-                    <User className="w-4 h-4 text-rose-500" /> Customer Delivery Details
+                    <User className="w-4 h-4 text-[#C6A87C]" /> Customer Delivery Details
                   </h4>
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     {/* Full Name */}
                     <div className="space-y-1">
-                      <label className="text-xs text-slate-700 font-bold">Full Name *</label>
+                      <label htmlFor="checkout-name" className="text-xs text-slate-700 font-bold">Full Name *</label>
                       <div className="relative">
                         <User className="w-4 h-4 text-slate-400 absolute left-3 top-3.5" />
                         <input
+                          id="checkout-name"
+                          autoComplete="name"
                           type="text"
                           required
                           placeholder="e.g. Aanya Sharma"
                           value={fullName}
                           onChange={(e) => setFullName(e.target.value)}
-                          className="w-full bg-slate-50 border border-slate-300 rounded-xl pl-9 pr-4 py-2.5 text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:border-rose-500 transition-colors"
+                          className="w-full bg-[#FDFBF7] border border-[#E8F0E9] rounded-xl pl-9 pr-4 py-2.5 text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:border-[#2C4A3B] transition-colors"
                         />
                       </div>
                     </div>
 
                     {/* Phone Number */}
                     <div className="space-y-1">
-                      <label className="text-xs text-slate-700 font-bold">Phone / WhatsApp Number *</label>
+                      <label htmlFor="checkout-phone" className="text-xs text-slate-700 font-bold">Phone / WhatsApp Number *</label>
                       <div className="relative">
                         <Phone className="w-4 h-4 text-slate-400 absolute left-3 top-3.5" />
                         <input
+                          id="checkout-phone"
+                          autoComplete="tel"
                           type="tel"
                           required
                           placeholder="e.g. +91 9876543210"
                           value={phone}
                           onChange={(e) => setPhone(e.target.value)}
-                          className="w-full bg-slate-50 border border-slate-300 rounded-xl pl-9 pr-4 py-2.5 text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:border-rose-500 transition-colors"
+                          className="w-full bg-[#FDFBF7] border border-[#E8F0E9] rounded-xl pl-9 pr-4 py-2.5 text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:border-[#2C4A3B] transition-colors"
                         />
                       </div>
                     </div>
@@ -384,46 +398,48 @@ export const CheckoutSection: React.FC = () => {
 
                   {/* Email */}
                   <div className="space-y-1">
-                    <label className="text-xs text-slate-700 font-bold">Email Address *</label>
+                    <label htmlFor="checkout-email" className="text-xs text-slate-700 font-bold">Email Address *</label>
                     <div className="relative">
                       <Mail className="w-4 h-4 text-slate-400 absolute left-3 top-3.5" />
                       <input
+                        id="checkout-email"
+                        autoComplete="email"
                         type="email"
                         required
                         placeholder="e.g. aanya@gmail.com"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
-                        className="w-full bg-slate-50 border border-slate-300 rounded-xl pl-9 pr-4 py-2.5 text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:border-rose-500 transition-colors"
+                        className="w-full bg-[#FDFBF7] border border-[#E8F0E9] rounded-xl pl-9 pr-4 py-2.5 text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:border-[#2C4A3B] transition-colors"
                       />
                     </div>
-                    <p className="text-[11px] text-rose-600 font-medium pt-0.5">
-                      🌸 Your full Google Drive download bundle link is sent here instantly in &lt;5 seconds.
+                    <p className="text-[11px] text-[#728A7C] font-medium pt-0.5">
+                      Use the email address where you want to receive your download link.
                     </p>
                   </div>
                 </div>
 
                 {/* Error Display */}
                 {errorMessage && (
-                  <div className="bg-rose-50 border border-rose-200 text-rose-800 p-3.5 rounded-xl text-xs flex items-center gap-2">
-                    <AlertCircle className="w-4 h-4 shrink-0 text-rose-600" />
+                  <div role="alert" className="bg-red-50 border border-red-200 text-red-800 p-3.5 rounded-xl text-xs flex items-center gap-2">
+                    <AlertCircle className="w-4 h-4 shrink-0 text-red-600" />
                     <span>{errorMessage}</span>
                   </div>
                 )}
 
                 {/* 3. Total Calculation & High-Visibility Payment Button */}
-                <div className="pt-4 border-t border-slate-200 space-y-4">
-                  
-                  <div className="flex items-center justify-between text-sm sm:text-base font-bold text-slate-800">
+                <div className="pt-4 border-t border-[#E8F0E9] space-y-4">
+
+                  <div className="flex items-center justify-between text-sm sm:text-base font-bold text-[#2C4A3B]">
                     <span>Total Amount Payable:</span>
-                    <span className="text-2xl sm:text-3xl font-black text-rose-600 font-mono">
-                      ₹{price} INR
+                    <span className="text-2xl sm:text-3xl font-black text-[#2C4A3B] font-mono">
+                      {priceReady ? `₹${price}` : 'Loading…'} INR
                     </span>
                   </div>
 
                   <button
                     type="submit"
-                    disabled={isLoading}
-                    className="w-full bg-gradient-to-r from-rose-500 via-purple-600 to-indigo-600 hover:from-rose-600 hover:to-indigo-700 text-white font-black text-lg sm:text-xl py-4 px-6 rounded-2xl shadow-xl shadow-rose-500/20 transition-all flex items-center justify-center gap-2 border border-rose-300/30 cursor-pointer disabled:opacity-50"
+                    disabled={isLoading || !priceReady}
+                    className="w-full bg-[#2C4A3B] hover:bg-[#1a2d24] text-white font-black text-lg sm:text-xl py-4 px-6 rounded-2xl shadow-xl shadow-[#2C4A3B]/20 transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
                   >
                     {isLoading ? (
                       <span className="flex items-center gap-2">
@@ -432,7 +448,7 @@ export const CheckoutSection: React.FC = () => {
                     ) : (
                       <span className="flex items-center gap-2">
                         <Zap className="w-5 h-5 fill-white" />
-                        Pay ₹{price} & Download Planner Instantly 🌸
+                        Begin My Savings Plan
                       </span>
                     )}
                   </button>
@@ -440,17 +456,17 @@ export const CheckoutSection: React.FC = () => {
                   {/* Trust Logos & SSL Indicator */}
                   <div className="space-y-3 pt-2 text-center">
                     <div className="flex items-center justify-center gap-2 text-xs text-slate-500 font-medium">
-                      <ShieldCheck className="w-4 h-4 text-emerald-600" />
-                      <span>Supported Payment Methods (0% Transaction Fee):</span>
+                      <ShieldCheck className="w-4 h-4 text-[#728A7C]" />
+                      <span>Payment methods available through Razorpay:</span>
                     </div>
 
                     <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-3 text-xs font-bold text-slate-700">
-                      <span className="bg-slate-100 border border-slate-200 px-3 py-1 rounded-lg text-emerald-700">GPay</span>
-                      <span className="bg-slate-100 border border-slate-200 px-3 py-1 rounded-lg text-purple-700">PhonePe</span>
-                      <span className="bg-slate-100 border border-slate-200 px-3 py-1 rounded-lg text-cyan-700">Paytm</span>
-                      <span className="bg-slate-100 border border-slate-200 px-3 py-1 rounded-lg text-amber-700">UPI / QR</span>
-                      <span className="bg-slate-100 border border-slate-200 px-3 py-1 rounded-lg text-blue-700">Credit / Debit Cards</span>
-                      <span className="bg-slate-100 border border-slate-200 px-3 py-1 rounded-lg text-slate-700">NetBanking</span>
+                      <span className="bg-[#FDFBF7] border border-[#E8F0E9] px-3 py-1 rounded-lg text-emerald-700">GPay</span>
+                      <span className="bg-[#FDFBF7] border border-[#E8F0E9] px-3 py-1 rounded-lg text-purple-700">PhonePe</span>
+                      <span className="bg-[#FDFBF7] border border-[#E8F0E9] px-3 py-1 rounded-lg text-cyan-700">Paytm</span>
+                      <span className="bg-[#FDFBF7] border border-[#E8F0E9] px-3 py-1 rounded-lg text-amber-700">UPI / QR</span>
+                      <span className="bg-[#FDFBF7] border border-[#E8F0E9] px-3 py-1 rounded-lg text-blue-700">Credit / Debit Cards</span>
+                      <span className="bg-[#FDFBF7] border border-[#E8F0E9] px-3 py-1 rounded-lg text-slate-700">NetBanking</span>
                     </div>
                   </div>
 
