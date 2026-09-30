@@ -4,6 +4,9 @@ import Script from 'next/script';
 import './globals.css';
 import dbConnect from '@/lib/dbConnect';
 import Setting from '@/models/Setting';
+import { pixelId } from '@/lib/serverSafety';
+
+export const dynamic = 'force-dynamic';
 
 const inter = Inter({
   subsets: ['latin'],
@@ -35,18 +38,18 @@ export default async function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  let metaPixelId = process.env.NEXT_PUBLIC_META_PIXEL_ID || '123456789012345';
+  let metaPixelId = pixelId(process.env.NEXT_PUBLIC_META_PIXEL_ID);
 
   try {
     const conn = await dbConnect();
     if (conn) {
       const setting = await Setting.findOne({}).lean();
       if (setting && setting.metaPixelId) {
-        metaPixelId = setting.metaPixelId;
+        metaPixelId = pixelId(setting.metaPixelId) || metaPixelId;
       }
     }
   } catch (err) {
-    console.warn('Could not load dynamic Meta Pixel ID in layout, using default fallback.');
+    console.warn('Could not load dynamic Meta Pixel ID in layout, using validated environment configuration.');
   }
 
   return (
@@ -60,6 +63,7 @@ export default async function RootLayout({
               strategy="afterInteractive"
               dangerouslySetInnerHTML={{
                 __html: `
+                  if (!window.savingsPixelInitialized) {
                   !function(f,b,e,v,n,t,s)
                   {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
                   n.callMethod.apply(n,arguments):n.queue.push(arguments)};
@@ -68,8 +72,10 @@ export default async function RootLayout({
                   t.src=v;s=b.getElementsByTagName(e)[0];
                   s.parentNode.insertBefore(t,s)}(window, document,'script',
                   'https://connect.facebook.net/en_US/fbevents.js');
-                  fbq('init', '${metaPixelId}');
+                  fbq('init', ${JSON.stringify(metaPixelId)});
                   fbq('track', 'PageView');
+                  window.savingsPixelInitialized = true;
+                  }
                 `,
               }}
             />

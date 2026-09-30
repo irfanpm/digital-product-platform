@@ -113,7 +113,7 @@ export default function AdminDashboardPage() {
 
   const handleClearOrders = async () => {
     const confirmReset = window.confirm(
-      'Are you sure you want to clear all test orders and reset the purchase count to 0?'
+      'Delete test-mode orders? Live orders and analytics will be preserved.'
     );
     if (!confirmReset) return;
 
@@ -127,7 +127,7 @@ export default function AdminDashboardPage() {
       });
       const data = await res.json();
       if (data.success) {
-        alert('Dashboard and customer purchase count successfully reset to 0!');
+        alert(data.message || 'Test-mode orders cleared.');
         fetchAdminData();
       } else {
         alert(data.error || 'Failed to clear orders');

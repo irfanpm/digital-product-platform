@@ -1,34 +1,15 @@
-declare global {
-  interface Window {
-    fbq: any;
+declare global { interface Window { fbq: any; savingsPixelInitialized?: boolean; } }
+export function trackMetaEvent(eventName: string, options: Record<string, unknown> = {}) {
+  if (typeof window !== 'undefined' && window.savingsPixelInitialized && typeof window.fbq === 'function') {
+    try { window.fbq('track', eventName, options); } catch {}
   }
 }
-
-/**
- * Track standard Meta Pixel events (e.g. PageView, ViewContent, InitiateCheckout, Purchase)
- */
-export const trackMetaEvent = (eventName: string, options: Record<string, any> = {}) => {
-  if (typeof window !== 'undefined' && window.fbq) {
-    try {
-      window.fbq('track', eventName, options);
-      console.log(`[Meta Pixel Event Tracked]: ${eventName}`, options);
-    } catch (err) {
-      console.warn('Meta Pixel tracking error:', err);
-    }
-  } else {
-    console.log(`[Meta Pixel Event Simulated]: ${eventName}`, options);
-  }
-};
-
-/**
- * Helper to track successful Meta Purchase event with exact revenue value
- */
-export const trackMetaPurchase = (amount: number, transactionId: string, hasOrderBump?: boolean) => {
-  trackMetaEvent('Purchase', {
-    value: amount,
-    currency: 'INR',
-    content_name: 'All-In-One Digital Planner (2026-2028 Edition)',
-    content_type: 'product',
-    order_id: transactionId,
-  });
-};
+const emitted = new Set<string>();
+export function trackMetaPurchase(purchase: { shouldEmit: boolean; mode: string; eventId: string; value: number; currency: string }) {
+  if (!purchase?.shouldEmit || purchase.mode !== 'live' || purchase.currency !== 'INR' || !Number.isFinite(purchase.value) || purchase.value <= 0 || !/^purchase_order_[A-Za-z0-9]+$/.test(purchase.eventId) || typeof window === 'undefined' || !window.savingsPixelInitialized || typeof window.fbq !== 'function') return;
+  const key = `savings:${purchase.eventId}`;
+  if (emitted.has(key)) return;
+  try { if (localStorage.getItem(key)) return; localStorage.setItem(key, '1'); } catch {}
+  emitted.add(key);
+  try { window.fbq('track', 'Purchase', { value: purchase.value, currency: 'INR', content_name: 'Money Saving System', content_type: 'product' }, { eventID: purchase.eventId }); } catch {}
+}

@@ -7,7 +7,7 @@ export const MobileStickyCTA: React.FC = () => {
   const [price, setPrice] = useState<number>(199);
 
   useEffect(() => {
-    fetch('/api/admin/settings')
+    fetch('/api/settings')
       .then((res) => res.json())
       .then((data) => {
         if (data.success && data.setting && data.setting.basePrice) {

@@ -24,209 +24,62 @@ declare global {
 }
 
 export const CheckoutSection: React.FC = () => {
-  const [productDriveUrl, setProductDriveUrl] = useState<string>('https://drive.google.com/file/d/1_Sample_Money_Saving_Bundle/view');
-  const [price, setPrice] = useState<number>(0);
+  const [price, setPrice] = useState(0);
   const [priceReady, setPriceReady] = useState(false);
-  const [fullName, setFullName] = useState<string>('');
-  const [email, setEmail] = useState<string>('');
-  const [phone, setPhone] = useState<string>('');
-  const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [errorMessage, setErrorMessage] = useState<string>('');
+  const [fullName, setFullName] = useState('');
+  const [email, setEmail] = useState('');
+  const [phone, setPhone] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
+  const [pendingProof, setPendingProof] = useState<Record<string, string> | null>(null);
+  const [confirmedOrder, setConfirmedOrder] = useState<{ paymentId: string; orderId: string; amount: number; name: string; email: string; productDriveUrl: string; emailStatus: string } | null>(null);
 
-  // Payment Confirmation State
-  const [confirmedOrder, setConfirmedOrder] = useState<{
-    paymentId: string;
-    orderId: string;
-    amount: number;
-    name: string;
-    email: string;
-    productDriveUrl?: string;
-  } | null>(null);
-
-  // Fetch Admin Setting for Price and Google Drive URL dynamically from Database
   useEffect(() => {
-    const fetchSettings = async () => {
-      try {
-        const res = await fetch('/api/admin/settings');
-        const data = await res.json();
-        if (data.success && data.setting) {
-          if (data.setting.basePrice && !isNaN(Number(data.setting.basePrice))) {
-            setPrice(Number(data.setting.basePrice));
-            setPriceReady(true);
-          } else {
-            setErrorMessage('The current price could not be loaded. Please refresh and try again.');
-          }
-          if (data.setting.productDriveUrl) {
-            setProductDriveUrl(data.setting.productDriveUrl);
-          }
-        }
-      } catch (err) {
-        console.error('Error fetching checkout settings:', err);
-        setErrorMessage('The current price could not be loaded. Please refresh and try again.');
-      }
-    };
-    fetchSettings();
+    fetch('/api/settings', { cache: 'no-store' }).then(r => r.json()).then(data => {
+      if (!data.success || !Number.isFinite(data.setting?.basePrice) || data.setting.basePrice <= 0) throw new Error();
+      setPrice(data.setting.basePrice); setPriceReady(true);
+    }).catch(() => setErrorMessage('The current price is unavailable. Please refresh and try again.'));
+    // Keep only the gateway proof in this tab so a reload can retry verification.
+    try { const saved = sessionStorage.getItem('savings-payment-proof'); if (saved) setPendingProof(JSON.parse(saved)); } catch {}
   }, []);
 
-  const handleCheckout = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setErrorMessage('');
-
-    if (!priceReady) { setErrorMessage('The current price is unavailable. Please refresh and try again.'); return; }
-
-    if (!fullName.trim() || !email.trim() || !phone.trim()) {
-      setErrorMessage('Please enter your Name, Email, and WhatsApp number to receive your Bundle.');
-      return;
-    }
-
-    if (!email.includes('@') || !email.includes('.')) {
-      setErrorMessage('Please enter a valid email address for instant digital delivery.');
-      return;
-    }
-
-    setIsLoading(true);
-
-    // Track Meta Pixel InitiateCheckout Event
-    trackMetaEvent('InitiateCheckout', {
-      value: price,
-      currency: 'INR',
-      content_name: 'Money Saving 3-in-1 Bundle',
-      num_items: 1,
-    });
-
+  const confirmPayment = async (proof: Record<string, string>) => {
+    setIsLoading(true); setErrorMessage('');
     try {
-      // Step 1: Call API to create order with dynamic database price
-      const response = await fetch('/api/create-order', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          amount: price,
-          currency: 'INR',
-          notes: {
-            fullName,
-            email,
-            phone,
-            product: 'Money Saving 3-in-1 Bundle'
-          }
-        }),
-      });
-
+      const response = await fetch('/api/confirm-payment', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ...proof, canTrackPurchase: typeof window.fbq === 'function' && !!window.savingsPixelInitialized }) });
       const data = await response.json();
+      if (!response.ok || data.success !== true || data.verified !== true || !data.downloadUrl) throw new Error(data.error || 'Payment verification is not complete. Retry verification; do not pay again.');
+      setConfirmedOrder({ ...data.order, productDriveUrl: data.downloadUrl, emailStatus: data.emailStatus });
+      trackMetaPurchase(data.purchase);
+      setPendingProof(null);
+      try { sessionStorage.removeItem('savings-payment-proof'); } catch {}
+    } catch (e: any) { setErrorMessage(e.message || 'Verification is temporarily unavailable. Retry verification; do not pay again.'); }
+    finally { setIsLoading(false); }
+  };
 
-      if (!response.ok || !data.success) {
-        throw new Error(data.error || 'Failed to initialize payment gateway.');
-      }
-
-      const createdOrderId = data.order.id;
-
-      // Step 2: Configure Razorpay SDK modal options
-      const options: any = {
-        key: data.order.key || process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || 'rzp_live_TVBfC6ISeEF8o7',
-        amount: data.order.amount,
-        currency: data.order.currency,
-        name: 'Little Savings, Big Dreams',
-        description: 'Money Saving 3-in-1 Bundle',
-        prefill: {
-          name: fullName,
-          email: email,
-          contact: phone,
+  const handleCheckout = async (e: React.FormEvent) => {
+    e.preventDefault(); setErrorMessage('');
+    if (pendingProof) { await confirmPayment(pendingProof); return; }
+    if (!priceReady || !fullName.trim() || !email.trim() || !phone.trim()) { setErrorMessage('Enter your name, email and phone number to continue.'); return; }
+    if (typeof window.Razorpay !== 'function') { setErrorMessage('The payment gateway has not loaded. Refresh and try again. No payment was started.'); return; }
+    setIsLoading(true);
+    try {
+      const response = await fetch('/api/create-order', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ currency: 'INR', notes: { fullName, email, phone } }) });
+      const data = await response.json();
+      if (!response.ok || !data.success) throw new Error(data.error || 'Unable to start payment.');
+      const rzp = new window.Razorpay({ key: data.order.key, order_id: data.order.id, amount: data.order.amount, currency: 'INR', name: 'Money Saving System', description: 'Smart Excel Savings Tracker + 12 Printable Challenges + User Guide', prefill: { name: fullName, email, contact: phone }, theme: { color: '#2C4A3B' },
+        modal: { ondismiss: () => { setIsLoading(false); setErrorMessage('Checkout closed. No payment has been confirmed here.'); } },
+        handler: async (result: Record<string, string>) => {
+          const proof = { razorpay_order_id: result.razorpay_order_id, razorpay_payment_id: result.razorpay_payment_id, razorpay_signature: result.razorpay_signature };
+          setPendingProof(proof);
+          try { sessionStorage.setItem('savings-payment-proof', JSON.stringify(proof)); } catch {}
+          await confirmPayment(proof);
         },
-        theme: {
-          color: '#2C4A3B', // Deep forest/olive green
-        },
-        handler: async function (response: any) {
-          const paymentId = response.razorpay_payment_id || `pay_${Date.now()}`;
-
-          // Track Meta Pixel Purchase Event
-          trackMetaPurchase(price, paymentId, false);
-
-          // Send immediate backend confirmation to guarantee database update (status: Captured)
-          let liveProductUrl = productDriveUrl;
-
-          try {
-            const confirmRes = await fetch('/api/confirm-payment', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({
-                orderId: createdOrderId,
-                paymentId: paymentId,
-                status: 'Captured',
-                name: fullName,
-                email: email,
-                phone: phone,
-                amount: price,
-                hasOrderBump: false,
-                package: 'Money Saving 3-in-1 Bundle',
-              }),
-            });
-            const confirmData = await confirmRes.json();
-            if (confirmData.downloadUrl) liveProductUrl = confirmData.downloadUrl;
-          } catch (confirmErr) {
-            console.warn('Confirm payment background fetch error:', confirmErr);
-          }
-
-          // Set confirmed order state to render Confirmation & Direct Download Buttons
-          setConfirmedOrder({
-            paymentId: paymentId,
-            orderId: createdOrderId,
-            amount: price,
-            name: fullName,
-            email: email,
-            productDriveUrl: liveProductUrl,
-          });
-        },
-      };
-
-      if (data.order.isRealRazorpayOrder && data.order.id) {
-        options.order_id = data.order.id;
-      }
-
-      if (typeof window !== 'undefined' && window.Razorpay) {
-        const rzp = new window.Razorpay(options);
-
-        // Listen for payment failure or modal dismissal
-        rzp.on('payment.failed', async function (failedResp: any) {
-          console.warn('Payment Failed event:', failedResp.error);
-
-          // Log failed payment in backend database
-          await fetch('/api/confirm-payment', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              orderId: createdOrderId,
-              paymentId: failedResp.error?.metadata?.payment_id || `pay_failed_${Date.now()}`,
-              status: 'Failed',
-              name: fullName,
-              email: email,
-              phone: phone,
-              amount: price,
-              hasOrderBump: false,
-              package: 'Money Saving 3-in-1 Bundle',
-            }),
-          });
-
-          setErrorMessage(`Payment failed: ${failedResp.error?.description || 'Transaction cancelled'}. Please try again.`);
-        });
-
-        rzp.open();
-      } else {
-        // Fallback simulation for local preview without SDK
-        trackMetaPurchase(price, `pay_sim_${Date.now()}`, false);
-        setConfirmedOrder({
-          paymentId: `pay_sim_${Date.now()}`,
-          orderId: createdOrderId,
-          amount: price,
-          name: fullName,
-          email: email,
-          productDriveUrl: productDriveUrl,
-        });
-      }
-    } catch (err: any) {
-      console.error('Checkout error:', err);
-      setErrorMessage(err.message || 'Payment gateway connection error. Please try again.');
-    } finally {
-      setIsLoading(false);
-    }
+      });
+      rzp.on('payment.failed', () => { setIsLoading(false); setErrorMessage('Payment was not completed. Please try again.'); });
+      rzp.open();
+      if (data.order.mode === 'live') trackMetaEvent('InitiateCheckout', { value: data.order.amount / 100, currency: 'INR', content_name: 'Money Saving System', num_items: 1 });
+    } catch (e: any) { setErrorMessage(e.message || 'Unable to connect to the payment gateway.'); setIsLoading(false); }
   };
 
   return (
@@ -248,10 +101,10 @@ export const CheckoutSection: React.FC = () => {
                 PAYMENT CONFIRMED
               </span>
               <h2 className="text-2xl sm:text-4xl font-black text-[#2C4A3B] tracking-tight">
-                Your Money Saving Bundle Is Ready!
+                Your Money Saving System Is Ready!
               </h2>
               <p className="text-slate-600 text-sm">
-                Thank you, <strong className="text-slate-900">{confirmedOrder.name}</strong>! Your order has been recorded. A confirmation receipt with your download link was sent to <strong className="text-slate-900">{confirmedOrder.email}</strong>.
+                Thank you, <strong className="text-slate-900">{confirmedOrder.name}</strong>! Your payment is verified. {confirmedOrder.emailStatus === 'Sent' ? `Your download email was sent to ${confirmedOrder.email}.` : 'Your download is ready below. Email delivery is not confirmed yet; contact support if it does not arrive.'}
               </p>
             </div>
 
@@ -259,7 +112,7 @@ export const CheckoutSection: React.FC = () => {
             <div className="bg-[#FDFBF7] p-5 rounded-2xl border border-[#E8F0E9] max-w-md mx-auto text-left space-y-2 text-xs">
               <div className="flex justify-between">
                 <span className="text-slate-500">Product:</span>
-                <span className="font-bold text-slate-900">Money Saving 3-in-1 Bundle</span>
+                <span className="font-bold text-slate-900">Money Saving System</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-slate-500">Payment ID:</span>
@@ -284,7 +137,7 @@ export const CheckoutSection: React.FC = () => {
             {/* REAL DIRECT GOOGLE DRIVE DOWNLOAD BUTTON */}
             <div className="space-y-3 max-w-md mx-auto">
               <a
-                href={confirmedOrder.productDriveUrl || productDriveUrl}
+                href={confirmedOrder.productDriveUrl}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="w-full bg-[#2C4A3B] hover:bg-[#1a2d24] text-white font-black text-base sm:text-lg py-4 px-6 rounded-2xl shadow-xl shadow-[#2C4A3B]/20 transition-all flex items-center justify-center gap-2 cursor-pointer"
@@ -312,6 +165,7 @@ export const CheckoutSection: React.FC = () => {
 
             <div className="rounded-3xl p-6 sm:p-10 border-2 border-[#E8F0E9] bg-white shadow-2xl relative">
 
+              {pendingProof && <div role="status" className="mb-6 rounded-xl border border-amber-300 p-4 text-sm">A payment is awaiting verification. Do not pay again.<button type="button" disabled={isLoading} onClick={() => confirmPayment(pendingProof)} className="block mt-3 underline font-bold">{isLoading ? 'Verifying…' : 'Retry payment verification'}</button></div>}
               <form onSubmit={handleCheckout} className="space-y-8">
 
                 {/* 1. Product Summary & Price Box */}
@@ -320,7 +174,7 @@ export const CheckoutSection: React.FC = () => {
                     <div>
                       <h3 className="text-[#2C4A3B] font-black text-lg sm:text-xl flex items-center gap-2">
                         <Package className="w-5 h-5 text-[#C6A87C]" />
-                        Money Saving 3-in-1 Bundle
+                        Money Saving System
                       </h3>
                       <p className="text-xs text-slate-600 mt-0.5 font-medium">
                         ✓ Printable Savings Challenges ✓ Smart Excel Savings Tracker ✓ Step-by-Step User Guide

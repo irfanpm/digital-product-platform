@@ -1,108 +1,17 @@
-import { NextResponse } from 'next/server';
-import dbConnect from '@/lib/dbConnect';
 import Setting from '@/models/Setting';
-
-declare global {
-  var globalMemorySettings: any;
-}
-
-if (!global.globalMemorySettings) {
-  global.globalMemorySettings = {
-    productDriveUrl: 'https://drive.google.com/file/d/1_Sample_All_In_One_Digital_Planner_2026_2028/view',
-    orderBumpDriveUrl: 'https://notion.so/Sample_Planner_Bonus_Pack',
-    basePrice: 199,
-    bumpPrice: 99,
-    adminPin: 'admin123',
-    metaPixelId: process.env.NEXT_PUBLIC_META_PIXEL_ID || '123456789012345',
-    enableOrderBump: false,
-  };
-}
-
-export async function GET() {
-  try {
-    const conn = await dbConnect();
-
-    let setting: any = null;
-    if (conn) {
-      setting = await Setting.findOne({}).lean();
-    }
-
-    if (!setting) {
-      setting = global.globalMemorySettings;
-    } else {
-      global.globalMemorySettings = setting;
-    }
-
-    return NextResponse.json({
-      success: true,
-      setting,
-    });
-  } catch (error: any) {
-    return NextResponse.json({
-      success: true,
-      setting: global.globalMemorySettings,
-    });
-  }
-}
-
+import { admin, deliveryUrl, durable, failure, json, pixelId, ServiceError } from '@/lib/serverSafety';
+const visible = (s: any) => ({ productDriveUrl: s.productDriveUrl, orderBumpDriveUrl: s.orderBumpDriveUrl, basePrice: s.basePrice, bumpPrice: s.bumpPrice, metaPixelId: pixelId(s.metaPixelId), enableOrderBump: s.enableOrderBump });
+export async function GET(req: Request) { try { return json({ success: true, setting: visible(await admin(req)) }); } catch (e) { return failure(e); } }
 export async function POST(req: Request) {
   try {
-    const conn = await dbConnect();
-    const body = await req.json();
-
-    const {
-      productDriveUrl,
-      orderBumpDriveUrl,
-      basePrice,
-      bumpPrice,
-      adminPin,
-      metaPixelId,
-      enableOrderBump,
-    } = body;
-
-    const updateFields: any = {
-      ...global.globalMemorySettings,
-      updatedAt: new Date(),
-    };
-
-    if (productDriveUrl !== undefined) updateFields.productDriveUrl = productDriveUrl;
-    if (orderBumpDriveUrl !== undefined) updateFields.orderBumpDriveUrl = orderBumpDriveUrl;
-    if (basePrice !== undefined && !isNaN(Number(basePrice))) updateFields.basePrice = Number(basePrice);
-    if (bumpPrice !== undefined && !isNaN(Number(bumpPrice))) updateFields.bumpPrice = Number(bumpPrice);
-    if (adminPin !== undefined && adminPin !== '') updateFields.adminPin = adminPin;
-    if (metaPixelId !== undefined) updateFields.metaPixelId = metaPixelId;
-    if (enableOrderBump !== undefined) updateFields.enableOrderBump = Boolean(enableOrderBump);
-
-    // Update global in-memory settings store immediately
-    global.globalMemorySettings = {
-      ...global.globalMemorySettings,
-      ...updateFields,
-    };
-
-    let updatedSetting: any = global.globalMemorySettings;
-
-    if (conn) {
-      try {
-        updatedSetting = await Setting.findOneAndUpdate(
-          {},
-          { $set: updateFields },
-          { upsert: true, new: true, setDefaultsOnInsert: true }
-        ).lean();
-      } catch (err) {
-        console.warn('MongoDB update warning, using in-memory store:', err);
-      }
-    }
-
-    return NextResponse.json({
-      success: true,
-      message: `Digital Planner Settings saved successfully! Base price is ₹${updateFields.basePrice}`,
-      setting: updatedSetting || global.globalMemorySettings,
-    });
-  } catch (error: any) {
-    console.error('Settings Update Error:', error);
-    return NextResponse.json(
-      { success: false, error: error.message || 'Error updating settings' },
-      { status: 500 }
-    );
-  }
+    const s = await admin(req); const body = await req.json(); const update: Record<string, unknown> = {};
+    for (const key of ['basePrice', 'bumpPrice']) if (body[key] !== undefined) { const n = body[key]; if (typeof n !== 'number' || !Number.isFinite(n) || n <= 0 || Math.round(n * 100) / 100 !== n) throw new ServiceError(400, 'Invalid price.'); update[key] = n; }
+    for (const key of ['productDriveUrl', 'orderBumpDriveUrl'] as const) if (body[key] !== undefined && body[key] !== s[key]) update[key] = body[key] === '' && key === 'orderBumpDriveUrl' ? '' : deliveryUrl(body[key]);
+    if (body.metaPixelId !== undefined) { if (typeof body.metaPixelId !== 'string') throw new ServiceError(400, 'Invalid Pixel ID.'); const id = pixelId(body.metaPixelId); if (body.metaPixelId.trim() && !id) throw new ServiceError(400, 'Pixel ID must contain only digits.'); update.metaPixelId = id; }
+    if (body.adminPin) { if (typeof body.adminPin !== 'string' || body.adminPin.length < 8) throw new ServiceError(400, 'Use at least 8 characters for the admin PIN.'); update.adminPin = body.adminPin; }
+    if (body.enableOrderBump !== undefined) { if (typeof body.enableOrderBump !== 'boolean') throw new ServiceError(400, 'Invalid extra product setting.'); update.enableOrderBump = body.enableOrderBump; }
+    const saved = await Setting.findOneAndUpdate({ _id: s._id }, { $set: update }, { new: true, runValidators: true, ...durable }).lean();
+    if (!saved) throw new ServiceError(503, 'Settings could not be saved.');
+    return json({ success: true, setting: visible(saved) });
+  } catch (e) { return failure(e); }
 }

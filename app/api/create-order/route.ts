@@ -1,117 +1,27 @@
-import { NextResponse } from 'next/server';
-import Razorpay from 'razorpay';
-import dbConnect from '@/lib/dbConnect';
+import Setting from '@/models/Setting';
 import Order from '@/models/Order';
-
+import { gateway } from '@/lib/payments';
+import { database, deliveryUrl, durable, failure, json, ServiceError } from '@/lib/serverSafety';
 export async function POST(req: Request) {
   try {
-    const body = await req.json();
-    const { currency = 'INR', notes } = body;
-
-    const hasOrderBump = notes?.hasOrderBump === 'Yes';
-    
-    // Fetch prices securely from DB/Memory
-    const conn = await dbConnect();
-    let basePrice = 199;
-    let bumpPrice = 99;
-    
-    if (conn) {
-      const SettingModel = (await import('@/models/Setting')).default;
-      const existingSetting = await SettingModel.findOne({}).lean();
-      if (existingSetting) {
-        if (existingSetting.basePrice !== undefined) basePrice = existingSetting.basePrice;
-        if (existingSetting.bumpPrice !== undefined) bumpPrice = existingSetting.bumpPrice;
-      }
-    } else if (global.globalMemorySettings) {
-      if (global.globalMemorySettings.basePrice !== undefined) basePrice = global.globalMemorySettings.basePrice;
-      if (global.globalMemorySettings.bumpPrice !== undefined) bumpPrice = global.globalMemorySettings.bumpPrice;
-    }
-
-    const calculatedAmount = basePrice + (hasOrderBump ? bumpPrice : 0);
-    const amount = calculatedAmount;
-
-
-    const key_id = process.env.RAZORPAY_KEY_ID || process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID;
-    const key_secret = process.env.RAZORPAY_KEY_SECRET;
-
-    const amountInPaise = Math.round(amount * 100);
-
-    let orderId = '';
-    let isRealRazorpayOrder = false;
-
-    // Only create real Razorpay Order if key_secret is configured
-    if (
-      key_id &&
-      key_secret &&
-      key_id !== 'rzp_test_placeholder' &&
-      key_secret !== 'PASTE_YOUR_KEY_SECRET_HERE'
-    ) {
-      try {
-        const razorpay = new Razorpay({
-          key_id: key_id,
-          key_secret: key_secret,
-        });
-
-        const razorpayOrder = await razorpay.orders.create({
-          amount: amountInPaise,
-          currency: currency,
-          receipt: `rcpt_${Date.now()}`,
-          notes: notes || {},
-        });
-
-        if (razorpayOrder && razorpayOrder.id) {
-          orderId = razorpayOrder.id;
-          isRealRazorpayOrder = true;
-        }
-      } catch (rzpErr: any) {
-        console.warn('Razorpay live order note:', rzpErr?.message || rzpErr);
-      }
-    }
-
-    const tempOrderId = orderId || `ord_local_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`;
-
-    // Non-blocking background save to MongoDB
-    dbConnect().then(async (conn) => {
-      if (conn) {
-        try {
-          await Order.create({
-            orderId: tempOrderId,
-            paymentId: `pay_sim_${Date.now()}`,
-            name: notes?.fullName || 'Anonymous Buyer',
-            email: notes?.email || 'buyer@example.com',
-            phone: notes?.phone || '+91 9876543210',
-            amount: amount,
-            hasOrderBump: notes?.hasOrderBump === 'Yes',
-            package: notes?.hasOrderBump === 'Yes' 
-              ? '38-Page Kit + Editable Templates' 
-              : 'The AI Job Application Kit',
-            status: 'Captured',
-            createdAt: new Date(),
-          });
-        } catch (e) {
-          // ignore background error
-        }
-      }
-    }).catch(() => {});
-
-    return NextResponse.json({
-      success: true,
-      order: {
-        id: tempOrderId,
-        isRealRazorpayOrder,
-        amount: amountInPaise,
-        currency: currency,
-        key: key_id,
-      },
-    });
-  } catch (error: any) {
-    console.error('Order creation error:', error);
-    return NextResponse.json(
-      {
-        success: false,
-        error: error.message || 'Server error creating order',
-      },
-      { status: 500 }
-    );
-  }
+    const body = await req.json(); const n = body.notes || {};
+    const name = typeof n.fullName === 'string' ? n.fullName.trim() : '';
+    const email = typeof n.email === 'string' ? n.email.trim() : '';
+    const phone = typeof n.phone === 'string' ? n.phone.trim() : '';
+    if (!name || name.length > 120 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || email.length > 254 || !/^[+\d\s()-]{7,25}$/.test(phone)) throw new ServiceError(400, 'Enter a valid name, email and phone number.');
+    if (body.currency && body.currency !== 'INR') throw new ServiceError(400, 'Only INR is supported.');
+    await database(); const setting = await Setting.findOne({}).lean();
+    if (!setting) throw new ServiceError(503, 'Store settings are unavailable.');
+    const bump = n.hasOrderBump === 'Yes';
+    if (bump && !setting.enableOrderBump) throw new ServiceError(400, 'Extra product unavailable.');
+    const amount = Number(setting.basePrice) + (bump ? Number(setting.bumpPrice) : 0);
+    const paise = Math.round(amount * 100);
+    if (!Number.isFinite(amount) || amount <= 0 || !Number.isSafeInteger(paise)) throw new ServiceError(503, 'Price is unavailable.');
+    const url = deliveryUrl(setting.productDriveUrl); const extra = bump ? deliveryUrl(setting.orderBumpDriveUrl) : undefined;
+    const g = gateway();
+    const paymentOrder = await g.api.orders.create({ amount: paise, currency: 'INR', notes: { product: 'Money Saving System' } });
+    if (!/^order_[A-Za-z0-9]+$/.test(paymentOrder.id) || Number(paymentOrder.amount) !== paise || paymentOrder.currency !== 'INR') throw new ServiceError(502, 'Payment gateway returned an invalid order.');
+    await Order.create([{ orderId: paymentOrder.id, name, email, phone, amount: paise / 100, amountPaise: paise, currency: 'INR', hasOrderBump: bump, bumpAmount: bump ? Number(setting.bumpPrice) : 0, package: 'Money Saving System', status: 'Created', verificationVersion: 1, mode: g.mode, keyId: g.key, deliveryUrl: url, orderBumpUrl: extra, emailStatus: 'Pending' }], durable);
+    return json({ success: true, order: { id: paymentOrder.id, amount: paise, currency: 'INR', key: g.key, mode: g.mode } });
+  } catch (e) { return failure(e); }
 }

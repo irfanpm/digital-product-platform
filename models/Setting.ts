@@ -15,11 +15,11 @@ const SettingSchema: Schema = new Schema<ISetting>(
   {
     productDriveUrl: {
       type: String,
-      default: 'https://drive.google.com/file/d/1_Sample_All_In_One_Digital_Planner_2026_2028/view',
+      default: '',
     },
     orderBumpDriveUrl: {
       type: String,
-      default: 'https://notion.so/Sample_Planner_Bonus_Pack',
+      default: '',
     },
     basePrice: {
       type: Number,
@@ -31,11 +31,13 @@ const SettingSchema: Schema = new Schema<ISetting>(
     },
     adminPin: {
       type: String,
-      default: 'admin123',
+      default: '',
     },
     metaPixelId: {
       type: String,
-      default: '123456789012345',
+      default: '',
+      trim: true,
+      validate: (value: string) => value === '' || /^\d{5,25}$/.test(value),
     },
     enableOrderBump: {
       type: Boolean,

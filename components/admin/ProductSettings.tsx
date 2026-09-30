@@ -17,28 +17,31 @@ export const ProductSettings: React.FC = () => {
   const [orderBumpDriveUrl, setOrderBumpDriveUrl] = useState<string>('');
   const [basePrice, setBasePrice] = useState<number>(199);
   const [bumpPrice, setBumpPrice] = useState<number>(99);
-  const [adminPin, setAdminPin] = useState<string>('admin123');
-  const [metaPixelId, setMetaPixelId] = useState<string>('123456789012345');
+  const [adminPin, setAdminPin] = useState<string>('');
+  const [metaPixelId, setMetaPixelId] = useState<string>('');
 
   const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [settingsReady, setSettingsReady] = useState(false);
   const [isSaving, setIsSaving] = useState<boolean>(false);
   const [message, setMessage] = useState<string>('');
 
   const fetchSettings = async () => {
     setIsLoading(true);
     try {
-      const res = await fetch('/api/admin/settings');
+      const res = await fetch('/api/admin/settings', { headers: { Authorization: `Bearer ${localStorage.getItem('admin_pin') || ''}` }, cache: 'no-store' });
       const data = await res.json();
+      if (!res.ok || !data.success) throw new Error(data.error || 'Settings unavailable');
       if (data.success && data.setting) {
         setProductDriveUrl(data.setting.productDriveUrl || '');
+        setSettingsReady(true);
         setOrderBumpDriveUrl(data.setting.orderBumpDriveUrl || '');
         setBasePrice(data.setting.basePrice || 199);
         setBumpPrice(data.setting.bumpPrice || 99);
-        setAdminPin(data.setting.adminPin || 'admin123');
-        setMetaPixelId(data.setting.metaPixelId || '123456789012345');
+        setAdminPin('');
+        setMetaPixelId(data.setting.metaPixelId || '');
       }
     } catch (err) {
-      console.error('Error fetching settings:', err);
+      setMessage('Could not load protected settings. Sign in again or retry.');
     } finally {
       setIsLoading(false);
     }
@@ -73,6 +76,7 @@ export const ProductSettings: React.FC = () => {
 
       const data = await res.json();
       if (data.success) {
+        if (adminPin) { localStorage.setItem('admin_pin', adminPin); setAdminPin(''); }
         setMessage('✅ Google Drive Links, Pricing & Meta Pixel ID saved to MongoDB!');
         setTimeout(() => setMessage(''), 4000);
       } else {
@@ -99,7 +103,7 @@ export const ProductSettings: React.FC = () => {
         </div>
 
         <span className="text-xs font-bold text-emerald-800 bg-emerald-100 px-3 py-1 rounded-full border border-emerald-200 self-start sm:self-auto">
-          ⚡ Automated Email & Meta Pixel Active
+          Delivery & tracking configuration
         </span>
       </div>
 
@@ -112,7 +116,7 @@ export const ProductSettings: React.FC = () => {
           <div className="space-y-2">
             <label className="text-xs font-extrabold text-slate-700 uppercase tracking-wider flex items-center justify-between">
               <span className="flex items-center gap-1.5">
-                <FileText className="w-4 h-4 text-emerald-600" /> 38-Page PDF Google Drive Link *
+                <FileText className="w-4 h-4 text-emerald-600" /> Money Saving System Google Drive Link *
               </span>
               {productDriveUrl && (
                 <a href={productDriveUrl} target="_blank" rel="noreferrer" className="text-emerald-600 font-bold hover:underline flex items-center gap-1 text-[11px] lowercase">
@@ -137,7 +141,7 @@ export const ProductSettings: React.FC = () => {
           <div className="space-y-2">
             <label className="text-xs font-extrabold text-slate-700 uppercase tracking-wider flex items-center justify-between">
               <span className="flex items-center gap-1.5">
-                <Sparkles className="w-4 h-4 text-amber-600" /> Order Bump Notion / Drive Link *
+                <Sparkles className="w-4 h-4 text-amber-600" /> Optional Extra Product Drive Link
               </span>
               {orderBumpDriveUrl && (
                 <a href={orderBumpDriveUrl} target="_blank" rel="noreferrer" className="text-emerald-600 font-bold hover:underline flex items-center gap-1 text-[11px] lowercase">
@@ -147,8 +151,7 @@ export const ProductSettings: React.FC = () => {
             </label>
             <input
               type="url"
-              required
-              placeholder="https://notion.so/YOUR_WORD_TEMPLATES_AND_TRACKER"
+              placeholder="https://drive.google.com/drive/folders/YOUR_FOLDER_ID"
               value={orderBumpDriveUrl}
               onChange={(e) => setOrderBumpDriveUrl(e.target.value)}
               className="w-full bg-slate-50 border border-slate-300 rounded-xl px-4 py-2.5 text-xs text-slate-900 placeholder-slate-400 focus:outline-none focus:border-emerald-600 font-mono transition-colors"
@@ -203,7 +206,7 @@ export const ProductSettings: React.FC = () => {
               <input
                 type="text"
                 required
-                placeholder="123456789012345"
+                placeholder="1661133268328575"
                 value={metaPixelId}
                 onChange={(e) => setMetaPixelId(e.target.value)}
                 className="w-full bg-slate-50 border border-slate-300 rounded-xl pl-9 pr-4 py-2 text-xs text-slate-900 font-bold font-mono focus:outline-none focus:border-emerald-600"
@@ -217,8 +220,8 @@ export const ProductSettings: React.FC = () => {
             <div className="relative">
               <Key className="w-4 h-4 text-slate-400 absolute left-3 top-3" />
               <input
-                type="text"
-                required
+                type="password"
+                placeholder="Leave blank to keep current PIN"
                 value={adminPin}
                 onChange={(e) => setAdminPin(e.target.value)}
                 className="w-full bg-slate-50 border border-slate-300 rounded-xl pl-9 pr-4 py-2 text-xs text-slate-900 font-bold font-mono focus:outline-none focus:border-emerald-600"
@@ -244,7 +247,7 @@ export const ProductSettings: React.FC = () => {
           <div className="ml-auto">
             <button
               type="submit"
-              disabled={isSaving}
+              disabled={isSaving || isLoading || !settingsReady}
               className="bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold text-xs px-6 py-2.5 rounded-xl shadow-md transition-all flex items-center gap-2 cursor-pointer disabled:opacity-50"
             >
               <Save className="w-4 h-4" />

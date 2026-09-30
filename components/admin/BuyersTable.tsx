@@ -27,6 +27,9 @@ export interface Buyer {
   hasOrderBump: boolean;
   status: string;
   package: string;
+  emailStatus?: string;
+  verified?: boolean;
+  mode?: string;
 }
 
 interface BuyersTableProps {
@@ -60,10 +63,14 @@ export const BuyersTable: React.FC<BuyersTableProps> = ({ buyers }) => {
     setTimeout(() => setCopiedId(null), 2000);
   };
 
-  const handleResendLink = (email: string, id: string) => {
-    setSentEmailId(id);
-    setTimeout(() => setSentEmailId(null), 2500);
-    alert(`Re-sent instant 38-page PDF & Notion download package to ${email}`);
+  const handleResendLink = async (_email: string, id: string) => {
+    try {
+      const res = await fetch('/api/admin/orders/retry-email', { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${localStorage.getItem('admin_pin') || ''}` }, body: JSON.stringify({ orderId: id }) });
+      const data = await res.json();
+      if (!res.ok || !data.success) throw new Error(data.error || 'Email delivery not confirmed.');
+      setSentEmailId(id);
+      alert('Email delivery confirmed. An already sent email is not sent again.');
+    } catch (e: any) { alert(e.message || 'Email retry failed.'); }
   };
 
   return (
@@ -154,11 +161,11 @@ export const BuyersTable: React.FC<BuyersTableProps> = ({ buyers }) => {
                     {buyer.hasOrderBump ? (
                       <span className="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-800 bg-emerald-100 px-2.5 py-1 rounded-full border border-emerald-200">
                         <Sparkles className="w-3 h-3 text-amber-600 fill-amber-500" />
-                        Kit + Word/Notion Bump
+                        Bundle + extra product
                       </span>
                     ) : (
                       <span className="inline-flex items-center gap-1 text-[11px] font-bold text-slate-700 bg-slate-100 px-2.5 py-1 rounded-full border border-slate-200">
-                        Standard 38-Page Kit
+                        Money Saving System
                       </span>
                     )}
                   </td>
@@ -171,7 +178,7 @@ export const BuyersTable: React.FC<BuyersTableProps> = ({ buyers }) => {
                   {/* Status */}
                   <td className="py-3.5 px-4">
                     <span className="inline-flex items-center gap-1 text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
-                      <Check className="w-3 h-3" /> {buyer.status}
+                      <Check className="w-3 h-3" /> {buyer.status} · {buyer.mode} · Email: {buyer.emailStatus || 'Not recorded'}
                     </span>
                   </td>
 
@@ -201,14 +208,15 @@ export const BuyersTable: React.FC<BuyersTableProps> = ({ buyers }) => {
                       <button
                         onClick={() => handleResendLink(buyer.email, buyer.id)}
                         className="px-2.5 py-1 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 font-bold rounded-lg border border-emerald-200 text-[11px] transition-colors flex items-center gap-1 cursor-pointer"
-                        title="Resend Instant PDF Download Link"
+                        title="Retry failed delivery email"
+                        disabled={!buyer.verified || !['Pending', 'Failed'].includes(buyer.emailStatus || '')}
                       >
                         {sentEmailId === buyer.id ? (
                           <Check className="w-3 h-3" />
                         ) : (
                           <Send className="w-3 h-3" />
                         )}
-                        <span>{sentEmailId === buyer.id ? 'Sent!' : 'Resend PDF'}</span>
+                        <span>{sentEmailId === buyer.id ? 'Sent!' : 'Retry email'}</span>
                       </button>
 
                     </div>

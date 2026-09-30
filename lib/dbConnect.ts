@@ -47,7 +47,7 @@ async function dbConnect() {
   } catch (e) {
     cached!.promise = null;
     cached!.lastFailedAt = Date.now();
-    console.warn('MongoDB connection failed. Falling back to in-memory store:', (e as Error).message);
+    console.warn('MongoDB connection unavailable.');
     return null; // Return null gracefully instead of throwing uncaught exception
   }
 }
