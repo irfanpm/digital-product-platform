@@ -1,0 +1,38 @@
+[
+  {
+    "start": 0,
+    "end": 2.3,
+    "scene": "short_hook",
+    "caption": "Want a business website?"
+  },
+  {
+    "start": 2.3,
+    "end": 4.0,
+    "scene": "reveal",
+    "caption": "Meet AI Creator Kit."
+  },
+  {
+    "start": 4.0,
+    "end": 6.0,
+    "scene": "short_details",
+    "caption": "Answer simple questions."
+  },
+  {
+    "start": 6.0,
+    "end": 9.9,
+    "scene": "short_usp",
+    "caption": "Get your instructions.\nFollow clear steps."
+  },
+  {
+    "start": 9.9,
+    "end": 12.0,
+    "scene": "short_more",
+    "caption": "Create more with AI."
+  },
+  {
+    "start": 12.0,
+    "end": 15.0,
+    "scene": "short_cta",
+    "caption": "Get AI Creator Kit."
+  }
+]

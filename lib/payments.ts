@@ -15,7 +15,7 @@ export async function fulfil(orderId: string, retry = false) {
   const claim = randomUUID();
   const order = await Order.findOneAndUpdate({ orderId, status: 'Captured', verifiedAt: { $exists: true }, emailStatus: { $in: retry ? ['Pending', 'Failed'] : ['Pending'] } }, { $set: { emailStatus: 'Sending', emailClaim: claim } }, { new: true, ...durable }).lean();
   if (order) {
-    const result = await sendProductEmail({ toEmail: order.email, customerName: order.name, paymentId: order.paymentId, amount: order.amount, productDriveUrl: order.deliveryUrl, orderBumpDriveUrl: order.orderBumpUrl });
+    const result = await sendProductEmail({ toEmail: order.email, customerName: order.name, paymentId: order.paymentId, amount: order.amount, productDriveUrl: order.deliveryUrl, orderBumpDriveUrl: order.orderBumpUrl, productName: order.package });
     await Order.updateOne({ orderId, emailClaim: claim, emailStatus: 'Sending' }, { $set: { emailStatus: result.success ? 'Sent' : result.uncertain ? 'Unknown' : 'Failed', ...(result.success ? { emailSentAt: new Date(), emailMessageId: result.messageId } : {}) } }, durable);
   }
   return Order.findOne({ orderId }).lean();

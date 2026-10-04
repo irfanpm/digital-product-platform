@@ -1,0 +1,72 @@
+[
+  {
+    "scene": "hook",
+    "start": 0,
+    "words": "Want a website? Where to start?",
+    "tempo": 1.0374780701754385,
+    "spoken_seconds": 2.847
+  },
+  {
+    "scene": "reveal",
+    "start": 3,
+    "words": "Meet AI Creator Kit.",
+    "tempo": 1,
+    "spoken_seconds": 1.703
+  },
+  {
+    "scene": "details",
+    "start": 6,
+    "words": "Just answer simple business questions.",
+    "tempo": 1,
+    "spoken_seconds": 2.512
+  },
+  {
+    "scene": "style",
+    "start": 9.3,
+    "words": "Pick your pages and style.",
+    "tempo": 1,
+    "spoken_seconds": 1.638
+  },
+  {
+    "scene": "ai",
+    "start": 12.0,
+    "words": "Choose your AI.",
+    "tempo": 1,
+    "spoken_seconds": 1.267
+  },
+  {
+    "scene": "instructions",
+    "start": 14.8,
+    "words": "Get instructions made for your project.",
+    "tempo": 1,
+    "spoken_seconds": 2.274
+  },
+  {
+    "scene": "guide",
+    "start": 18.6,
+    "words": "Copy them. Follow the steps in your chosen AI.",
+    "tempo": 1.032510548523207,
+    "spoken_seconds": 3.949
+  },
+  {
+    "scene": "concept",
+    "start": 22.7,
+    "words": "From an idea to a website.",
+    "tempo": 1,
+    "spoken_seconds": 1.885
+  },
+  {
+    "scene": "more",
+    "start": 25.0,
+    "words": "Create more with AI.",
+    "tempo": 1,
+    "spoken_seconds": 1.632
+  },
+  {
+    "scene": "cta",
+    "start": 27.5,
+    "words": "Get AI Creator Kit. Start creating.",
+    "tempo": 1.1043221393034826,
+    "spoken_seconds": 3.346
+  }
+]

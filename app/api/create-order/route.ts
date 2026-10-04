@@ -1,6 +1,8 @@
 import Setting from '@/models/Setting';
 import Order from '@/models/Order';
 import { gateway } from '@/lib/payments';
+import { PRODUCT } from '@/lib/product';
+import { prepareDelivery, privateDownloadUrl } from '@/lib/productDelivery';
 import { database, deliveryUrl, durable, failure, json, ServiceError } from '@/lib/serverSafety';
 export async function POST(req: Request) {
   try {
@@ -13,15 +15,16 @@ export async function POST(req: Request) {
     await database(); const setting = await Setting.findOne({}).lean();
     if (!setting) throw new ServiceError(503, 'Store settings are unavailable.');
     const bump = n.hasOrderBump === 'Yes';
-    if (bump && !setting.enableOrderBump) throw new ServiceError(400, 'Extra product unavailable.');
+    if (bump && (!setting.enableOrderBump || setting.productSlug !== PRODUCT.slug)) throw new ServiceError(400, 'Extra product unavailable.');
     const amount = Number(setting.basePrice) + (bump ? Number(setting.bumpPrice) : 0);
     const paise = Math.round(amount * 100);
     if (!Number.isFinite(amount) || amount <= 0 || !Number.isSafeInteger(paise)) throw new ServiceError(503, 'Price is unavailable.');
-    const url = deliveryUrl(setting.productDriveUrl); const extra = bump ? deliveryUrl(setting.orderBumpDriveUrl) : undefined;
+    const configuredUrl = await prepareDelivery(setting); const extra = bump ? deliveryUrl(setting.orderBumpDriveUrl) : undefined;
     const g = gateway();
-    const paymentOrder = await g.api.orders.create({ amount: paise, currency: 'INR', notes: { product: 'Money Saving System' } });
+    const paymentOrder = await g.api.orders.create({ amount: paise, currency: 'INR', notes: { product: PRODUCT.name } });
     if (!/^order_[A-Za-z0-9]+$/.test(paymentOrder.id) || Number(paymentOrder.amount) !== paise || paymentOrder.currency !== 'INR') throw new ServiceError(502, 'Payment gateway returned an invalid order.');
-    await Order.create([{ orderId: paymentOrder.id, name, email, phone, amount: paise / 100, amountPaise: paise, currency: 'INR', hasOrderBump: bump, bumpAmount: bump ? Number(setting.bumpPrice) : 0, package: 'Money Saving System', status: 'Created', verificationVersion: 1, mode: g.mode, keyId: g.key, deliveryUrl: url, orderBumpUrl: extra, emailStatus: 'Pending' }], durable);
+    const url = configuredUrl || privateDownloadUrl(paymentOrder.id, req.url);
+    await Order.create([{ orderId: paymentOrder.id, name, email, phone, amount: paise / 100, amountPaise: paise, currency: 'INR', hasOrderBump: bump, bumpAmount: bump ? Number(setting.bumpPrice) : 0, package: PRODUCT.name, status: 'Created', verificationVersion: 1, mode: g.mode, keyId: g.key, deliveryUrl: url, orderBumpUrl: extra, emailStatus: 'Pending' }], durable);
     return json({ success: true, order: { id: paymentOrder.id, amount: paise, currency: 'INR', key: g.key, mode: g.mode } });
   } catch (e) { return failure(e); }
 }

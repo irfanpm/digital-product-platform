@@ -1,0 +1,79 @@
+[
+  {
+    "start": 0,
+    "end": 3.2,
+    "scene": "hook",
+    "caption": "Want a website?\nNo coding or prompting?",
+    "source_shot": "home"
+  },
+  {
+    "start": 3.2,
+    "end": 5.3,
+    "scene": "reveal",
+    "caption": "Meet AI Creator Kit.",
+    "source_shot": "home"
+  },
+  {
+    "start": 5.3,
+    "end": 7.5,
+    "scene": "choose",
+    "caption": "Choose a\nbusiness website.",
+    "source_shot": "choose"
+  },
+  {
+    "start": 7.5,
+    "end": 9.7,
+    "scene": "details",
+    "caption": "Add your\nbusiness details.",
+    "source_shot": "details"
+  },
+  {
+    "start": 9.7,
+    "end": 12.2,
+    "scene": "style",
+    "caption": "Pick your pages and style.",
+    "source_shot": "style"
+  },
+  {
+    "start": 12.2,
+    "end": 14.4,
+    "scene": "ai",
+    "caption": "Choose your AI.",
+    "source_shot": "ai"
+  },
+  {
+    "start": 14.4,
+    "end": 17.4,
+    "scene": "instructions",
+    "caption": "Get instructions\nmade for your project.",
+    "source_shot": "instructions"
+  },
+  {
+    "start": 17.4,
+    "end": 20.4,
+    "scene": "guide",
+    "caption": "Follow the steps.\nKnow what to do next.",
+    "source_shot": null
+  },
+  {
+    "start": 20.4,
+    "end": 23.6,
+    "scene": "result",
+    "caption": "Build with AI.\nPreview your website.",
+    "source_shot": null
+  },
+  {
+    "start": 23.6,
+    "end": 26.5,
+    "scene": "more",
+    "caption": "Posters, ads,\nresumes, and more.",
+    "source_shot": null
+  },
+  {
+    "start": 26.5,
+    "end": 30.0,
+    "scene": "cta",
+    "caption": "Start creating\nwith AI Creator Kit.",
+    "source_shot": null
+  }
+]

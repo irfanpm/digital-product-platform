@@ -22,12 +22,12 @@ const outfit = Outfit({
 
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || (process.env.VERCEL_PROJECT_PRODUCTION_URL ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}` : 'https://digital-product-platform-ten.vercel.app')),
-  title: 'The Money Saving System | Plan. Save. See Progress.',
-  description: 'A complete savings system: printable challenges, a smart Excel Savings Goal Tracker and a step-by-step guide. Try the interactive preview and see the real product.',
+  title: 'AI Creator Kit | Create With AI. Step by Step.',
+  description: 'Create websites, posters, ad plans and resumes with beginner-friendly guided workflows. See the real AI Creator Kit. One-time purchase.',
   openGraph: {
-    title: 'The Money Saving System',
-    description: 'Give your savings a clearer place to plan, record and understand progress.',
-    images: [{ url: '/images/savings/dashboard.png', width: 1536, height: 1024, alt: 'Real Savings Goal Tracker dashboard' }],
+    title: 'AI Creator Kit',
+    description: 'Turn your ideas into clear instructions and practical next steps with AI.',
+    images: [{ url: '/images/creator/social.webp', width: 1200, height: 630, alt: 'AI Creator Kit: real dashboard preview' }],
     locale: 'en_IN',
     type: 'website',
   },

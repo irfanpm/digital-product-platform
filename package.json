@@ -1,5 +1,5 @@
 {
-  "name": "ai-job-application-kit",
+  "name": "ai-creator-kit-storefront",
   "version": "1.0.0",
   "private": true,
   "scripts": {
@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "test": "node qa/verify.cjs && node qa/payment-regression.cjs && node qa/checkout-regression.cjs"
+    "test": "node qa/verify.cjs && node qa/payment-regression.cjs && node qa/checkout-regression.cjs && node qa/creator-migration-regression.cjs"
   },
   "dependencies": {
     "clsx": "^2.1.1",

@@ -3,7 +3,7 @@ const schema = new Schema({
   orderId: { type: String, required: true, unique: true, index: true },
   paymentId: String, name: { type: String, required: true }, email: { type: String, required: true }, phone: String,
   amount: { type: Number, required: true }, amountPaise: Number, currency: String, bumpAmount: Number,
-  hasOrderBump: { type: Boolean, default: false }, package: { type: String, default: 'Money Saving System' },
+  hasOrderBump: { type: Boolean, default: false }, package: { type: String, default: 'AI Creator Kit' },
   status: { type: String, enum: ['Created', 'Captured', 'Failed', 'Refunded'], default: 'Created' },
   verificationVersion: Number, verifiedAt: Date, mode: String, keyId: String,
   deliveryUrl: String, orderBumpUrl: String,

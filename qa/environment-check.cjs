@@ -1,0 +1,3 @@
+// Output configuration presence only; never keys, PINs, URLs or SMTP credentials.
+require('@next/env').loadEnvConfig(process.cwd());
+console.log(JSON.stringify({ databaseConfigured:!!process.env.MONGODB_URI, gatewayMode:process.env.RAZORPAY_KEY_ID?.startsWith('rzp_live_')?'live':process.env.RAZORPAY_KEY_ID?.startsWith('rzp_test_')?'test':'unconfigured', smtpConfigured:!!(process.env.SMTP_HOST&&process.env.SMTP_USER&&process.env.SMTP_PASS), publicOriginConfigured:!!process.env.NEXT_PUBLIC_SITE_URL, dedicatedDownloadKeyConfigured:!!process.env.DOWNLOAD_SIGNING_SECRET, supportEmailConfigured:!!process.env.SUPPORT_EMAIL }));

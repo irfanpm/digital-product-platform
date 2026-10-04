@@ -1,0 +1,44 @@
+[
+  {
+    "scene": "short_hook",
+    "start": 0,
+    "words": "Want a business website?",
+    "tempo": 1,
+    "spoken_seconds": 1.584
+  },
+  {
+    "scene": "reveal",
+    "start": 2.3,
+    "words": "Meet AI Creator Kit.",
+    "tempo": 1.0988844086021505,
+    "spoken_seconds": 1.556
+  },
+  {
+    "scene": "short_details",
+    "start": 4.0,
+    "words": "Answer simple questions.",
+    "tempo": 1,
+    "spoken_seconds": 1.639
+  },
+  {
+    "scene": "short_usp",
+    "start": 6.0,
+    "words": "Get your instructions. Follow clear steps.",
+    "tempo": 1,
+    "spoken_seconds": 3.595
+  },
+  {
+    "scene": "short_more",
+    "start": 9.9,
+    "words": "Create more with AI.",
+    "tempo": 1,
+    "spoken_seconds": 1.631
+  },
+  {
+    "scene": "short_cta",
+    "start": 12.0,
+    "words": "Get AI Creator Kit.",
+    "tempo": 1,
+    "spoken_seconds": 1.696
+  }
+]

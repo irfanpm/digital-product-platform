@@ -1,0 +1,28 @@
+[
+  {
+    "version": "A",
+    "duration_seconds": 30,
+    "size": [
+      1080,
+      1920
+    ],
+    "fps": 30,
+    "full_decode": "passed",
+    "audio_summary": "Integrated loudness:\n    I:         -16.1 LUFS\n    Threshold: -27.3 LUFS\n\n  Loudness range:\n    LRA:         1.8 LU\n    Threshold: -37.3 LUFS\n    LRA low:   -18.2 LUFS\n    LRA high:  -16.4 LUFS\n\n  True peak:\n    Peak:       -2.6 dBFS",
+    "bytes": 4604841,
+    "sha256": "a9bcf865200e91e5060df9e442eeb17e006667e75fa050681cf47e08d762bae6"
+  },
+  {
+    "version": "B",
+    "duration_seconds": 15,
+    "size": [
+      1080,
+      1920
+    ],
+    "fps": 30,
+    "full_decode": "passed",
+    "audio_summary": "Integrated loudness:\n    I:         -16.1 LUFS\n    Threshold: -27.6 LUFS\n\n  Loudness range:\n    LRA:         5.5 LU\n    Threshold: -37.5 LUFS\n    LRA low:   -20.8 LUFS\n    LRA high:  -15.2 LUFS\n\n  True peak:\n    Peak:       -2.0 dBFS",
+    "bytes": 2484739,
+    "sha256": "e84daad7029f33f4e9e65f07d9ca64c62fec2c20f1eb19dbeae8b629f66a8c1a"
+  }
+]

@@ -165,7 +165,7 @@ export const BuyersTable: React.FC<BuyersTableProps> = ({ buyers }) => {
                       </span>
                     ) : (
                       <span className="inline-flex items-center gap-1 text-[11px] font-bold text-slate-700 bg-slate-100 px-2.5 py-1 rounded-full border border-slate-200">
-                        Money Saving System
+                        {buyer.package || 'Digital product'}
                       </span>
                     )}
                   </td>

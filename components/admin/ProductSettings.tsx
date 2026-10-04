@@ -13,6 +13,7 @@ import {
 } from 'lucide-react';
 
 export const ProductSettings: React.FC = () => {
+  const [deliveryMode, setDeliveryMode] = useState('package');
   const [productDriveUrl, setProductDriveUrl] = useState<string>('');
   const [orderBumpDriveUrl, setOrderBumpDriveUrl] = useState<string>('');
   const [basePrice, setBasePrice] = useState<number>(199);
@@ -33,6 +34,7 @@ export const ProductSettings: React.FC = () => {
       if (!res.ok || !data.success) throw new Error(data.error || 'Settings unavailable');
       if (data.success && data.setting) {
         setProductDriveUrl(data.setting.productDriveUrl || '');
+        setDeliveryMode(data.setting.deliveryMode || 'package');
         setSettingsReady(true);
         setOrderBumpDriveUrl(data.setting.orderBumpDriveUrl || '');
         setBasePrice(data.setting.basePrice || 199);
@@ -66,6 +68,7 @@ export const ProductSettings: React.FC = () => {
         },
         body: JSON.stringify({
           productDriveUrl,
+          deliveryMode,
           orderBumpDriveUrl,
           basePrice: Number(basePrice),
           bumpPrice: Number(bumpPrice),
@@ -99,7 +102,7 @@ export const ProductSettings: React.FC = () => {
             <LinkIcon className="w-5 h-5 text-emerald-600" />
             Digital Product, Pricing & Meta Pixel Tracking Settings
           </h3>
-          <p className="text-xs text-slate-500">Configure your Google Drive PDF download link, Meta Ads Pixel ID, and pricing</p>
+          <p className="text-xs text-slate-500">Manage AI Creator Kit delivery, pricing, tracking and admin access</p>
         </div>
 
         <span className="text-xs font-bold text-emerald-800 bg-emerald-100 px-3 py-1 rounded-full border border-emerald-200 self-start sm:self-auto">
@@ -107,6 +110,7 @@ export const ProductSettings: React.FC = () => {
         </span>
       </div>
 
+      <div><label htmlFor="settings-delivery" className="block text-xs font-bold mb-2">AI Creator Kit delivery method</label><select id="settings-delivery" value={deliveryMode} onChange={e => setDeliveryMode(e.target.value)} className="border rounded-lg p-3 text-sm"><option value="package">Protected packaged ZIP (Local edition 2.0)</option><option value="drive">AI Creator Kit Drive link</option></select><p className="text-xs text-slate-500 mt-2">Protected package access requires a signed link and a verified payment. Previous orders keep their original delivery link.</p></div>
       {/* Form */}
       <form onSubmit={handleSave} className="space-y-6">
         
@@ -116,7 +120,7 @@ export const ProductSettings: React.FC = () => {
           <div className="space-y-2">
             <label className="text-xs font-extrabold text-slate-700 uppercase tracking-wider flex items-center justify-between">
               <span className="flex items-center gap-1.5">
-                <FileText className="w-4 h-4 text-emerald-600" /> Money Saving System Google Drive Link *
+                <FileText className="w-4 h-4 text-emerald-600" /> AI Creator Kit Drive link
               </span>
               {productDriveUrl && (
                 <a href={productDriveUrl} target="_blank" rel="noreferrer" className="text-emerald-600 font-bold hover:underline flex items-center gap-1 text-[11px] lowercase">
@@ -126,14 +130,15 @@ export const ProductSettings: React.FC = () => {
             </label>
             <input
               type="url"
-              required
+              required={deliveryMode === 'drive'}
+              disabled={deliveryMode === 'package'}
               placeholder="https://drive.google.com/file/d/YOUR_FILE_ID/view"
               value={productDriveUrl}
               onChange={(e) => setProductDriveUrl(e.target.value)}
               className="w-full bg-slate-50 border border-slate-300 rounded-xl px-4 py-2.5 text-xs text-slate-900 placeholder-slate-400 focus:outline-none focus:border-emerald-600 font-mono transition-colors"
             />
             <p className="text-[11px] text-slate-500">
-              This link is automatically sent to the buyer's email upon payment completion.
+              Only used in Drive delivery mode. New orders always reference AI Creator Kit.
             </p>
           </div>
 
@@ -157,7 +162,7 @@ export const ProductSettings: React.FC = () => {
               className="w-full bg-slate-50 border border-slate-300 rounded-xl px-4 py-2.5 text-xs text-slate-900 placeholder-slate-400 focus:outline-none focus:border-emerald-600 font-mono transition-colors"
             />
             <p className="text-[11px] text-slate-500">
-              Delivered to buyers who select the 1-click Order Bump checkbox.
+              Extra-product configuration is retained for order support. This storefront sells the kit only.
             </p>
           </div>
 
